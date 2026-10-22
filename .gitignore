@@ -1,0 +1,8 @@
+# Archivos internos de la CLI de Supabase (guardan el vínculo con el proyecto)
+supabase/.temp/
+
+# Variables de entorno con claves (el front usa .env; acá solo va .env.example)
+.env
+.env.local
+
+node_modules/

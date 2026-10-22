@@ -1,0 +1,22 @@
+# Configuración mínima del proyecto para la CLI de Supabase.
+# La carpeta está vinculada al proyecto "torneos-futbol" (ref rcdnticmpjhiajjmoivo)
+# dentro de la organización "Proyecto Facultad" (plan Free).
+#
+# Comandos útiles (se corren desde la raíz del repo):
+#   npx supabase db push                  aplica migraciones nuevas
+#   npx supabase db push --include-seed   carga supabase/seed.sql
+#   npx supabase db reset --linked        BORRA TODO y recrea (migraciones + seed)
+
+project_id = "torneos-futbol"
+
+[db]
+major_version = 17
+
+[auth]
+# Registro con email + contraseña, sin confirmación por mail
+# (ya está aplicado en el proyecto; se cambia desde el panel: Authentication -> Providers -> Email)
+site_url = "http://localhost:3000"
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
