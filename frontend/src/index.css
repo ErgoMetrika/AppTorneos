@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@plugin 'daisyui' {
+  themes: false;
+  logs: false;
+}
+
+@plugin 'daisyui/theme' {
+  name: 'torneo90';
+  default: true;
+  prefersdark: true;
+  color-scheme: dark;
+  --color-base-100: #06110b;
+  --color-base-200: #0b1b12;
+  --color-base-300: #10271a;
+  --color-base-content: #f4f8f5;
+  --color-primary: #35f46e;
+  --color-primary-content: #06110b;
+  --color-secondary: #153321;
+  --color-secondary-content: #f4f8f5;
+  --color-accent: #b9ffd0;
+  --color-accent-content: #06110b;
+  --color-neutral: #17261d;
+  --color-neutral-content: #f4f8f5;
+  --color-info: #62c1ff;
+  --color-info-content: #06110b;
+  --color-success: #35f46e;
+  --color-success-content: #06110b;
+  --color-warning: #ffcc66;
+  --color-warning-content: #151005;
+  --color-error: #ff6868;
+  --color-error-content: #fff6f6;
+  --radius-selector: 0.35rem;
+  --radius-field: 0.4rem;
+  --radius-box: 0.65rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  background: #06110b;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: radial-gradient(circle at 85% 0%, rgba(53, 244, 110, 0.055), transparent 30rem), #06110b;
+  color: #f4f8f5;
+  font-family: var(--font-sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button, a { cursor: pointer; }
+
+.container-shell {
+  width: min(100% - 2rem, 82rem);
+  margin-inline: auto;
+}
+
+.hero-grid {
+  background-color: #08170e;
+  background-image: linear-gradient(rgba(53, 244, 110, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(53, 244, 110, 0.025) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+.pitch-lines {
+  background: linear-gradient(90deg, transparent 49.8%, rgba(185, 255, 208, 0.24) 50%, transparent 50.2%), radial-gradient(circle at 50% 50%, transparent 0 13%, rgba(185, 255, 208, 0.22) 13.2% 13.5%, transparent 13.7%), linear-gradient(rgba(23, 107, 58, 0.25), rgba(13, 74, 39, 0.18));
+  border: 1px solid rgba(185, 255, 208, 0.15);
+}
+
+.font-display { font-family: var(--font-display); }
+.font-mono { font-family: var(--font-mono); }
+::selection { background: rgba(53, 244, 110, 0.85); color: #06110b; }
+
+@media (max-width: 640px) {
+  .container-shell { width: min(100% - 1.25rem, 82rem); }
+}
