@@ -17,3 +17,6 @@ supabase/.temp/
 # Archivos del sistema
 .DS_Store
 Thumbs.db
+# Vercel (vínculo local con el proyecto)
+.vercel
+.env*.local
