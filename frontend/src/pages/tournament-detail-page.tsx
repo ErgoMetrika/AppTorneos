@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, CalendarDays, KeyRound, LockKeyhole, MapPin, Network, Shield, Users } from 'lucide-react'
+import { ArrowLeft, CalendarDays, KeyRound, LockKeyhole, MapPin, Network, Shield, Sparkles, Users } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states'
@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/auth-context'
-import { enrollTeam, getBracket, getMyTeam, getTournament } from '@/lib/api'
+import { enrollTeam, generateBracket, getBracket, getMyTeam, getTournament } from '@/lib/api'
 import { formatDate, getErrorMessage, visibilityLabel } from '@/lib/utils'
 import type { PartidoLlave } from '@/types/domain'
 
@@ -63,7 +63,9 @@ function Bracket({ matches }: { matches: PartidoLlave[] }) {
 
 export function TournamentDetailPage() {
   const id = Number(useParams().id)
-  const { session } = useAuth()
+  const { session, isAdmin } = useAuth()
+  const location = useLocation()
+  const inApp = location.pathname.startsWith('/app')
   const queryClient = useQueryClient()
   const [accessCode, setAccessCode] = useState('')
   const tournamentQuery = useQuery({ queryKey: ['tournament', id], queryFn: () => getTournament(id), enabled: Number.isFinite(id) })
@@ -71,11 +73,21 @@ export function TournamentDetailPage() {
   const myTeamQuery = useQuery({ queryKey: ['my-team'], queryFn: getMyTeam, enabled: Boolean(session) })
   const enrollMutation = useMutation({
     mutationFn: () => {
-      if (!myTeamQuery.data) throw new Error('Primero tenés que crear un equipo o unirte a uno.')
+      if (!myTeamQuery.data) throw new Error('Un administrador debe asignarte primero a un equipo.')
       return enrollTeam({ tournamentId: id, teamId: myTeamQuery.data.id, accessCode })
     },
     onSuccess: () => {
       toast.success('Equipo inscripto al torneo')
+      void queryClient.invalidateQueries({ queryKey: ['tournament', id] })
+      void queryClient.invalidateQueries({ queryKey: ['tournaments'] })
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  })
+  const bracketMutation = useMutation({
+    mutationFn: () => generateBracket(id),
+    onSuccess: () => {
+      toast.success('Llave generada correctamente')
+      void queryClient.invalidateQueries({ queryKey: ['bracket', id] })
       void queryClient.invalidateQueries({ queryKey: ['tournament', id] })
       void queryClient.invalidateQueries({ queryKey: ['tournaments'] })
     },
@@ -88,10 +100,11 @@ export function TournamentDetailPage() {
 
   const tournament = tournamentQuery.data
   const alreadyEnrolled = myTeamQuery.data ? tournament.equipos.some((team) => team.id === myTeamQuery.data?.id) : false
+  const canGenerateBracket = [2, 4, 8, 16].includes(tournament.equipos.length) && tournament.estado === 'inscripcion' && !bracketQuery.data?.length
 
   return (
     <div className="container-shell py-12 sm:py-16">
-      <Button asChild variant="ghost" size="sm"><Link to="/torneos"><ArrowLeft className="size-4" /> Volver a torneos</Link></Button>
+      <Button asChild variant="ghost" size="sm"><Link to={`${inApp ? '/app' : ''}/torneos`}><ArrowLeft className="size-4" /> Volver a torneos</Link></Button>
 
       <section className="relative mt-6 overflow-hidden rounded-2xl border border-primary/20 bg-[linear-gradient(120deg,rgba(53,244,110,0.14),rgba(11,27,18,0.95)_60%)] p-6 sm:p-8">
         <Network className="absolute -right-6 -top-8 size-64 text-primary/5" />
@@ -125,12 +138,13 @@ export function TournamentDetailPage() {
       <section className="mt-10">
         <div className="mb-5 flex items-end justify-between"><div><p className="font-mono text-[0.65rem] font-bold uppercase tracking-widest text-primary">Participantes</p><h2 className="font-display text-3xl font-black uppercase">Equipos inscriptos</h2></div><span className="text-xs text-base-content/40">{tournament.equipos.length} de {tournament.max_equipos}</span></div>
         {tournament.equipos.length === 0 ? <EmptyState title="Sin inscriptos" description="Todavía no hay equipos inscriptos." /> : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{tournament.equipos.map((team) => <Link key={team.id} to={`/equipos/${team.id}`} className="flex items-center gap-3 rounded-xl border border-base-content/10 bg-base-200/60 p-4 transition hover:border-primary/30"><TeamMark name={team.nombre} className="size-12" /><strong className="font-display text-lg uppercase">{team.nombre}</strong></Link>)}</div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{tournament.equipos.map((team) => <Link key={team.id} to={`${inApp ? '/app' : ''}/equipos/${team.id}`} className="flex items-center gap-3 rounded-xl border border-base-content/10 bg-base-200/60 p-4 transition hover:border-primary/30"><TeamMark name={team.nombre} className="size-12" /><strong className="font-display text-lg uppercase">{team.nombre}</strong></Link>)}</div>
         )}
       </section>
 
       <section className="mt-12">
-        <div className="mb-5"><p className="font-mono text-[0.65rem] font-bold uppercase tracking-widest text-primary">Eliminación directa</p><h2 className="font-display text-3xl font-black uppercase">Llave del torneo</h2></div>
+        <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="font-mono text-[0.65rem] font-bold uppercase tracking-widest text-primary">Eliminación directa</p><h2 className="font-display text-3xl font-black uppercase">Llave del torneo</h2></div>{isAdmin && !bracketQuery.data?.length && <Button onClick={() => bracketMutation.mutate()} disabled={!canGenerateBracket || bracketMutation.isPending}><Sparkles className="size-4" /> {bracketMutation.isPending ? 'Generando...' : 'Generar llave'}</Button>}</div>
+        {isAdmin && !bracketQuery.data?.length && !canGenerateBracket && <div className="mb-5 rounded-lg border border-warning/20 bg-warning/5 p-4 text-xs leading-5 text-warning">Para generar la llave se necesitan 2, 4, 8 o 16 equipos inscriptos y el torneo debe seguir en inscripción.</div>}
         {bracketQuery.isLoading && <LoadingState label="Cargando llave" />}
         {bracketQuery.isError && <ErrorState message={bracketQuery.error.message} retry={() => void bracketQuery.refetch()} />}
         {bracketQuery.data && <Bracket matches={bracketQuery.data} />}

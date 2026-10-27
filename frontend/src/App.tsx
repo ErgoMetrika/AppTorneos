@@ -11,6 +11,8 @@ const TournamentsPage = lazy(() => import('@/pages/tournaments-page').then((modu
 const TournamentDetailPage = lazy(() => import('@/pages/tournament-detail-page').then((module) => ({ default: module.TournamentDetailPage })))
 const TeamsPage = lazy(() => import('@/pages/teams-page').then((module) => ({ default: module.TeamsPage })))
 const TeamDetailPage = lazy(() => import('@/pages/team-detail-page').then((module) => ({ default: module.TeamDetailPage })))
+const PlayersPage = lazy(() => import('@/pages/players-page').then((module) => ({ default: module.PlayersPage })))
+const PlayerDetailPage = lazy(() => import('@/pages/player-detail-page').then((module) => ({ default: module.PlayerDetailPage })))
 const ContactPage = lazy(() => import('@/pages/contact-page').then((module) => ({ default: module.ContactPage })))
 const MyTeamPage = lazy(() => import('@/pages/my-team-page').then((module) => ({ default: module.MyTeamPage })))
 const AdminCreateTournamentPage = lazy(() => import('@/pages/admin-create-tournament-page').then((module) => ({ default: module.AdminCreateTournamentPage })))
@@ -37,7 +39,11 @@ export default function App() {
         <Route path="app" element={<AppLayout />}>
           <Route index element={<TournamentsPage />} />
           <Route path="torneos" element={<TournamentsPage />} />
+          <Route path="torneos/:id" element={<TournamentDetailPage />} />
           <Route path="equipos" element={<TeamsPage />} />
+          <Route path="equipos/:id" element={<TeamDetailPage />} />
+          <Route path="jugadores" element={<PlayersPage />} />
+          <Route path="jugadores/:id" element={<PlayerDetailPage />} />
           <Route path="mi-equipo" element={<MyTeamPage />} />
           <Route element={<AdminRoute />}>
             <Route path="admin/torneos/nuevo" element={<AdminCreateTournamentPage />} />

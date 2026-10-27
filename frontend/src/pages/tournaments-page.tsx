@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { CalendarDays, KeyRound, LockKeyhole, MapPin, Search, Users } from 'lucide-react'
+import { CalendarDays, KeyRound, LockKeyhole, MapPin, Plus, Search, Users } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { ErrorState, LoadingState, EmptyState } from '@/components/shared/states'
@@ -17,7 +17,9 @@ export function TournamentsPage() {
   const [search, setSearch] = useState('')
   const [privateCode, setPrivateCode] = useState('')
   const navigate = useNavigate()
-  const { session } = useAuth()
+  const { session, isAdmin } = useAuth()
+  const location = useLocation()
+  const inApp = location.pathname.startsWith('/app')
   const query = useQuery({ queryKey: ['tournaments'], queryFn: getTournaments })
   const privateMutation = useMutation({
     mutationFn: searchPrivateTournament,
@@ -44,10 +46,10 @@ export function TournamentsPage() {
           <h1 className="mt-2 font-display text-5xl font-black uppercase sm:text-6xl">Torneos</h1>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-base-content/55">Consultá fecha, sede, modalidad y cupos. Los torneos privados se encuentran con su código desde el panel del usuario.</p>
         </div>
-        <div className="relative w-full sm:max-w-xs">
+        <div className="flex w-full flex-col gap-3 sm:max-w-md sm:flex-row">{isAdmin && inApp && <Button asChild><Link to="/app/admin/torneos/nuevo"><Plus className="size-4" /> Crear torneo</Link></Button>}<div className="relative min-w-0 flex-1">
           <Search className="absolute left-3 top-3.5 size-4 text-base-content/35" />
           <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar torneo..." className="pl-10" />
-        </div>
+        </div></div>
       </div>
 
       {session && (
@@ -81,7 +83,7 @@ export function TournamentsPage() {
                 </div>
                 <div className="mt-5 flex items-center justify-between">
                   <span className="font-mono text-[0.65rem] font-bold uppercase tracking-wider text-base-content/35">Eliminación directa</span>
-                  <Button asChild size="sm"><Link to={`/torneos/${tournament.id}`}>Ver torneo</Link></Button>
+                  <Button asChild size="sm"><Link to={`${inApp ? '/app' : ''}/torneos/${tournament.id}`}>Ver torneo</Link></Button>
                 </div>
               </div>
             </Card>

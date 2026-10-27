@@ -35,14 +35,35 @@ export interface EquipoResumen {
 }
 
 export interface Jugador {
+  id: number
+  usuario_id: string
   nombre: string
   posicion: PosicionJugador
+  unido_en: string
+}
+
+export interface JugadorDetalle extends Jugador {
+  equipo_id: number
+  equipo: string
+}
+
+export interface UsuarioSeleccionable {
+  id: string
+  nombre: string
+  email: string
+  rol: RolUsuario
 }
 
 export interface EquipoDetalle {
   id: number
   nombre: string
   jugadores: Jugador[]
+}
+
+export interface EquipoAdmin {
+  id: number
+  nombre: string
+  creado_en: string
 }
 
 export interface EquipoInscripto {
@@ -90,4 +111,10 @@ export interface NuevoTorneoInput {
   visibilidad: VisibilidadTorneo
   fecha: string
   lugar?: string
+}
+
+export interface NuevoJugadorInput {
+  usuario_id: string
+  equipo_id: number
+  posicion: PosicionJugador
 }

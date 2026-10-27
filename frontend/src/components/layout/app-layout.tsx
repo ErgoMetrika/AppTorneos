@@ -1,4 +1,4 @@
-import { Contact, LogOut, Menu, PlusCircle, Shield, Trophy, Users } from 'lucide-react'
+import { Contact, LogOut, Menu, PlusCircle, Shield, Trophy, UserRound, Users } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 
 import { Brand } from '@/components/shared/brand'
@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 const baseItems = [
   { to: '/app/torneos', label: 'Torneos', icon: Trophy },
   { to: '/app/equipos', label: 'Equipos', icon: Shield },
-  { to: '/app/mi-equipo', label: 'Mi equipo', icon: Users },
+  { to: '/app/jugadores', label: 'Jugadores', icon: UserRound },
   { to: '/contacto', label: 'Contacto', icon: Contact },
 ]
 
@@ -16,13 +16,13 @@ function SidebarContent({ close }: { close?: () => void }) {
   const { profile, isAdmin, signOut } = useAuth()
   const items = isAdmin
     ? [...baseItems, { to: '/app/admin/torneos/nuevo', label: 'Nuevo torneo', icon: PlusCircle }]
-    : baseItems
+    : [...baseItems.slice(0, 3), { to: '/app/mi-equipo', label: 'Mi equipo', icon: Users }, baseItems[3]]
 
   return (
     <div className="flex h-full flex-col bg-base-200/75 p-4">
       <div className="px-2 py-3"><Brand /></div>
       <div className="my-5 h-px bg-base-content/10" />
-      <p className="px-3 font-mono text-[0.6rem] font-bold uppercase tracking-[0.16em] text-base-content/35">Organización</p>
+      <p className="px-3 font-mono text-[0.6rem] font-bold uppercase tracking-[0.16em] text-base-content/35">{isAdmin ? 'Administración' : 'Organización'}</p>
       <nav className="mt-3 flex flex-col gap-1">
         {items.map((item) => {
           const Icon = item.icon

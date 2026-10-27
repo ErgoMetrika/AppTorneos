@@ -38,9 +38,12 @@ El repositorio incluye `.env.example`. Para desarrollo local, completar `.env.lo
 - Listado y detalle de torneos públicos.
 - Equipos inscriptos y llave del torneo.
 - Listado de equipos y detalle del plantel.
-- Mi equipo: crear o unirse mediante código.
+- Listado y ficha individual de jugadores para usuarios autenticados.
+- Mi equipo en modo consulta para usuarios generales.
 - Inscripción del equipo a un torneo.
-- Creación de torneos para administradores.
+- Administración de torneos: alta y generación de llave.
+- Administración de equipos: alta desde un modal y detalle de plantel.
+- Administración de jugadores: alta, cambio de equipo/posición y baja.
 - Contacto conectado a la tabla `contactos`.
 - Mapa y acceso a Google Maps.
 
@@ -54,4 +57,6 @@ El frontend no muestra datos que el backend no guarda: escudos, dorsales, estado
 pnpm build
 ```
 
-Las políticas RLS y funciones RPC siguen siendo la fuente de verdad. Las operaciones sensibles —crear equipo, unirse, inscribir y generar códigos— se ejecutan a través de Supabase según el contrato documentado en `app-torneos-backend/docs/CONEXION_FRONT.md`.
+Las políticas RLS y funciones RPC siguen siendo la fuente de verdad. Los usuarios generales pueden consultar la información y, si ya tienen un equipo asignado, inscribirlo a un torneo. Las altas y modificaciones de equipos, jugadores y torneos requieren rol `admin`.
+
+La migración `backend/supabase/migrations/20261027000001_admin_gestion.sql` revoca los flujos históricos de creación/unión de equipos para usuarios generales. Debe aplicarse al proyecto remoto con el flujo habitual de Supabase antes de publicar.
