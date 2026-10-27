@@ -223,6 +223,15 @@ Las credenciales para el front están en `.env.example`. La contraseña de la ba
 (solo hace falta para la CLI) la tiene Julián; se puede cambiar desde
 *Project Settings → Database → Reset database password*.
 
+### La app publicada (Vercel)
+
+El front está publicado en **https://app-torneos-three.vercel.app** (proyecto `app-torneos`
+en Vercel, plan Hobby gratis). Vercel está conectado a este repositorio:
+
+- Cada push a `main` publica una versión nueva sola, en alrededor de un minuto.
+- Vercel compila solo la carpeta `frontend`. Los cambios de la base **no** los aplica Vercel:
+  una migración nueva hay que aplicarla con `npx supabase db push` desde `backend`.
+
 ### Cómo se volvería a crear desde cero
 
 Requisitos: Node.js (la CLI se corre con `npx`, no hace falta instalar nada más).
