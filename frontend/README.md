@@ -19,6 +19,7 @@ Aplicación web para el backend Supabase de `app-torneos-backend`. El frontend t
 
 ```bash
 pnpm install
+Copy-Item ../backend/.env.example .env.local # PowerShell, solo la primera vez
 pnpm dev
 ```
 

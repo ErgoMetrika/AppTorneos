@@ -20,6 +20,9 @@ export function TournamentsPage() {
   const { session, isAdmin } = useAuth()
   const location = useLocation()
   const inApp = location.pathname.startsWith('/app')
+  console.log(isAdmin)
+  console.log(inApp)
+  console.log(session)
   const query = useQuery({ queryKey: ['tournaments'], queryFn: getTournaments })
   const privateMutation = useMutation({
     mutationFn: searchPrivateTournament,
@@ -46,7 +49,7 @@ export function TournamentsPage() {
           <h1 className="mt-2 font-display text-5xl font-black uppercase sm:text-6xl">Torneos</h1>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-base-content/55">Consultá fecha, sede, modalidad y cupos. Los torneos privados se encuentran con su código desde el panel del usuario.</p>
         </div>
-        <div className="flex w-full flex-col gap-3 sm:max-w-md sm:flex-row">{isAdmin && inApp && <Button asChild><Link to="/app/admin/torneos/nuevo"><Plus className="size-4" /> Crear torneo</Link></Button>}<div className="relative min-w-0 flex-1">
+        <div className="flex w-full flex-col gap-3 sm:max-w-md sm:flex-row">{isAdmin && <Button asChild><Link to="/app/admin/torneos/nuevo"><Plus className="size-4" /> Crear torneo</Link></Button>}<div className="relative min-w-0 flex-1">
           <Search className="absolute left-3 top-3.5 size-4 text-base-content/35" />
           <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar torneo..." className="pl-10" />
         </div></div>
