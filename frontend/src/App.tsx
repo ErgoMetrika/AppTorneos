@@ -50,6 +50,7 @@ export default function App() {
           <Route path="jugadores" element={<PlayersPage />} />
           <Route path="jugadores/:id" element={<PlayerDetailPage />} />
           <Route path="mi-equipo" element={<MyTeamPage />} />
+          <Route path="contacto" element={<ContactPage embedded />} />
           <Route element={<AdminRoute />}>
             <Route path="admin/torneos/nuevo" element={<AdminCreateTournamentPage />} />
           </Route>

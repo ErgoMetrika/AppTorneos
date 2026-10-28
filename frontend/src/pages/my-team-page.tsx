@@ -10,6 +10,7 @@ import { z } from 'zod'
 import { PageHeader } from '@/components/shared/page-header'
 import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states'
 import { TeamMark } from '@/components/shared/team-mark'
+import { InviteByEmail } from '@/components/team/invite-by-email'
 import { InvitePlayerDialog } from '@/components/team/invite-player-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -56,7 +57,13 @@ export function MyTeamPage() {
           <div className="flex items-center gap-5"><TeamMark name={team.nombre} className="size-20" /><div><Badge>Mi posición: {positionLabel[team.mi_posicion]}</Badge><h2 className="mt-3 font-display text-4xl font-black uppercase sm:text-5xl">{team.nombre}</h2></div></div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center"><button type="button" onClick={() => { void navigator.clipboard.writeText(team.codigo_equipo); toast.success('Código copiado') }} className="rounded-xl border border-primary/25 bg-base-100/50 p-4 text-left"><span className="block font-mono text-[0.6rem] font-bold uppercase tracking-widest text-base-content/40">Código del equipo</span><span className="mt-1 flex items-center gap-3 font-mono text-xl font-black tracking-[0.18em] text-primary">{team.codigo_equipo}<Clipboard className="size-4" /></span></button><Button asChild variant="outline"><Link to={`/app/equipos/${team.id}`}><Eye className="size-4" /> Ver equipo</Link></Button></div>
         </section>
-        <div className="mt-8"><h3 className="font-display text-3xl font-black uppercase">Plantel</h3>{team.jugadores.length === 0 ? <div className="mt-4"><EmptyState title="Sin jugadores" description="Compartí el código para sumar integrantes." /></div> : <Card className="mt-4 overflow-hidden">{team.jugadores.map((player, index) => <Link to={`/app/jugadores/${player.id}`} key={player.id ?? `${player.nombre}-${index}`} className="flex items-center gap-4 border-b border-base-content/10 p-4 transition last:border-0 hover:bg-base-300/40"><span className="grid size-8 place-items-center rounded-full bg-primary/10 text-primary"><Users className="size-4" /></span><strong className="flex-1">{player.nombre}</strong><Badge variant="secondary">{positionLabel[player.posicion]}</Badge><Check className="size-4 text-primary" /></Link>)}</Card>}</div>
+        <div className="mt-8">
+          <h3 className="font-display text-3xl font-black uppercase">Plantel</h3>
+          <div className="mt-4 grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-start">
+            {team.jugadores.length === 0 ? <EmptyState title="Sin jugadores" description="Compartí el código para sumar integrantes." /> : <Card className="overflow-hidden">{team.jugadores.map((player, index) => <Link to={`/app/jugadores/${player.id}`} key={player.id ?? `${player.nombre}-${index}`} className="flex items-center gap-4 border-b border-base-content/10 p-4 transition last:border-0 hover:bg-base-300/40"><span className="grid size-8 place-items-center rounded-full bg-primary/10 text-primary"><Users className="size-4" /></span><strong className="flex-1">{player.nombre}</strong><Badge variant="secondary">{positionLabel[player.posicion]}</Badge><Check className="size-4 text-primary" /></Link>)}</Card>}
+            <InviteByEmail teamId={team.id} teamName={team.nombre} teamCode={team.codigo_equipo} />
+          </div>
+        </div>
       </div>
     )
   }

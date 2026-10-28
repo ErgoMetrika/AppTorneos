@@ -13,6 +13,7 @@ import type {
   Torneo,
   TorneoDetalle,
   TorneoListado,
+  UsuarioBuscado,
   UsuarioSeleccionable,
 } from '@/types/domain'
 
@@ -192,6 +193,32 @@ export async function getAvailableUsers(): Promise<UsuarioSeleccionable[]> {
   throwIfError(playersError)
   const assigned = new Set((players ?? []).map((player) => player.usuario_id))
   return (users ?? []).filter((user) => !assigned.has(user.id)) as UsuarioSeleccionable[]
+}
+
+// Busca jugadores por mail para invitarlos a un equipo.
+// Solo lee: la base no deja sumar a otro usuario, cada uno entra con el código.
+export async function searchUsersByEmail(term: string): Promise<UsuarioBuscado[]> {
+  const clean = term.trim().replace(/[%_,()*]/g, '')
+  if (clean.length < 3) return []
+
+  const { data: users, error: usersError } = await supabase
+    .from('usuarios')
+    .select('id, nombre, email')
+    .eq('rol', 'general')
+    .ilike('email', `%${clean}%`)
+    .order('email')
+    .limit(6)
+  throwIfError(usersError)
+  if (!users?.length) return []
+
+  const { data: players, error: playersError } = await supabase
+    .from('jugadores')
+    .select('usuario_id, equipo_id')
+    .in('usuario_id', users.map((user) => user.id))
+  throwIfError(playersError)
+
+  const teamByUser = new Map((players ?? []).map((player) => [player.usuario_id as string, player.equipo_id as number]))
+  return users.map((user) => ({ ...user, equipo_id: teamByUser.get(user.id) ?? null })) as UsuarioBuscado[]
 }
 
 export async function createAdminTeam(nombre: string): Promise<EquipoAdmin> {

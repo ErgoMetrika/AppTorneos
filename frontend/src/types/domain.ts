@@ -55,6 +55,13 @@ export interface UsuarioSeleccionable {
   rol: RolUsuario
 }
 
+export interface UsuarioBuscado {
+  id: string
+  nombre: string
+  email: string
+  equipo_id: number | null
+}
+
 export interface EquipoDetalle {
   id: number
   nombre: string

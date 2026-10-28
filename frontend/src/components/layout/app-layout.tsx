@@ -5,18 +5,19 @@ import { Brand } from '@/components/shared/brand'
 import { useAuth } from '@/context/auth-context'
 import { cn } from '@/lib/utils'
 
-const baseItems = [
-  { to: '/app/torneos', label: 'Torneos', icon: Trophy },
-  { to: '/app/equipos', label: 'Equipos', icon: Shield },
-  { to: '/app/jugadores', label: 'Jugadores', icon: UserRound },
-  { to: '/contacto', label: 'Contacto', icon: Contact },
-]
+const torneosItem = { to: '/app/torneos', label: 'Torneos', icon: Trophy }
+const equiposItem = { to: '/app/equipos', label: 'Equipos', icon: Shield }
+const jugadoresItem = { to: '/app/jugadores', label: 'Jugadores', icon: UserRound }
+// Contacto se abre dentro del panel, sin salir al sitio público
+const contactoItem = { to: '/app/contacto', label: 'Contacto', icon: Contact }
+
+// Admin: gestiona jugadores y crea torneos. Jugador general: no ve la solapa Jugadores, tiene Mi equipo.
+const adminItems = [torneosItem, equiposItem, jugadoresItem, contactoItem, { to: '/app/admin/torneos/nuevo', label: 'Nuevo torneo', icon: PlusCircle }]
+const generalItems = [torneosItem, equiposItem, { to: '/app/mi-equipo', label: 'Mi equipo', icon: Users }, contactoItem]
 
 function SidebarContent({ close }: { close?: () => void }) {
   const { profile, isAdmin, signOut } = useAuth()
-  const items = isAdmin
-    ? [...baseItems, { to: '/app/admin/torneos/nuevo', label: 'Nuevo torneo', icon: PlusCircle }]
-    : [...baseItems.slice(0, 3), { to: '/app/mi-equipo', label: 'Mi equipo', icon: Users }, baseItems[3]]
+  const items = isAdmin ? adminItems : generalItems
 
   return (
     <div className="flex h-full flex-col bg-base-200/75 p-4">
