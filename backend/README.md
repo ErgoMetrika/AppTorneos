@@ -46,7 +46,8 @@ Proyecto Torneo/
         ├── 20261029000004_codigos_admin.sql       <- el admin ve los códigos de equipo
         ├── 20261029000005_codigo_solo_creador.sql <- solo el creador ve el código
         ├── 20261029000006_admin_del_equipo.sql    <- quitar invitados y salir del equipo
-        └── 20261029000007_creado_por.sql          <- columna equipos.creado_por (admin del equipo)
+        ├── 20261029000007_creado_por.sql          <- columna equipos.creado_por (admin del equipo)
+        └── 20261029000008_quitar_en_inscripcion.sql <- bajas permitidas en torneos en inscripción
 ```
 
 Una **migración** es un archivo SQL numerado que se aplica una sola vez y en orden.
@@ -110,8 +111,10 @@ la función corta con un error en castellano que el front muestra tal cual.
 | Unirse a un equipo | `unirse_a_equipo(codigo, posicion)` | Hay que estar logueado. No se puede estar ya en otro equipo. El código tiene que existir. |
 | Ver mi equipo | `mi_equipo()` | Devuelve mi equipo y el plantel completo, marcando quién es el administrador del equipo. El `codigo_equipo` lo recibe **solo el administrador del equipo**; el resto recibe `null` y `soy_creador: false`. La columna está oculta en las consultas directas. |
 | Ver códigos (admin general) | `codigos_de_equipos()` | Solo el administrador general: devuelve el código de cada equipo. |
-| Quitar un invitado | `quitar_jugador(jugador_id)` | Solo el administrador del equipo, y no a sí mismo. No se puede mientras el equipo **está compitiendo**. |
-| Salir del equipo | `salir_del_equipo()` | Cualquier jugador. No se puede mientras el equipo **está compitiendo** (inscripto en un torneo sin finalizar). |
+| Quitar un invitado | `quitar_jugador(jugador_id)` | Solo el administrador del equipo, y no a sí mismo. Ver la regla de bajas abajo. |
+| Salir del equipo | `salir_del_equipo()` | Cualquier jugador. Ver la regla de bajas abajo. |
+
+**Regla de bajas** (quitar o salir): si el equipo juega un torneo **en curso**, no se puede. Si está anotado en un torneo **en inscripción**, se puede siempre que no quede con menos jugadores que el mínimo de ese torneo (titulares + 2 suplentes).
 
 **Administrador del equipo.** La columna `equipos.creado_por` marca al administrador del equipo.
 Los demás integrantes son **invitados**. La columna la mantiene sola el trigger `trg_admin_del_equipo`:
