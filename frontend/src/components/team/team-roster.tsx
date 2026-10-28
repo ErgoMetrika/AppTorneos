@@ -87,9 +87,10 @@ export function TeamRoster({ team }: { team: MiEquipo }) {
                   <Link to={`/app/jugadores/${player.id}`} className="font-bold transition hover:text-primary">{player.nombre}{isMe && <span className="ml-2 text-xs font-normal text-base-content/45">(vos)</span>}</Link>
                   <p className="mt-0.5 text-xs text-base-content/45">{player.es_admin_del_equipo ? 'Administrador del equipo' : 'Invitado'}</p>
                 </div>
-                {/* La posición la elige cada jugador al entrar: acá solo se muestra */}
-                <Badge variant="secondary">{positionLabel[player.posicion]}</Badge>
-                {canRemove && (
+                {/* La posición la elige cada jugador al entrar: acá solo se muestra.
+                    Columnas de ancho fijo para que posición y botón queden alineados en todas las filas. */}
+                <div className="flex w-32 justify-start"><Badge variant="secondary">{positionLabel[player.posicion]}</Badge></div>
+                {team.soy_creador && <div className="flex w-28 justify-end">{canRemove && (
                   <ConfirmDialog
                     trigger={<Button size="sm" variant="outline" disabled={team.compitiendo}><UserMinus className="size-4" /> Quitar</Button>}
                     icon={<UserMinus className="size-5" />}
@@ -101,7 +102,7 @@ export function TeamRoster({ team }: { team: MiEquipo }) {
                     pending={removeMutation.isPending}
                     onConfirm={() => run(() => removeMutation.mutateAsync(player.id))}
                   />
-                )}
+                )}</div>}
               </div>
             )
           })}
