@@ -9,13 +9,18 @@ import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { getTeams } from '@/lib/api'
+import { useAuth } from '@/context/auth-context'
+import { getTeamCodes, getTeams } from '@/lib/api'
 
 export function TeamsPage() {
   const [search, setSearch] = useState('')
   const location = useLocation()
   const inApp = location.pathname.startsWith('/app')
+  const { isAdmin } = useAuth()
+
   const query = useQuery({ queryKey: ['teams'], queryFn: getTeams })
+  // El admin ve el código de cada equipo
+  const codesQuery = useQuery({ queryKey: ['team-codes'], queryFn: getTeamCodes, enabled: isAdmin && inApp })
   const teams = useMemo(
     () => (query.data ?? []).filter((item) => item.equipo.toLowerCase().includes(search.toLowerCase())),
     [query.data, search],
@@ -39,7 +44,7 @@ export function TeamsPage() {
           {teams.map((team) => (
             <Card key={team.equipo_id} className="flex items-center gap-4 p-5 transition hover:border-primary/30">
               <TeamMark name={team.equipo} />
-              <div className="min-w-0 flex-1"><h2 className="truncate font-display text-2xl font-bold uppercase">{team.equipo}</h2><p className="mt-1 flex items-center gap-2 text-xs text-base-content/45"><Users className="size-3.5" /> {team.cant_jugadores} jugadores</p></div>
+              <div className="min-w-0 flex-1"><h2 className="truncate font-display text-2xl font-bold uppercase">{team.equipo}</h2><p className="mt-1 flex items-center gap-2 text-xs text-base-content/45"><Users className="size-3.5" /> {team.cant_jugadores} jugadores</p>{codesQuery.data?.get(team.equipo_id) && <p className="mt-1 text-xs text-base-content/45">Código <span className="font-mono font-bold tracking-widest text-primary">{codesQuery.data.get(team.equipo_id)}</span></p>}</div>
               <Button asChild size="sm" variant="outline"><Link to={`${inApp ? '/app' : ''}/equipos/${team.equipo_id}`}>Ver</Link></Button>
             </Card>
           ))}

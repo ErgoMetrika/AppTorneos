@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { UserPlus } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -65,6 +65,10 @@ export function PlayerFormDialog({ defaultTeamId, player, trigger }: PlayerFormD
   })
 
   const noUsers = !player && !usersQuery.isLoading && (usersQuery.data?.length ?? 0) === 0
+  // Si el equipo elegido está vacío, este jugador va a quedar como creador del equipo
+  const selectedTeamId = useWatch({ control: form.control, name: 'equipo_id' })
+  const selectedTeam = teamsQuery.data?.find((team) => team.equipo_id === Number(selectedTeamId))
+  const willBeCreator = !!selectedTeam && selectedTeam.cant_jugadores === 0 && selectedTeam.equipo_id !== player?.equipo_id
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger ?? <Button><UserPlus className="size-4" /> Agregar jugador</Button>}</DialogTrigger>
@@ -81,6 +85,7 @@ export function PlayerFormDialog({ defaultTeamId, player, trigger }: PlayerFormD
               <div className="space-y-2"><Label htmlFor="player-team">Equipo</Label><Select id="player-team" {...form.register('equipo_id', { valueAsNumber: true })}><option value={0}>Seleccionar equipo</option>{teamsQuery.data?.map((team) => <option key={team.equipo_id} value={team.equipo_id}>{team.equipo}</option>)}</Select>{form.formState.errors.equipo_id && <p className="text-xs text-error">{form.formState.errors.equipo_id.message}</p>}</div>
               <div className="space-y-2"><Label htmlFor="player-position">Posición</Label><Select id="player-position" {...form.register('posicion')}>{positions.map((position) => <option key={position} value={position}>{positionLabel[position]}</option>)}</Select></div>
             </div>
+            {willBeCreator && <div className="rounded-lg border border-primary/30 bg-primary/10 p-4 text-sm text-base-content">Es el primer jugador de <strong>{selectedTeam.equipo}</strong>: va a quedar como <strong className="text-primary">creador del equipo</strong>. Será el único jugador que vea el código y pueda invitar a otros.</div>}
             {noUsers && <div className="rounded-lg border border-warning/25 bg-warning/10 p-4 text-sm text-warning">No hay usuarios generales libres. Primero deben registrarse desde la pantalla pública.</div>}
             <div className="flex justify-end gap-3"><Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button><Button type="submit" disabled={mutation.isPending || noUsers}>{mutation.isPending ? 'Guardando...' : player ? 'Guardar cambios' : 'Agregar jugador'}</Button></div>
           </form>

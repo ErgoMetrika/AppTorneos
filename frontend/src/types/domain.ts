@@ -106,7 +106,9 @@ export interface PartidoLlave {
 export interface MiEquipo {
   id: number
   nombre: string
-  codigo_equipo: string
+  // Solo lo recibe quien creó el equipo (el primer jugador); el resto recibe null
+  codigo_equipo: string | null
+  soy_creador: boolean
   mi_posicion: PosicionJugador
   jugadores: Jugador[]
 }

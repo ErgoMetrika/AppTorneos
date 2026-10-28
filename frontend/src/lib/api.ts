@@ -273,6 +273,13 @@ export async function getProfile(userId: string): Promise<PerfilUsuario> {
   return data as PerfilUsuario
 }
 
+// Solo para el admin: código de cada equipo, por id de equipo
+export async function getTeamCodes(): Promise<Map<number, string>> {
+  const { data, error } = await supabase.rpc('codigos_de_equipos')
+  throwIfError(error)
+  return new Map(((data ?? []) as Array<{ equipo_id: number; codigo_equipo: string }>).map((row) => [row.equipo_id, row.codigo_equipo]))
+}
+
 export async function getMyTeam(): Promise<MiEquipo | null> {
   const { data, error } = await supabase.rpc('mi_equipo')
   throwIfError(error)

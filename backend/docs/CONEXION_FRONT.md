@@ -296,7 +296,8 @@ await supabase.from('usuarios').update({ rol: 'admin' }).eq('email', 'sofia@mail
 | Función | Quién | Parámetros | Devuelve |
 |---|---|---|---|
 | `es_admin` | cualquiera | – | `boolean` |
-| `mi_equipo` | logueado | – | objeto JSON con equipo, código y plantel (o `null`) |
+| `mi_equipo` | logueado | – | objeto JSON con equipo, plantel y `soy_creador`; el código solo si sos el creador (o `null`) |
+| `codigos_de_equipos` | admin | – | lista de `{ equipo_id, codigo_equipo }` |
 | `crear_equipo` | logueado sin equipo | `p_nombre`, `p_posicion` | fila de `equipos` (con `codigo_equipo`) |
 | `unirse_a_equipo` | logueado sin equipo | `p_codigo`, `p_posicion` | fila de `jugadores` |
 | `buscar_torneo_privado` | logueado | `p_codigo` | lista de `torneos` |

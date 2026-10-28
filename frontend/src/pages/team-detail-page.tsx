@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft, ChevronRight, UserRound } from 'lucide-react'
+import { ArrowLeft, ChevronRight, Clipboard, UserRound } from 'lucide-react'
 import { Link, useLocation, useParams } from 'react-router-dom'
+import { toast } from 'sonner'
 
 import { PlayerFormDialog } from '@/components/admin/player-form-dialog'
 import { TeamMark } from '@/components/shared/team-mark'
@@ -10,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useAuth } from '@/context/auth-context'
-import { getMyTeam, getTeam } from '@/lib/api'
+import { getMyTeam, getTeam, getTeamCodes } from '@/lib/api'
 import { positionLabel } from '@/lib/utils'
 
 export function TeamDetailPage() {
@@ -20,19 +21,22 @@ export function TeamDetailPage() {
   const inApp = location.pathname.startsWith('/app')
   const query = useQuery({ queryKey: ['team', id], queryFn: () => getTeam(id), enabled: Number.isFinite(id) })
   const myTeamQuery = useQuery({ queryKey: ['my-team'], queryFn: getMyTeam, enabled: !isAdmin })
+  const codesQuery = useQuery({ queryKey: ['team-codes'], queryFn: getTeamCodes, enabled: isAdmin })
 
   if (query.isLoading) return <div className="container-shell py-12"><LoadingState label="Cargando plantel" /></div>
   if (query.isError) return <div className="container-shell py-12"><ErrorState message={query.error.message} retry={() => void query.refetch()} /></div>
   if (!query.data) return <div className="container-shell py-12"><EmptyState title="Equipo inexistente" description="No encontramos el equipo solicitado." /></div>
 
   const team = query.data
-  const canInvite = !isAdmin && myTeamQuery.data?.id === team.id
+  // Invita solo quien creó el equipo (es el único que recibe el código)
+  const canInvite = !isAdmin && myTeamQuery.data?.id === team.id && !!myTeamQuery.data?.codigo_equipo
+  const adminCode = codesQuery.data?.get(team.id)
   return (
     <div className="container-shell py-12 sm:py-16">
       <Button asChild variant="ghost" size="sm"><Link to={`${inApp ? '/app' : ''}/equipos`}><ArrowLeft className="size-4" /> Volver a equipos</Link></Button>
       <section className="mt-6 flex flex-col gap-6 rounded-2xl border border-primary/20 bg-[linear-gradient(120deg,rgba(53,244,110,0.12),rgba(11,27,18,0.9)_55%)] p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
         <div className="flex items-center gap-5"><TeamMark name={team.nombre} className="size-20" /><div><p className="font-mono text-[0.65rem] font-bold uppercase tracking-widest text-primary">Equipo registrado</p><h1 className="font-display text-4xl font-black uppercase sm:text-5xl">{team.nombre}</h1></div></div>
-        <div className="flex flex-wrap items-center gap-4">{isAdmin && <PlayerFormDialog defaultTeamId={team.id} />}{canInvite && myTeamQuery.data && <InvitePlayerDialog teamName={team.nombre} teamCode={myTeamQuery.data.codigo_equipo} />}<div className="stats bg-transparent shadow-none"><div className="stat px-4"><div className="stat-title text-xs text-base-content/40">Plantel</div><div className="stat-value font-display text-4xl text-primary">{team.jugadores.length}</div><div className="stat-desc text-base-content/45">jugadores</div></div></div></div>
+        <div className="flex flex-wrap items-center gap-4">{isAdmin && <PlayerFormDialog defaultTeamId={team.id} />}{canInvite && myTeamQuery.data?.codigo_equipo && <InvitePlayerDialog teamName={team.nombre} teamCode={myTeamQuery.data.codigo_equipo} />}{isAdmin && adminCode && <button type="button" onClick={() => { void navigator.clipboard.writeText(adminCode); toast.success('Código copiado') }} className="rounded-xl border border-primary/25 bg-base-100/50 px-4 py-3 text-left"><span className="block font-mono text-[0.6rem] font-bold uppercase tracking-widest text-base-content/40">Código del equipo</span><span className="mt-1 flex items-center gap-2 font-mono text-lg font-black tracking-[0.18em] text-primary">{adminCode}<Clipboard className="size-4" /></span></button>}<div className="stats bg-transparent shadow-none"><div className="stat px-4"><div className="stat-title text-xs text-base-content/40">Plantel</div><div className="stat-value font-display text-4xl text-primary">{team.jugadores.length}</div><div className="stat-desc text-base-content/45">jugadores</div></div></div></div>
       </section>
 
       <div className="mt-8">

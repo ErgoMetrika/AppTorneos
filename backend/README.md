@@ -42,7 +42,9 @@ Proyecto Torneo/
     └── migrations/
         ├── 20261021000001_esquema.sql     <- las 7 tablas + 2 vistas
         ├── 20261021000002_funciones.sql   <- reglas de negocio (RPC)
-        └── 20261021000003_seguridad.sql   <- políticas RLS
+        ├── 20261021000003_seguridad.sql   <- políticas RLS
+        ├── 20261029000004_codigos_admin.sql       <- el admin ve los códigos de equipo
+        └── 20261029000005_codigo_solo_creador.sql <- solo el creador ve el código
 ```
 
 Una **migración** es un archivo SQL numerado que se aplica una sola vez y en orden.
@@ -104,7 +106,8 @@ la función corta con un error en castellano que el front muestra tal cual.
 |---|---|---|
 | Crear equipo | `crear_equipo(nombre, posicion)` | Hay que estar logueado. No se puede estar ya en otro equipo. El nombre es único (mín. 3 caracteres). El creador queda como primer jugador. Devuelve el equipo **con su código** para compartir. |
 | Unirse a un equipo | `unirse_a_equipo(codigo, posicion)` | Hay que estar logueado. No se puede estar ya en otro equipo. El código tiene que existir. |
-| Ver mi equipo | `mi_equipo()` | Devuelve mi equipo con el código y el plantel completo. Es la **única** forma de ver un `codigo_equipo`: la columna está oculta en las consultas directas. |
+| Ver mi equipo | `mi_equipo()` | Devuelve mi equipo y el plantel completo. El `codigo_equipo` lo recibe **solo el creador** del equipo (el primer jugador que entró); el resto recibe `null` en `codigo_equipo` y `soy_creador: false`. La columna está oculta en las consultas directas. |
+| Ver códigos (admin) | `codigos_de_equipos()` | Solo el administrador: devuelve el código de cada equipo. |
 | Salir del equipo | `DELETE` en `jugadores` (fila propia) | Solo si el equipo **no está compitiendo** (no está inscripto en un torneo sin finalizar). |
 
 ### 4.3 Torneos
