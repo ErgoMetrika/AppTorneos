@@ -46,7 +46,7 @@ export function TeamDetailPage() {
             <div className="grid grid-cols-[1fr_160px_36px] border-b border-base-content/10 bg-base-300/50 px-5 py-3 font-mono text-[0.6rem] font-bold uppercase tracking-widest text-base-content/40"><span>Jugador</span><span>Posición</span><span /></div>
             {team.jugadores.map((player, index) => (
               <div key={`${player.nombre}-${index}`} className="grid grid-cols-[1fr_160px_36px] items-center border-b border-base-content/10 px-5 py-4 last:border-0">
-                <Link to={`/app/jugadores/${player.id}`} className="flex items-center gap-3 font-semibold transition hover:text-primary"><UserRound className="size-4 text-base-content/30" /> {player.nombre}</Link>
+                <Link to={`/app/jugadores/${player.id}`} className="flex items-center gap-3 font-semibold transition hover:text-primary"><UserRound className="size-4 text-base-content/30" /> {player.nombre}{player.es_admin_del_equipo && <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-primary">Admin del equipo</span>}</Link>
                 <Badge variant="secondary">{positionLabel[player.posicion]}</Badge>
                 <Button asChild size="icon" variant="ghost" className="size-8"><Link to={`/app/jugadores/${player.id}`} aria-label={`Ver ficha de ${player.nombre}`}><ChevronRight className="size-4" /></Link></Button>
               </div>

@@ -96,7 +96,7 @@ export async function getTeams(): Promise<EquipoResumen[]> {
 export async function getTeam(id: number): Promise<EquipoDetalle> {
   const { data, error } = await supabase
     .from('equipos')
-    .select('id, nombre, jugadores(id, usuario_id, posicion, unido_en, usuarios(nombre))')
+    .select('id, nombre, creado_por, jugadores(id, usuario_id, posicion, unido_en, usuarios(nombre))')
     .eq('id', id)
     .single()
 
@@ -105,6 +105,7 @@ export async function getTeam(id: number): Promise<EquipoDetalle> {
   const raw = data as unknown as {
     id: number
     nombre: string
+    creado_por: string | null
     jugadores: Array<{
       id: number
       usuario_id: string
@@ -115,7 +116,7 @@ export async function getTeam(id: number): Promise<EquipoDetalle> {
   }
   const jugadores = (raw.jugadores ?? []).flatMap((player) => {
     const user = Array.isArray(player.usuarios) ? player.usuarios[0] : player.usuarios
-    return user ? [{ id: player.id, usuario_id: player.usuario_id, nombre: user.nombre, posicion: player.posicion, unido_en: player.unido_en }] : []
+    return user ? [{ id: player.id, usuario_id: player.usuario_id, nombre: user.nombre, posicion: player.posicion, unido_en: player.unido_en, es_admin_del_equipo: player.usuario_id === raw.creado_por }] : []
   })
 
   return { id: raw.id, nombre: raw.nombre, jugadores }
@@ -293,6 +294,18 @@ export async function createTeam(input: { nombre: string; posicion: PosicionJuga
   })
   throwIfError(error)
   return data as { id: number }
+}
+
+// Administrador del equipo: saca a un invitado
+export async function removeTeamPlayer(jugadorId: number) {
+  const { error } = await supabase.rpc('quitar_jugador', { p_jugador_id: jugadorId })
+  throwIfError(error)
+}
+
+// Cualquier jugador: deja su equipo
+export async function leaveTeam() {
+  const { error } = await supabase.rpc('salir_del_equipo')
+  throwIfError(error)
 }
 
 export async function joinTeam(input: { codigo: string; posicion: PosicionJugador }) {

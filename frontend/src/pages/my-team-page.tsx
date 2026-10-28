@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Check, Clipboard, Eye, MailOpen, PlusCircle, Shield, UserPlus, Users } from 'lucide-react'
+import { Check, Clipboard, Eye, MailOpen, PlusCircle, Shield, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
@@ -8,9 +8,10 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { PageHeader } from '@/components/shared/page-header'
-import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states'
+import { ErrorState, LoadingState } from '@/components/shared/states'
 import { TeamMark } from '@/components/shared/team-mark'
 import { InviteSearchBar } from '@/components/team/invite-by-email'
+import { TeamRoster } from '@/components/team/team-roster'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -75,10 +76,10 @@ export function MyTeamPage() {
           </div>
         )}
         <section className="mt-8 flex flex-col gap-6 rounded-2xl border border-primary/20 bg-[linear-gradient(120deg,rgba(53,244,110,.12),rgba(11,27,18,.9)_58%)] p-6 md:flex-row md:items-center md:justify-between md:p-8">
-          <div className="flex items-center gap-5"><TeamMark name={team.nombre} className="size-20" /><div><Badge>Mi posición: {positionLabel[team.mi_posicion]}</Badge><h2 className="mt-3 font-display text-4xl font-black uppercase sm:text-5xl">{team.nombre}</h2></div></div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">{team.soy_creador && team.codigo_equipo ? <button type="button" onClick={() => { void navigator.clipboard.writeText(team.codigo_equipo ?? ''); toast.success('Código copiado') }} className="rounded-xl border border-primary/25 bg-base-100/50 p-4 text-left"><span className="block font-mono text-[0.6rem] font-bold uppercase tracking-widest text-base-content/40">Código del equipo</span><span className="mt-1 flex items-center gap-3 font-mono text-xl font-black tracking-[0.18em] text-primary">{team.codigo_equipo}<Clipboard className="size-4" /></span></button> : <p className="max-w-56 rounded-xl border border-base-content/10 bg-base-100/50 p-4 text-xs leading-5 text-base-content/55">El código y las invitaciones los maneja quien creó el equipo.</p>}<Button asChild variant="outline"><Link to={`/app/equipos/${team.id}`}><Eye className="size-4" /> Ver equipo</Link></Button></div>
+          <div className="flex items-center gap-5"><TeamMark name={team.nombre} className="size-20" /><div><div className="flex flex-wrap gap-2"><Badge>{team.soy_creador ? 'Administrador del equipo' : 'Invitado'}</Badge><Badge variant="secondary">Mi posición: {positionLabel[team.mi_posicion]}</Badge></div><h2 className="mt-3 font-display text-4xl font-black uppercase sm:text-5xl">{team.nombre}</h2></div></div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">{team.soy_creador && team.codigo_equipo ? <button type="button" onClick={() => { void navigator.clipboard.writeText(team.codigo_equipo ?? ''); toast.success('Código copiado') }} className="rounded-xl border border-primary/25 bg-base-100/50 p-4 text-left"><span className="block font-mono text-[0.6rem] font-bold uppercase tracking-widest text-base-content/40">Código del equipo</span><span className="mt-1 flex items-center gap-3 font-mono text-xl font-black tracking-[0.18em] text-primary">{team.codigo_equipo}<Clipboard className="size-4" /></span></button> : <p className="max-w-56 rounded-xl border border-base-content/10 bg-base-100/50 p-4 text-xs leading-5 text-base-content/55">El código y las invitaciones los maneja el administrador del equipo.</p>}<Button asChild variant="outline"><Link to={`/app/equipos/${team.id}`}><Eye className="size-4" /> Ver equipo</Link></Button></div>
         </section>
-        <div className="mt-8"><h3 className="font-display text-3xl font-black uppercase">Plantel</h3>{team.jugadores.length === 0 ? <div className="mt-4"><EmptyState title="Sin jugadores" description="Buscá jugadores por mail para invitarlos." /></div> : <Card className="mt-4 overflow-hidden">{team.jugadores.map((player, index) => <Link to={`/app/jugadores/${player.id}`} key={player.id ?? `${player.nombre}-${index}`} className="flex items-center gap-4 border-b border-base-content/10 p-4 transition last:border-0 hover:bg-base-300/40"><span className="grid size-8 place-items-center rounded-full bg-primary/10 text-primary"><Users className="size-4" /></span><strong className="flex-1">{player.nombre}</strong><Badge variant="secondary">{positionLabel[player.posicion]}</Badge><Check className="size-4 text-primary" /></Link>)}</Card>}</div>
+        <TeamRoster team={team} />
       </div>
     )
   }

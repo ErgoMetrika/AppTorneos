@@ -41,6 +41,8 @@ export interface Jugador {
   nombre: string
   posicion: PosicionJugador
   unido_en: string
+  // Viene en mi_equipo(): el primer jugador es el administrador del equipo
+  es_admin_del_equipo?: boolean
 }
 
 export interface JugadorDetalle extends Jugador {
@@ -106,9 +108,12 @@ export interface PartidoLlave {
 export interface MiEquipo {
   id: number
   nombre: string
-  // Solo lo recibe quien creó el equipo (el primer jugador); el resto recibe null
+  // Solo lo recibe el administrador del equipo (el primer jugador); el resto recibe null
   codigo_equipo: string | null
+  // true si el usuario logueado es el administrador del equipo
   soy_creador: boolean
+  // true si el equipo está inscripto en un torneo sin terminar
+  compitiendo: boolean
   mi_posicion: PosicionJugador
   jugadores: Jugador[]
 }

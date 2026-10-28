@@ -44,7 +44,9 @@ Proyecto Torneo/
         ├── 20261021000002_funciones.sql   <- reglas de negocio (RPC)
         ├── 20261021000003_seguridad.sql   <- políticas RLS
         ├── 20261029000004_codigos_admin.sql       <- el admin ve los códigos de equipo
-        └── 20261029000005_codigo_solo_creador.sql <- solo el creador ve el código
+        ├── 20261029000005_codigo_solo_creador.sql <- solo el creador ve el código
+        ├── 20261029000006_admin_del_equipo.sql    <- quitar invitados y salir del equipo
+        └── 20261029000007_creado_por.sql          <- columna equipos.creado_por (admin del equipo)
 ```
 
 Una **migración** es un archivo SQL numerado que se aplica una sola vez y en orden.
@@ -73,7 +75,7 @@ Así la base se puede recrear desde cero, igual, en cualquier proyecto Supabase.
 | `usuarios` | Perfil público del usuario: nombre, email, **rol** (`admin` / `general`). La contraseña **no** está acá: la guarda Supabase Auth con hash bcrypt. | `id` = mismo uuid que `auth.users`. Se crea solo con un trigger al registrarse. |
 | `contactos` | Mensajes del formulario de contacto. | Cualquiera puede insertar; solo el admin los lee. |
 | `torneos` | Torneo: tipo de fútbol (5/7/9/11), cupo (`max_equipos` 2/4/8/16), visibilidad, código de acceso si es privado, fecha, lugar, estado (`inscripcion` → `en_curso` → `finalizado`). | `CHECK` en tipo y cupo. El código privado se genera solo (trigger). |
-| `equipos` | Equipo con nombre único y `codigo_equipo` de 6 letras para que otros se sumen. | El código se genera solo (`default`). No hay capitán. |
+| `equipos` | Equipo con nombre único, `codigo_equipo` de 6 letras para que otros se sumen y `creado_por`, que marca al administrador del equipo. | El código se genera solo (`default`). `creado_por` lo mantiene un trigger. |
 | `jugadores` | Relación usuario ↔ equipo con la posición. | `usuario_id UNIQUE` → un usuario está en **máximo 1 equipo**. `equipo_id NOT NULL` → un jugador siempre tiene equipo. |
 | `torneo_equipos` | Inscripción de un equipo a un torneo. | PK compuesta `(torneo_id, equipo_id)` → no se puede inscribir dos veces. |
 | `partidos` | Cada cruce de la llave: ronda, posición (`llave`), equipos, goles, penales, ganador y a qué partido avanza el ganador. | `UNIQUE (torneo_id, ronda, llave)`. Equipos en `NULL` hasta que se resuelva la ronda anterior. |
@@ -106,9 +108,21 @@ la función corta con un error en castellano que el front muestra tal cual.
 |---|---|---|
 | Crear equipo | `crear_equipo(nombre, posicion)` | Hay que estar logueado. No se puede estar ya en otro equipo. El nombre es único (mín. 3 caracteres). El creador queda como primer jugador. Devuelve el equipo **con su código** para compartir. |
 | Unirse a un equipo | `unirse_a_equipo(codigo, posicion)` | Hay que estar logueado. No se puede estar ya en otro equipo. El código tiene que existir. |
-| Ver mi equipo | `mi_equipo()` | Devuelve mi equipo y el plantel completo. El `codigo_equipo` lo recibe **solo el creador** del equipo (el primer jugador que entró); el resto recibe `null` en `codigo_equipo` y `soy_creador: false`. La columna está oculta en las consultas directas. |
-| Ver códigos (admin) | `codigos_de_equipos()` | Solo el administrador: devuelve el código de cada equipo. |
-| Salir del equipo | `DELETE` en `jugadores` (fila propia) | Solo si el equipo **no está compitiendo** (no está inscripto en un torneo sin finalizar). |
+| Ver mi equipo | `mi_equipo()` | Devuelve mi equipo y el plantel completo, marcando quién es el administrador del equipo. El `codigo_equipo` lo recibe **solo el administrador del equipo**; el resto recibe `null` y `soy_creador: false`. La columna está oculta en las consultas directas. |
+| Ver códigos (admin general) | `codigos_de_equipos()` | Solo el administrador general: devuelve el código de cada equipo. |
+| Quitar un invitado | `quitar_jugador(jugador_id)` | Solo el administrador del equipo, y no a sí mismo. No se puede mientras el equipo **está compitiendo**. |
+| Salir del equipo | `salir_del_equipo()` | Cualquier jugador. No se puede mientras el equipo **está compitiendo** (inscripto en un torneo sin finalizar). |
+
+**Administrador del equipo.** La columna `equipos.creado_por` marca al administrador del equipo.
+Los demás integrantes son **invitados**. La columna la mantiene sola el trigger `trg_admin_del_equipo`:
+
+- El primer jugador que entra a un equipo sin administrador pasa a serlo: el que crea el equipo,
+  o el primero que asigna el administrador general.
+- Si el administrador del equipo sale o lo sacan, pasa a serlo el siguiente que entró.
+- Si el equipo queda vacío, la columna vuelve a `NULL`.
+
+El administrador del equipo ve el código, invita jugadores y puede quitar invitados.
+La **posición** la elige cada jugador al entrar y nadie más la cambia (salvo el administrador general).
 
 ### 4.3 Torneos
 
