@@ -29,8 +29,8 @@ export function EmptyState({ title, description, action }: { title: string; desc
 
 export function ErrorState({ message, retry }: { message: string; retry?: () => void }) {
   return (
-    <div className="alert alert-error border border-error/30 bg-error/10 text-error-content">
-      <AlertCircle className="size-5" />
+    <div className="alert border border-error/30 bg-error/10 text-base-content">
+      <AlertCircle className="size-5 text-error" />
       <span className="text-sm">{message}</span>
       {retry && (
         <Button size="sm" variant="outline" onClick={retry}>

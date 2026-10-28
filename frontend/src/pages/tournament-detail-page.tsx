@@ -143,7 +143,7 @@ export function TournamentDetailPage() {
           </div>
         </Card>
       )}
-      {alreadyEnrolled && <div className="alert alert-success mt-6 border border-success/20 bg-success/10"><Shield className="size-5" /><span>Tu equipo ya está inscripto en este torneo.</span></div>}
+      {alreadyEnrolled && <div className="alert mt-6 border border-success/30 bg-success/10 text-base-content"><Shield className="size-5 text-success" /><span>Tu equipo ya está inscripto en este torneo.</span></div>}
       {!session && tournament.estado === 'inscripcion' && <div className="alert mt-6 border border-base-content/10 bg-base-200"><LockKeyhole className="size-5 text-primary" /><span>Iniciá sesión para inscribir tu equipo.</span><Button asChild size="sm"><Link to="/login">Ingresar</Link></Button></div>}
 
       <section className="mt-10">
