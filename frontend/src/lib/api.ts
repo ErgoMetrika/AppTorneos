@@ -16,6 +16,8 @@ import type {
   UsuarioSeleccionable,
 } from '@/types/domain'
 
+const tournamentOwnerColumnEnabled = import.meta.env.VITE_TOURNAMENT_OWNER_COLUMN === 'true'
+
 function throwIfError(error: { message: string } | null) {
   if (error) throw new Error(error.message)
 }
@@ -33,13 +35,25 @@ export async function getTournaments(): Promise<TorneoListado[]> {
   })) as TorneoListado[]
 }
 
-export async function getTournament(id: number): Promise<TorneoDetalle> {
+export async function getTournament(id: number, includeAccessCode = false, privateCode?: string): Promise<TorneoDetalle> {
+  const fields = [
+    'id', 'nombre', 'descripcion', 'tipo_futbol', 'max_equipos', 'visibilidad', 'fecha', 'lugar', 'estado',
+    ...(includeAccessCode ? ['codigo_acceso'] : []),
+    ...(tournamentOwnerColumnEnabled ? ['user_id'] : []),
+  ].join(', ')
   const { data, error } = await supabase
     .from('torneos')
-    .select('*, torneo_equipos(inscripto_en, equipos(id, nombre))')
+    .select(`${fields}, torneo_equipos(inscripto_en, equipos(id, nombre))`)
     .eq('id', id)
     .single()
 
+  if (error && privateCode) {
+    const privateTournaments = await searchPrivateTournament(privateCode)
+    const privateTournament = privateTournaments.find((tournament) => tournament.id === id)
+    if (privateTournament) {
+      return { ...privateTournament, codigo_acceso: includeAccessCode ? privateTournament.codigo_acceso : undefined, equipos: [] }
+    }
+  }
   throwIfError(error)
   if (!data) throw new Error('El torneo no existe.')
   const raw = data as unknown as Torneo & {
@@ -238,6 +252,24 @@ export async function getMyTeam(): Promise<MiEquipo | null> {
   return data as MiEquipo | null
 }
 
+export async function createTeam(input: { nombre: string; posicion: PosicionJugador }): Promise<{ id: number }> {
+  const { data, error } = await supabase.rpc('crear_equipo', {
+    p_nombre: input.nombre.trim(),
+    p_posicion: input.posicion,
+  })
+  throwIfError(error)
+  return data as { id: number }
+}
+
+export async function joinTeam(input: { codigo: string; posicion: PosicionJugador }) {
+  const { data, error } = await supabase.rpc('unirse_a_equipo', {
+    p_codigo: input.codigo.trim().toUpperCase(),
+    p_posicion: input.posicion,
+  })
+  throwIfError(error)
+  return data
+}
+
 export async function enrollTeam(input: { tournamentId: number; teamId: number; accessCode?: string }) {
   const { data, error } = await supabase.rpc('inscribir_equipo', {
     p_torneo_id: input.tournamentId,
@@ -257,10 +289,12 @@ export async function searchPrivateTournament(code: string): Promise<Torneo[]> {
 }
 
 export async function createTournament(input: NuevoTorneoInput): Promise<Torneo> {
+  const { user_id, ...tournament } = input
   const { data, error } = await supabase
     .from('torneos')
     .insert({
-      ...input,
+      ...tournament,
+      ...(tournamentOwnerColumnEnabled && user_id ? { user_id } : {}),
       descripcion: input.descripcion || null,
       lugar: input.lugar || null,
     })

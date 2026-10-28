@@ -25,11 +25,16 @@ export default function App() {
       <Routes>
       <Route element={<PublicLayout />}>
         <Route index element={<HomePage />} />
-        <Route path="torneos" element={<TournamentsPage />} />
-        <Route path="torneos/:id" element={<TournamentDetailPage />} />
-        <Route path="equipos" element={<TeamsPage />} />
-        <Route path="equipos/:id" element={<TeamDetailPage />} />
         <Route path="contacto" element={<ContactPage />} />
+      </Route>
+
+      <Route element={<ProtectedRoute />}>
+        <Route element={<PublicLayout />}>
+          <Route path="torneos" element={<TournamentsPage />} />
+          <Route path="torneos/:id" element={<TournamentDetailPage />} />
+          <Route path="equipos" element={<TeamsPage />} />
+          <Route path="equipos/:id" element={<TeamDetailPage />} />
+        </Route>
       </Route>
 
       <Route path="login" element={<LoginPage />} />

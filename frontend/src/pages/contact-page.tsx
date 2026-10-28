@@ -34,7 +34,7 @@ export function ContactPage() {
 
   return (
     <div className="container-shell py-12 sm:py-16">
-      <div className="max-w-2xl"><p className="font-mono text-[0.65rem] font-bold uppercase tracking-[0.16em] text-primary">Contacto</p><h1 className="mt-2 font-display text-5xl font-black uppercase sm:text-6xl">Hablemos de fútbol</h1><p className="mt-3 text-sm leading-relaxed text-base-content/55">Escribinos por torneos, inscripciones o administración de equipos. El mensaje se guarda en el backend y queda disponible para administradores.</p></div>
+      <div className="max-w-2xl"><p className="font-mono text-[0.65rem] font-bold uppercase tracking-[0.16em] text-primary">Contacto</p><h1 className="mt-2 font-display text-5xl font-black uppercase sm:text-6xl">Hablemos de fútbol</h1><p className="mt-3 text-sm leading-relaxed text-base-content/55">Escribinos por torneos, inscripciones o administración de equipos. El equipo organizador recibirá tu consulta y podrá responderte por email.</p></div>
       <div className="mt-10 grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
         <Card>
           <CardHeader><CardTitle>Enviá tu consulta</CardTitle><CardDescription>Completá los tres datos requeridos.</CardDescription></CardHeader>

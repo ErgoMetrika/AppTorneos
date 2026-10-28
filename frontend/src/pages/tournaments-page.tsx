@@ -32,7 +32,8 @@ export function TournamentsPage() {
         toast.error('No encontramos un torneo con ese código.')
         return
       }
-      navigate(`/torneos/${tournament.id}`)
+      sessionStorage.setItem(`private-tournament-code:${tournament.id}`, privateCode)
+      navigate(`/torneos/${tournament.id}`, { state: { accessCode: privateCode } })
     },
     onError: (error) => toast.error(getErrorMessage(error)),
   })
@@ -47,7 +48,11 @@ export function TournamentsPage() {
         <div>
           <p className="font-mono text-[0.65rem] font-bold uppercase tracking-[0.16em] text-primary">Competencias públicas</p>
           <h1 className="mt-2 font-display text-5xl font-black uppercase sm:text-6xl">Torneos</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-base-content/55">Consultá fecha, sede, modalidad y cupos. Los torneos privados se encuentran con su código desde el panel del usuario.</p>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-base-content/55">
+            <span className="sm:hidden">Consultá fecha, sede, modalidad y cupos. Los torneos privados se encuentran con su código<br />desde el panel del usuario.</span>
+            <span className="hidden sm:inline lg:hidden">Consultá fecha, sede, modalidad y cupos. Los torneos privados se encuentran con su código desde el panel<br />del usuario.</span>
+            <span className="hidden lg:inline">Consultá fecha, sede, modalidad y cupos. Los torneos privados se encuentran con su código desde el panel del usuario.</span>
+          </p>
         </div>
         <div className="flex w-full flex-col gap-3 sm:max-w-md sm:flex-row">{isAdmin && <Button asChild><Link to="/app/admin/torneos/nuevo"><Plus className="size-4" /> Crear torneo</Link></Button>}<div className="relative min-w-0 flex-1">
           <Search className="absolute left-3 top-3.5 size-4 text-base-content/35" />
@@ -66,7 +71,7 @@ export function TournamentsPage() {
         {query.isLoading && <LoadingState label="Cargando torneos" />}
         {query.isError && <ErrorState message={query.error.message} retry={() => void query.refetch()} />}
         {!query.isLoading && !query.isError && tournaments.length === 0 && <EmptyState title="Sin torneos" description="No encontramos torneos públicos con ese nombre." />}
-        <div className="grid gap-5 lg:grid-cols-2">
+        <div className="grid gap-5 2xl:grid-cols-2">
           {tournaments.map((tournament) => (
             <Card key={tournament.id} className="group overflow-hidden transition hover:border-primary/35 hover:bg-base-200">
               <div className="h-1 bg-gradient-to-r from-primary to-primary/10" />

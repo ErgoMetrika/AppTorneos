@@ -24,7 +24,7 @@ export function PublicLayout() {
   const { session } = useAuth()
 
   return (
-    <div className="min-h-screen bg-base-100 text-base-content">
+    <div className="flex min-h-screen flex-col bg-base-100 text-base-content">
       <header className="sticky top-0 z-50 border-b border-base-content/10 bg-base-100/90 backdrop-blur-xl">
         <div className="container-shell flex h-20 items-center justify-between gap-6">
           <Brand />
@@ -68,7 +68,7 @@ export function PublicLayout() {
         </div>
       </header>
 
-      <main><Outlet /></main>
+      <main className="flex-1"><Outlet /></main>
 
       <footer className="border-t border-base-content/10 bg-base-200/45">
         <div className="container-shell flex flex-col gap-5 py-8 sm:flex-row sm:items-center sm:justify-between">

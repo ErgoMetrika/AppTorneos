@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { useAuth } from '@/context/auth-context'
 import { createTournament } from '@/lib/api'
 import { getErrorMessage } from '@/lib/utils'
 import type { NuevoTorneoInput } from '@/types/domain'
@@ -32,16 +33,17 @@ type FormValues = z.infer<typeof schema>
 export function AdminCreateTournamentPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { session } = useAuth()
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { nombre: '', descripcion: '', tipo_futbol: 5, max_equipos: 4, visibilidad: 'publico', fecha: '', lugar: '' },
   })
   const mutation = useMutation({
-    mutationFn: (values: FormValues) => createTournament(values as NuevoTorneoInput),
+    mutationFn: (values: FormValues) => createTournament({ ...values, user_id: session?.user.id } as NuevoTorneoInput),
     onSuccess: (tournament) => {
       toast.success('Torneo creado correctamente')
       void queryClient.invalidateQueries({ queryKey: ['tournaments'] })
-      navigate(`/torneos/${tournament.id}`)
+      navigate(`/app/torneos/${tournament.id}`)
     },
     onError: (error) => toast.error(getErrorMessage(error)),
   })
@@ -58,7 +60,7 @@ export function AdminCreateTournamentPage() {
             <div className="grid gap-4 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="football-type">Modalidad</Label><Select id="football-type" {...form.register('tipo_futbol', { valueAsNumber: true })}>{[5, 7, 9, 11].map((value) => <option key={value} value={value}>Fútbol {value}</option>)}</Select></div><div className="space-y-2"><Label htmlFor="max-teams">Cupo</Label><Select id="max-teams" {...form.register('max_equipos', { valueAsNumber: true })}>{[2, 4, 8, 16].map((value) => <option key={value} value={value}>{value} equipos</option>)}</Select></div></div>
             <div className="grid gap-4 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="date">Fecha</Label><Input id="date" type="date" {...form.register('fecha')} />{form.formState.errors.fecha && <p className="text-xs text-error">{form.formState.errors.fecha.message}</p>}</div><div className="space-y-2"><Label htmlFor="visibility">Visibilidad</Label><Select id="visibility" {...form.register('visibilidad')}><option value="publico">Público</option><option value="privado">Privado</option></Select></div></div>
             <div className="space-y-2"><Label htmlFor="place">Lugar</Label><Input id="place" placeholder="Complejo o club" {...form.register('lugar')} /></div>
-            <div className="alert border border-info/20 bg-info/10 text-sm"><LockKeyhole className="size-5 text-info" /><span>Si elegís privado, Supabase genera el código de acceso automáticamente.</span></div>
+            <div className="alert border border-info/20 bg-info/10 text-sm"><LockKeyhole className="size-5 text-info" /><span>Si elegís privado, la clave se genera automáticamente y queda disponible en el detalle del torneo.</span></div>
           </CardContent>
         </Card>
 

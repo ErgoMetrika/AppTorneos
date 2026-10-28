@@ -28,6 +28,7 @@ La conexión necesita estas variables:
 ```env
 VITE_SUPABASE_URL=...
 VITE_SUPABASE_ANON_KEY=...
+VITE_TOURNAMENT_OWNER_COLUMN=false
 ```
 
 El repositorio incluye `.env.example`. Para desarrollo local, completar `.env.local` con la URL y la anon key pública del proyecto. Nunca usar la `service_role` en el navegador.
@@ -36,11 +37,12 @@ El repositorio incluye `.env.example`. Para desarrollo local, completar `.env.lo
 
 - Inicio público y registro de usuarios generales.
 - Login con Supabase Auth.
-- Listado y detalle de torneos públicos.
+- Listado y detalle de torneos para usuarios autenticados.
 - Equipos inscriptos y llave del torneo.
 - Listado de equipos y detalle del plantel.
 - Listado y ficha individual de jugadores para usuarios autenticados.
-- Mi equipo en modo consulta para usuarios generales.
+- Creación de equipos y unión mediante código para usuarios generales.
+- Invitación de jugadores mediante el código del equipo.
 - Inscripción del equipo a un torneo.
 - Administración de torneos: alta y generación de llave.
 - Administración de equipos: alta desde un modal y detalle de plantel.
@@ -58,6 +60,6 @@ El frontend no muestra datos que el backend no guarda: escudos, dorsales, estado
 pnpm build
 ```
 
-Las políticas RLS y funciones RPC siguen siendo la fuente de verdad. Los usuarios generales pueden consultar la información y, si ya tienen un equipo asignado, inscribirlo a un torneo. Las altas y modificaciones de equipos, jugadores y torneos requieren rol `admin`.
+Las políticas RLS y funciones RPC siguen siendo la fuente de verdad. Los usuarios generales pueden crear un equipo, sumarse mediante código e inscribir su plantel a un torneo. La creación de torneos, generación de llaves y administración directa de jugadores continúan reservadas al rol `admin`.
 
-La migración `backend/supabase/migrations/20261027000001_admin_gestion.sql` revoca los flujos históricos de creación/unión de equipos para usuarios generales. Debe aplicarse al proyecto remoto con el flujo habitual de Supabase antes de publicar.
+El frontend ya contempla el futuro campo `torneos.user_id`. Mientras la columna no exista, `VITE_TOURNAMENT_OWNER_COLUMN` debe permanecer en `false`; después de aplicar la migración correspondiente en el backend se puede activar para enviar y recuperar el creador del torneo.

@@ -13,6 +13,7 @@ export interface PerfilUsuario {
 
 export interface Torneo {
   id: number
+  user_id?: string | null
   nombre: string
   descripcion: string | null
   tipo_futbol: 5 | 7 | 9 | 11
@@ -104,6 +105,7 @@ export interface MiEquipo {
 }
 
 export interface NuevoTorneoInput {
+  user_id?: string
   nombre: string
   descripcion?: string
   tipo_futbol: 5 | 7 | 9 | 11

@@ -9,12 +9,10 @@ import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { useAuth } from '@/context/auth-context'
 import { getTeams } from '@/lib/api'
 
 export function TeamsPage() {
   const [search, setSearch] = useState('')
-  const { isAdmin } = useAuth()
   const location = useLocation()
   const inApp = location.pathname.startsWith('/app')
   const query = useQuery({ queryKey: ['teams'], queryFn: getTeams })
@@ -29,15 +27,15 @@ export function TeamsPage() {
         <div>
           <p className="font-mono text-[0.65rem] font-bold uppercase tracking-[0.16em] text-primary">Participantes</p>
           <h1 className="mt-2 font-display text-5xl font-black uppercase sm:text-6xl">Equipos</h1>
-          <p className="mt-3 max-w-2xl text-sm text-base-content/55">El backend no almacena escudos: cada equipo se representa con una marca tipográfica basada en su nombre.</p>
+          <p className="mt-3 max-w-2xl text-sm text-base-content/55">Cada equipo se identifica con una insignia creada a partir de sus iniciales.</p>
         </div>
-        <div className="flex w-full flex-col gap-3 sm:max-w-md sm:flex-row sm:items-center">{isAdmin && inApp && <CreateTeamDialog />}<div className="relative min-w-0 flex-1"><Search className="absolute left-3 top-3.5 size-4 text-base-content/35" /><Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar equipo..." className="pl-10" /></div></div>
+        <div className="flex w-full flex-col gap-3 sm:max-w-md sm:flex-row sm:items-center">{inApp && <CreateTeamDialog />}<div className="relative min-w-0 flex-1"><Search className="absolute left-3 top-3.5 size-4 text-base-content/35" /><Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar equipo..." className="pl-10" /></div></div>
       </div>
       <div className="mt-10">
         {query.isLoading && <LoadingState label="Cargando equipos" />}
         {query.isError && <ErrorState message={query.error.message} retry={() => void query.refetch()} />}
         {!query.isLoading && !query.isError && teams.length === 0 && <EmptyState title="Sin equipos" description="Todavía no hay equipos para mostrar." />}
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
           {teams.map((team) => (
             <Card key={team.equipo_id} className="flex items-center gap-4 p-5 transition hover:border-primary/30">
               <TeamMark name={team.equipo} />

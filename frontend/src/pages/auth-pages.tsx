@@ -34,7 +34,7 @@ type RegisterValues = z.infer<typeof registerSchema>
 
 function AuthFrame({ children, title, description }: { children: ReactNode; title: string; description: string }) {
   return (
-    <div className="grid min-h-screen bg-base-100 lg:grid-cols-[1.05fr_0.95fr]">
+    <div className="grid min-h-screen min-w-0 overflow-x-hidden bg-base-100 lg:grid-cols-[1.05fr_0.95fr]">
       <section className="hero-grid relative hidden overflow-hidden border-r border-base-content/10 lg:block">
         <div className="pitch-lines absolute inset-0 opacity-40" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(53,244,110,.2),transparent_30%),linear-gradient(180deg,rgba(6,17,11,.2),rgba(6,17,11,.96))]" />
@@ -44,9 +44,9 @@ function AuthFrame({ children, title, description }: { children: ReactNode; titl
           <p className="font-mono text-[0.6rem] uppercase tracking-widest text-base-content/30">Temporada 2026</p>
         </div>
       </section>
-      <section className="grid place-items-center p-5 sm:p-10">
-        <Card className="w-full max-w-md border-base-content/12 bg-base-200/70">
-          <CardHeader><CardTitle>{title}</CardTitle><CardDescription>{description}</CardDescription></CardHeader>
+      <section className="grid min-w-0 place-items-center p-4 sm:p-10">
+        <Card className="min-w-0 w-full max-w-md overflow-hidden border-base-content/12 bg-base-200/70">
+          <CardHeader><CardTitle>{title}</CardTitle><CardDescription className="break-words">{description}</CardDescription></CardHeader>
           <CardContent>{children}</CardContent>
         </Card>
       </section>
@@ -75,13 +75,13 @@ export function LoginPage() {
   })
 
   return (
-    <AuthFrame title="Volvé a la cancha" description="Ingresá como administrador o usuario general.">
+    <AuthFrame title="Volvé a la cancha" description={'Ingresá como administrador o usuario\u00a0general.'}>
       <form onSubmit={submit} className="space-y-5">
         <div className="space-y-2"><Label htmlFor="email">Email</Label><div className="relative"><Mail className="absolute left-3 top-3.5 size-4 text-base-content/30" /><Input id="email" type="email" autoComplete="email" className="pl-10" placeholder="tu@email.com" {...form.register('email')} /></div>{form.formState.errors.email && <p className="text-xs text-error">{form.formState.errors.email.message}</p>}</div>
         <div className="space-y-2"><Label htmlFor="password">Contraseña</Label><div className="relative"><LockKeyhole className="absolute left-3 top-3.5 size-4 text-base-content/30" /><Input id="password" type="password" autoComplete="current-password" className="pl-10" placeholder="••••••" {...form.register('password')} /></div>{form.formState.errors.password && <p className="text-xs text-error">{form.formState.errors.password.message}</p>}</div>
-        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? 'Ingresando...' : 'Ingresar al sistema'} <ArrowRight className="size-4" /></Button>
+        <Button type="submit" className="w-full px-3 text-xs sm:px-5 sm:text-sm" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? 'Ingresando...' : 'Ingresar al sistema'} <ArrowRight className="size-4" /></Button>
       </form>
-      <div className="mt-6 border-t border-base-content/10 pt-5 text-center text-xs text-base-content/50">¿No tenés cuenta? <Link className="font-bold text-primary hover:underline" to="/registro">Registrate como usuario general</Link></div>
+      <div className="mt-6 flex min-w-0 flex-col items-center gap-1 border-t border-base-content/10 pt-5 text-center text-xs leading-5 text-base-content/50"><span>¿No tenés cuenta?</span><Link className="max-w-full break-words font-bold text-primary hover:underline" to="/registro">Registrate como <span className="inline-block">usuario general</span></Link></div>
     </AuthFrame>
   )
 }

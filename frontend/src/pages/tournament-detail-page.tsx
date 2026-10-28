@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, CalendarDays, KeyRound, LockKeyhole, MapPin, Network, Shield, Sparkles, Users } from 'lucide-react'
+import { ArrowLeft, CalendarDays, Copy, KeyRound, LockKeyhole, MapPin, Network, Shield, Sparkles, Users } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -67,13 +67,17 @@ export function TournamentDetailPage() {
   const location = useLocation()
   const inApp = location.pathname.startsWith('/app')
   const queryClient = useQueryClient()
-  const [accessCode, setAccessCode] = useState('')
-  const tournamentQuery = useQuery({ queryKey: ['tournament', id], queryFn: () => getTournament(id), enabled: Number.isFinite(id) })
-  const bracketQuery = useQuery({ queryKey: ['bracket', id], queryFn: () => getBracket(id), enabled: Number.isFinite(id) })
+  const routeCode = (location.state as { accessCode?: string } | null)?.accessCode
+  const privateLookupCode = routeCode || sessionStorage.getItem(`private-tournament-code:${id}`) || ''
+  const [accessCode, setAccessCode] = useState(privateLookupCode)
+  const tournamentQuery = useQuery({ queryKey: ['tournament', id, isAdmin, privateLookupCode], queryFn: () => getTournament(id, isAdmin, privateLookupCode), enabled: Number.isFinite(id) })
   const myTeamQuery = useQuery({ queryKey: ['my-team'], queryFn: getMyTeam, enabled: Boolean(session) })
+  const enrolledForBracket = Boolean(myTeamQuery.data && tournamentQuery.data?.equipos.some((team) => team.id === myTeamQuery.data?.id))
+  const canReadBracket = !privateLookupCode || isAdmin || enrolledForBracket
+  const bracketQuery = useQuery({ queryKey: ['bracket', id], queryFn: () => getBracket(id), enabled: Number.isFinite(id) && canReadBracket })
   const enrollMutation = useMutation({
     mutationFn: () => {
-      if (!myTeamQuery.data) throw new Error('Un administrador debe asignarte primero a un equipo.')
+      if (!myTeamQuery.data) throw new Error('Primero creá un equipo o sumate a uno desde Mi equipo.')
       return enrollTeam({ tournamentId: id, teamId: myTeamQuery.data.id, accessCode })
     },
     onSuccess: () => {
@@ -108,13 +112,13 @@ export function TournamentDetailPage() {
 
       <section className="relative mt-6 overflow-hidden rounded-2xl border border-primary/20 bg-[linear-gradient(120deg,rgba(53,244,110,0.14),rgba(11,27,18,0.95)_60%)] p-6 sm:p-8">
         <Network className="absolute -right-6 -top-8 size-64 text-primary/5" />
-        <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+        <div className="relative flex flex-col gap-8 2xl:flex-row 2xl:items-end 2xl:justify-between">
           <div className="max-w-3xl">
             <div className="flex flex-wrap items-center gap-2"><TournamentStateBadge state={tournament.estado} /><Badge variant="outline">{visibilityLabel[tournament.visibilidad]}</Badge></div>
-            <h1 className="mt-5 font-display text-5xl font-black uppercase leading-[0.9] sm:text-7xl">{tournament.nombre}</h1>
+            <h1 className="mt-5 font-display text-5xl font-black uppercase leading-[0.9] sm:text-6xl xl:text-7xl">{tournament.nombre}</h1>
             <p className="mt-5 max-w-2xl text-sm leading-relaxed text-base-content/60">{tournament.descripcion || 'Torneo de eliminación directa.'}</p>
           </div>
-          <div className="grid min-w-72 grid-cols-2 gap-3 text-sm">
+          <div className="grid w-full grid-cols-2 gap-3 text-sm 2xl:max-w-xl">
             <div className="rounded-lg bg-base-100/55 p-4"><CalendarDays className="mb-3 size-5 text-primary" /><p className="text-xs text-base-content/40">Fecha</p><strong>{formatDate(tournament.fecha, 'dd MMM yyyy')}</strong></div>
             <div className="rounded-lg bg-base-100/55 p-4"><MapPin className="mb-3 size-5 text-primary" /><p className="text-xs text-base-content/40">Lugar</p><strong>{tournament.lugar || 'A confirmar'}</strong></div>
             <div className="rounded-lg bg-base-100/55 p-4"><Shield className="mb-3 size-5 text-primary" /><p className="text-xs text-base-content/40">Modalidad</p><strong>Fútbol {tournament.tipo_futbol}</strong></div>
@@ -122,6 +126,13 @@ export function TournamentDetailPage() {
           </div>
         </div>
       </section>
+
+      {isAdmin && tournament.visibilidad === 'privado' && tournament.codigo_acceso && (
+        <Card className="mt-6 flex flex-col gap-4 border-warning/25 bg-warning/5 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-lg bg-warning/10 text-warning"><KeyRound className="size-5" /></span><div><h2 className="font-display text-xl font-bold uppercase">Clave del torneo privado</h2><p className="text-xs text-base-content/45">Solo los administradores pueden verla desde este panel.</p></div></div>
+          <button type="button" onClick={() => { void navigator.clipboard.writeText(tournament.codigo_acceso!.trim()); toast.success('Clave del torneo copiada') }} className="flex items-center justify-between gap-5 rounded-lg border border-warning/25 bg-base-100/70 px-4 py-3 font-mono text-xl font-black tracking-[0.18em] text-warning transition hover:border-warning/50">{tournament.codigo_acceso.trim()}<Copy className="size-4" /></button>
+        </Card>
+      )}
 
       {tournament.estado === 'inscripcion' && session && !alreadyEnrolled && (
         <Card className="mt-6 flex flex-col gap-4 border-primary/25 p-5 md:flex-row md:items-center md:justify-between">
@@ -138,7 +149,7 @@ export function TournamentDetailPage() {
       <section className="mt-10">
         <div className="mb-5 flex items-end justify-between"><div><p className="font-mono text-[0.65rem] font-bold uppercase tracking-widest text-primary">Participantes</p><h2 className="font-display text-3xl font-black uppercase">Equipos inscriptos</h2></div><span className="text-xs text-base-content/40">{tournament.equipos.length} de {tournament.max_equipos}</span></div>
         {tournament.equipos.length === 0 ? <EmptyState title="Sin inscriptos" description="Todavía no hay equipos inscriptos." /> : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{tournament.equipos.map((team) => <Link key={team.id} to={`${inApp ? '/app' : ''}/equipos/${team.id}`} className="flex items-center gap-3 rounded-xl border border-base-content/10 bg-base-200/60 p-4 transition hover:border-primary/30"><TeamMark name={team.nombre} className="size-12" /><strong className="font-display text-lg uppercase">{team.nombre}</strong></Link>)}</div>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">{tournament.equipos.map((team) => <Link key={team.id} to={`${inApp ? '/app' : ''}/equipos/${team.id}`} className="flex min-w-0 items-center gap-3 rounded-xl border border-base-content/10 bg-base-200/60 p-4 transition hover:border-primary/30"><TeamMark name={team.nombre} className="size-12 shrink-0" /><strong className="min-w-0 break-words font-display text-lg uppercase leading-tight">{team.nombre}</strong></Link>)}</div>
         )}
       </section>
 
@@ -148,6 +159,7 @@ export function TournamentDetailPage() {
         {bracketQuery.isLoading && <LoadingState label="Cargando llave" />}
         {bracketQuery.isError && <ErrorState message={bracketQuery.error.message} retry={() => void bracketQuery.refetch()} />}
         {bracketQuery.data && <Bracket matches={bracketQuery.data} />}
+        {!canReadBracket && <EmptyState title="Llave protegida" description="La llave estará disponible cuando tu equipo quede inscripto en el torneo privado." />}
       </section>
     </div>
   )
