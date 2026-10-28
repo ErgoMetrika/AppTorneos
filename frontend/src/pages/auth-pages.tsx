@@ -59,10 +59,12 @@ export function LoginPage() {
   const location = useLocation()
   const { session } = useAuth()
   const form = useForm<LoginValues>({ resolver: zodResolver(loginSchema), defaultValues: { email: '', password: '' } })
+  // Página a la que volver después de entrar (por ejemplo, un link de invitación)
+  const from = (location.state as { from?: string } | null)?.from
 
   useEffect(() => {
-    if (session) navigate('/app/torneos', { replace: true })
-  }, [navigate, session])
+    if (session) navigate(from || '/app/torneos', { replace: true })
+  }, [navigate, session, from])
 
   const submit = form.handleSubmit(async (values) => {
     const { error } = await supabase.auth.signInWithPassword(values)
@@ -70,7 +72,6 @@ export function LoginPage() {
       toast.error(error.message)
       return
     }
-    const from = (location.state as { from?: string } | null)?.from
     navigate(from || '/app/torneos', { replace: true })
   })
 
@@ -81,19 +82,22 @@ export function LoginPage() {
         <div className="space-y-2"><Label htmlFor="password">Contraseña</Label><div className="relative"><LockKeyhole className="absolute left-3 top-3.5 size-4 text-base-content/30" /><Input id="password" type="password" autoComplete="current-password" className="pl-10" placeholder="••••••" {...form.register('password')} /></div>{form.formState.errors.password && <p className="text-xs text-error">{form.formState.errors.password.message}</p>}</div>
         <Button type="submit" className="w-full px-3 text-xs sm:px-5 sm:text-sm" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? 'Ingresando...' : 'Ingresar al sistema'} <ArrowRight className="size-4" /></Button>
       </form>
-      <div className="mt-6 flex min-w-0 flex-col items-center gap-1 border-t border-base-content/10 pt-5 text-center text-xs leading-5 text-base-content/50"><span>¿No tenés cuenta?</span><Link className="max-w-full break-words font-bold text-primary hover:underline" to="/registro">Registrate como <span className="inline-block">usuario general</span></Link></div>
+      <div className="mt-6 flex min-w-0 flex-col items-center gap-1 border-t border-base-content/10 pt-5 text-center text-xs leading-5 text-base-content/50"><span>¿No tenés cuenta?</span><Link className="max-w-full break-words font-bold text-primary hover:underline" to="/registro" state={{ from }}>Registrate como <span className="inline-block">usuario general</span></Link></div>
     </AuthFrame>
   )
 }
 
 export function RegisterPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { session } = useAuth()
   const form = useForm<RegisterValues>({ resolver: zodResolver(registerSchema), defaultValues: { nombre: '', email: '', password: '', confirmPassword: '' } })
+  // Si vino desde un link de invitación, vuelve ahí después de registrarse
+  const from = (location.state as { from?: string } | null)?.from
 
   useEffect(() => {
-    if (session) navigate('/app/torneos', { replace: true })
-  }, [navigate, session])
+    if (session) navigate(from || '/app/mi-equipo', { replace: true })
+  }, [navigate, session, from])
 
   const submit = form.handleSubmit(async ({ nombre, email, password }) => {
     const { error } = await supabase.auth.signUp({ email, password, options: { data: { nombre } } })
@@ -102,7 +106,7 @@ export function RegisterPage() {
       return
     }
     toast.success('Cuenta general creada correctamente')
-    navigate('/app/mi-equipo')
+    navigate(from || '/app/mi-equipo', { replace: true })
   })
 
   return (
@@ -114,7 +118,7 @@ export function RegisterPage() {
         <div className="rounded-md border border-primary/20 bg-primary/5 p-3 text-xs text-base-content/55"><CheckCircle2 className="mr-2 inline size-4 text-primary" />Tu cuenta se crea con rol general. Solo un admin puede cambiar roles.</div>
         <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? 'Creando cuenta...' : 'Crear cuenta general'}</Button>
       </form>
-      <div className="mt-5 text-center text-xs text-base-content/50">¿Ya tenés cuenta? <Link className="font-bold text-primary" to="/login">Ingresar</Link></div>
+      <div className="mt-5 text-center text-xs text-base-content/50">¿Ya tenés cuenta? <Link className="font-bold text-primary" to="/login" state={{ from }}>Ingresar</Link></div>
     </AuthFrame>
   )
 }
