@@ -28,10 +28,11 @@ export default function App() {
       <Route element={<PublicLayout />}>
         <Route index element={<GuestOnly to="/app/torneos"><HomePage /></GuestOnly>} />
         <Route path="contacto" element={<GuestOnly to="/app/contacto"><ContactPage /></GuestOnly>} />
+        <Route path="torneos" element={<GuestOnly to="/app/torneos"><TournamentsPage /></GuestOnly>} />
+        <Route path="torneos/:id" element={<TournamentDetailPage />} />
       </Route>
 
-      {/* Torneos y equipos viven en el panel; las direcciones viejas redirigen ahí */}
-      <Route path="torneos/*" element={<RedirectToApp />} />
+      {/* Los equipos se consultan dentro del panel. */}
       <Route path="equipos/*" element={<RedirectToApp />} />
 
       <Route path="login" element={<LoginPage />} />
