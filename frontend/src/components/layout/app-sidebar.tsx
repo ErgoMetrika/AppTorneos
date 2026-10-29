@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Contact, LockKeyhole, LogOut, Plus, Shield, Trophy as TrophyIcon, UserRound, Users, type LucideIcon } from 'lucide-react'
+import { LockKeyhole, LogOut, Mail, Plus, Shield, Trophy as TrophyIcon, UserRound, Users, type LucideIcon } from 'lucide-react'
 import { Link, NavLink } from 'react-router-dom'
 
 import { EmptyCrest, PlayerAvatar, TeamCrest, Trophy } from '@/components/visuals/art'
@@ -14,7 +14,8 @@ interface NavSection { id: string; label: string; items: NavItem[] }
 const torneos: NavItem = { to: '/app/torneos', label: 'Torneos', icon: TrophyIcon }
 const equipos: NavItem = { to: '/app/equipos', label: 'Equipos', icon: Shield }
 // Contacto se abre dentro del panel, sin salir al sitio público
-const contacto: NavItem = { to: '/app/contacto', label: 'Contacto', icon: Contact }
+// Contacto es un formulario que se responde por mail: ícono de sobre, no de chat
+const contacto: NavItem = { to: '/app/contacto', label: 'Contacto', icon: Mail }
 
 // Jugador general: no ve Jugadores, tiene Mi equipo
 const playerSections: NavSection[] = [

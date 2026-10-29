@@ -1,0 +1,130 @@
+/* Animaciones propias de la portada pública (landing).
+   Todo se apaga con "reducir movimiento": se muestra directo el estado final.
+   Ningún efecto cambia el tamaño de las cajas: sólo opacidad y transform. */
+
+/* ---------- Revelado al hacer scroll ----------
+   .lr-reveal lo pone el componente Reveal; .is-visible llega cuando entra en pantalla.
+   Los hijos con .lr-item aparecen escalonados con style={{ '--i': n }}. */
+.lr-reveal.lr-self,
+.lr-reveal .lr-item {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 700ms var(--ease-out-soft, ease-out),
+    transform 700ms var(--ease-out-soft, ease-out);
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+.lr-reveal.is-visible.lr-self,
+.lr-reveal.is-visible .lr-item {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- Portada: escudos que flotan y brillo de fondo ---------- */
+@keyframes lr-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.lr-float {
+  animation: lr-float 4.2s ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s);
+}
+
+@keyframes lr-glow {
+  0%, 100% { opacity: 0.75; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+.lr-glow { animation: lr-glow 4.8s ease-in-out infinite; }
+
+/* Entrada de la cancha inclinada (conserva su perspectiva al final) */
+@keyframes lr-pitch-in {
+  from { opacity: 0; transform: perspective(1100px) rotateX(56deg) rotateZ(-6deg) translateY(24px); }
+  to { opacity: 1; transform: perspective(1100px) rotateX(48deg) rotateZ(-6deg); }
+}
+.lr-pitch {
+  transform: perspective(1100px) rotateX(48deg) rotateZ(-6deg);
+  transform-origin: 50% 60%;
+  animation: lr-pitch-in 900ms var(--ease-out-soft, ease-out) 100ms backwards;
+}
+
+/* ---------- Llave de ejemplo ---------- */
+.lr-slot {
+  transition: background-color 450ms ease, border-color 450ms ease, color 450ms ease, opacity 600ms var(--ease-out-soft, ease-out), transform 600ms var(--ease-out-soft, ease-out);
+}
+.lr-slot[data-pending='true'] { opacity: 0; transform: translateX(-14px); }
+
+/* Trazo que se dibuja del ganador hacia la ronda siguiente (pathLength="1") */
+.lr-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 650ms var(--ease-out-soft, ease-out);
+}
+.lr-path[data-on='true'] { stroke-dashoffset: 0; }
+
+.lr-champ {
+  opacity: 0;
+  transform: scale(0.85) translateY(10px);
+  transition: opacity 700ms var(--ease-out-soft, ease-out), transform 700ms var(--ease-out-soft, ease-out);
+}
+.lr-champ[data-on='true'] { opacity: 1; transform: none; }
+
+/* ---------- Cierre: la pelota cae y rebota al aparecer ---------- */
+@keyframes lr-ball-drop {
+  0% { transform: translateY(-46px); animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  45% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1); }
+  68% { transform: translateY(-16px); animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45); }
+  86% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0.55, 0.45, 1); }
+  93% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+@keyframes lr-ball-shadow {
+  0% { transform: scaleX(0.45); opacity: 0.12; }
+  45%, 86%, 100% { transform: scaleX(1); opacity: 0.45; }
+  68% { transform: scaleX(0.7); opacity: 0.25; }
+}
+.is-visible .lr-ball { animation: lr-ball-drop 900ms 250ms both; }
+.is-visible .lr-ball-shadow { animation: lr-ball-shadow 900ms 250ms both; }
+/* Mientras no apareció, la pelota espera arriba (no se ve porque el bloque está transparente) */
+.lr-ball { transform: translateY(-46px); }
+
+/* ---------- Preguntas frecuentes ---------- */
+.lr-faq summary { list-style: none; }
+.lr-faq summary::-webkit-details-marker { display: none; }
+.lr-faq .lr-faq-plus { transition: transform 250ms var(--ease-out-soft, ease-out); }
+.lr-faq[open] .lr-faq-plus { transform: rotate(45deg); }
+@keyframes lr-faq-open {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+.lr-faq[open] .lr-faq-body { animation: lr-faq-open 320ms var(--ease-out-soft, ease-out); }
+
+/* ---------- Sin movimiento: todo quieto y en su estado final ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .lr-reveal.lr-self,
+  .lr-reveal .lr-item,
+  .lr-slot,
+  .lr-path,
+  .lr-champ {
+    transition: none !important;
+  }
+  .lr-reveal.lr-self,
+  .lr-reveal .lr-item,
+  .lr-slot[data-pending='true'],
+  .lr-champ {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .lr-path { stroke-dashoffset: 0 !important; }
+  .lr-float,
+  .lr-glow,
+  .lr-ball,
+  .lr-ball-shadow,
+  .is-visible .lr-ball,
+  .is-visible .lr-ball-shadow,
+  .lr-faq[open] .lr-faq-body {
+    animation: none !important;
+  }
+  .lr-ball { transform: none; }
+  .lr-pitch { animation: none; }
+  .lr-faq .lr-faq-plus { transition: none; }
+}
