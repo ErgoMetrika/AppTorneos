@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Check, Clipboard, MailOpen, PlusCircle, Shield, UserPlus } from 'lucide-react'
+import { Check, Clipboard, LockKeyhole, MailOpen, PlusCircle, Shield, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useLocation, useSearchParams } from 'react-router-dom'
@@ -82,9 +82,21 @@ export function MyTeamPage() {
           <div className="relative flex items-center gap-5"><TeamMark name={team.nombre} label={`Escudo de ${team.nombre}`} className="anim-pop h-28 w-24" /><Jersey name={team.nombre} className="anim-pop hidden size-24 [animation-delay:160ms] lg:block" /><div><div className="flex flex-wrap gap-2"><Badge>{team.soy_creador ? 'Administrador del equipo' : 'Invitado'}</Badge><Badge variant="secondary">Mi posición: {positionLabel[team.mi_posicion]}</Badge></div><h2 className="mt-3 font-display text-4xl font-black uppercase sm:text-5xl">{team.nombre}</h2></div></div>
           <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center">{team.soy_creador && team.codigo_equipo ? <button type="button" onClick={() => { void navigator.clipboard.writeText(team.codigo_equipo ?? ''); toast.success('Código copiado') }} className="rounded-xl border border-primary/25 bg-base-100/50 p-4 text-left transition-[border-color,background-color,scale] duration-150 hover:border-primary/50 hover:bg-base-100/70 active:scale-[0.98] motion-reduce:active:scale-100"><span className="block font-mono text-[0.6rem] font-bold uppercase tracking-widest text-base-content/40">Código del equipo</span><span className="mt-1 flex items-center gap-3 font-mono text-xl font-black tracking-[0.18em] text-primary">{team.codigo_equipo}<Clipboard className="size-4" /></span></button> : <p className="max-w-56 rounded-xl border border-base-content/10 bg-base-100/50 p-4 text-xs leading-5 text-base-content/55">El código y las invitaciones los maneja el administrador del equipo.</p>}<LeaveTeamButton team={team} /></div>
         </section>
-        <div className="mt-8"><PositionSummary players={team.jugadores} /></div>
-        <div className="mt-6"><TeamTournaments teamId={team.id} players={team.jugadores} /></div>
-        <TeamRoster team={team} />
+        {team.compitiendo && (
+          // Explica por qué "Pedir el pase" y "Quitar" están bloqueados
+          <div role="status" className="mt-6 flex items-start gap-3 rounded-xl border border-[#f2c94c]/40 bg-[#f2c94c]/10 p-4 text-sm text-base-content">
+            <LockKeyhole className="mt-0.5 size-5 shrink-0 text-[#f2c94c]" aria-hidden="true" />
+            <p><strong>Tu equipo está jugando un torneo en curso.</strong> Hasta que termine, nadie puede pedir el pase ni ser quitado del plantel, para que el equipo no se quede sin jugadores a mitad del torneo.</p>
+          </div>
+        )}
+        {/* Como en el mockup: a la izquierda los torneos y el plantel por posición, a la derecha los jugadores */}
+        <div className="mt-8 grid items-start gap-6 xl:grid-cols-[1.3fr_1fr]">
+          <div className="flex min-w-0 flex-col gap-6">
+            <TeamTournaments teamId={team.id} players={team.jugadores} />
+            <PositionSummary players={team.jugadores} />
+          </div>
+          <TeamRoster team={team} />
+        </div>
       </div>
     )
   }

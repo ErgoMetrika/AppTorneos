@@ -5,7 +5,6 @@ import { toast } from 'sonner'
 
 import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { EmptyState } from '@/components/shared/states'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { PlayerAvatar } from '@/components/visuals/art'
 import { useAuth } from '@/context/auth-context'
@@ -67,18 +66,20 @@ export function TeamRoster({ team }: { team: MiEquipo }) {
   const myUserId = session?.user.id
 
   return (
-    <div className="mt-8">
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-        <h3 className="font-display text-3xl font-black uppercase">Plantel</h3>
-        {team.compitiendo && <p className="text-xs text-base-content/45">El equipo está jugando un torneo: no se puede quitar jugadores hasta que termine.</p>}
+    // Lista del plantel en una tarjeta (va en la columna derecha de Mi equipo, como en el mockup)
+    <section className="min-w-0 rounded-2xl border border-base-content/10 bg-base-200/70 p-5 shadow-[0_10px_28px_rgba(0,0,0,0.35)]">
+      <div className="flex items-end justify-between gap-2">
+        <div>
+          <p className="font-mono text-[0.65rem] font-bold uppercase tracking-widest text-primary">Plantel</p>
+          <h3 className="font-display text-3xl font-black uppercase">Jugadores</h3>
+        </div>
+        <span className="text-xs text-base-content/60">{team.jugadores.length} {team.jugadores.length === 1 ? 'jugador' : 'jugadores'}</span>
       </div>
 
       {team.jugadores.length === 0 ? (
         <div className="mt-4"><EmptyState title="Sin jugadores" description="Buscá jugadores por mail para invitarlos." /></div>
       ) : (
-        // Tarjetas compactas: una columna en celular, dos en pantallas grandes,
-        // así el nombre, la posición y el botón quedan cerca
-        <div className="mt-4 grid gap-3 lg:grid-cols-2">
+        <div className="mt-4 flex flex-col gap-2">
           {team.jugadores.map((player) => {
             const isMe = player.usuario_id === myUserId
             const canRemove = team.soy_creador && !isMe
@@ -90,11 +91,9 @@ export function TeamRoster({ team }: { team: MiEquipo }) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <Link to={`/app/jugadores/${player.id}`} className="font-bold transition hover:text-primary">{player.nombre}{isMe && <span className="ml-2 text-xs font-normal text-base-content/45">(vos)</span>}</Link>
-                  <p className="mt-0.5 truncate text-xs text-base-content/60">{player.es_admin_del_equipo ? 'Administrador del equipo' : 'Invitado'}<span className="sm:hidden"> · {positionLabel[player.posicion]}</span></p>
+                  {/* La posición la elige cada jugador al entrar: acá solo se muestra */}
+                  <p className="mt-0.5 truncate text-xs text-base-content/65">{positionLabel[player.posicion]} · {player.es_admin_del_equipo ? 'Administrador' : 'Invitado'}</p>
                 </div>
-                {/* La posición la elige cada jugador al entrar: acá solo se muestra.
-                    Ancho fijo para que posición y botón queden alineados en todas las tarjetas. */}
-                <div className="hidden w-28 justify-end sm:flex"><Badge variant="secondary">{positionLabel[player.posicion]}</Badge></div>
                 {team.soy_creador && <div className="flex w-24 shrink-0 justify-end">{canRemove && (
                   <ConfirmDialog
                     trigger={<Button size="sm" variant="outline" disabled={team.compitiendo}><UserMinus className="size-4" /> Quitar</Button>}
@@ -113,6 +112,6 @@ export function TeamRoster({ team }: { team: MiEquipo }) {
           })}
         </div>
       )}
-    </div>
+    </section>
   )
 }

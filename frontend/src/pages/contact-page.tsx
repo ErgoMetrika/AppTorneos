@@ -114,7 +114,9 @@ export function ContactPage({ embedded = false }: { embedded?: boolean }) {
             <iframe
               title="Mapa del Estadio Más Monumental"
               src="https://maps.google.com/maps?q=Estadio%20Mas%20Monumental%20Buenos%20Aires&t=&z=15&ie=UTF8&iwloc=&output=embed"
-              className="block h-[300px] w-full border-0 grayscale-[.1] sm:h-[380px]"
+              // Mapa real de Google pasado a modo oscuro: se invierten los colores y se giran
+              // los tonos para que el fondo quede oscuro y el agua/parques sigan reconocibles
+              className="block h-[300px] w-full border-0 [filter:invert(0.92)_hue-rotate(180deg)_saturate(0.55)_brightness(0.92)_contrast(0.95)] sm:h-[380px]"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />
@@ -122,6 +124,8 @@ export function ContactPage({ embedded = false }: { embedded?: boolean }) {
             <div className="pointer-events-none absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-[#06110b]/90 px-3 py-1.5 font-mono text-[0.65rem] font-bold uppercase tracking-[0.12em] text-[#f4f8f5] shadow-[0_6px_16px_rgba(0,0,0,0.45)]">
               <MapPin className="size-3.5 text-primary" aria-hidden="true" />Sede del torneo
             </div>
+            {/* Tinte verde suave encima del mapa oscuro, para que combine con la paleta */}
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[#35f46e]/10 mix-blend-soft-light" />
             <div aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-xl shadow-[inset_0_0_40px_rgba(6,17,11,0.55)]" />
           </div>
           <div className="flex flex-col gap-4 px-2 pb-1 pt-4 sm:flex-row sm:items-center sm:justify-between">
