@@ -1,21 +1,24 @@
+// Pantalla del administrador general: Nuevo torneo (/app/admin/torneos/nuevo).
+// A la izquierda el formulario por secciones; a la derecha una vista previa en vivo de la tarjeta.
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { CalendarDays, LockKeyhole, MapPin, Shield, Users } from 'lucide-react'
-import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { ArrowLeft, Plus } from 'lucide-react'
+import type { CSSProperties } from 'react'
+import { Controller, useForm, useWatch } from 'react-hook-form'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { PageHeader } from '@/components/shared/page-header'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { CharCount, FieldError, FormSection } from '@/components/admin/create-tournament/form-section'
+import { CupoPicker, ModalityPicker, VisibilityPicker } from '@/components/admin/create-tournament/option-pickers'
+import { TournamentPreview } from '@/components/admin/create-tournament/tournament-preview'
+import { BTN_PRIMARY, BTN_SECONDARY } from '@/components/admin/tournaments/admin-styles'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/context/auth-context'
 import { createTournament } from '@/lib/api'
-import { getErrorMessage } from '@/lib/utils'
+import { cn, getErrorMessage } from '@/lib/utils'
 import type { NuevoTorneoInput } from '@/types/domain'
 
 const schema = z.object({
@@ -49,34 +52,95 @@ export function AdminCreateTournamentPage() {
     onError: (error) => toast.error(getErrorMessage(error)),
   })
 
-  return (
-    <div>
-      <PageHeader eyebrow="Administración" title="Nuevo torneo" description="Los valores disponibles respetan las restricciones del backend: fútbol 5, 7, 9 u 11 y cupos de 2, 4, 8 o 16 equipos." />
-      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} className="mt-8 grid gap-6 xl:grid-cols-[1fr_360px]">
-        <Card>
-          <CardHeader><CardTitle>Datos del torneo</CardTitle><CardDescription>La llave será de eliminación directa y se genera más adelante.</CardDescription></CardHeader>
-          <CardContent className="space-y-5">
-            <div className="space-y-2"><Label htmlFor="tournament-name">Nombre</Label><Input id="tournament-name" placeholder="Copa Fútbol 5 - Abierta" {...form.register('nombre')} />{form.formState.errors.nombre && <p className="text-xs text-error">{form.formState.errors.nombre.message}</p>}</div>
-            <div className="space-y-2"><Label htmlFor="description">Descripción</Label><Textarea id="description" placeholder="Descripción breve del torneo" {...form.register('descripcion')} />{form.formState.errors.descripcion && <p className="text-xs text-error">{form.formState.errors.descripcion.message}</p>}</div>
-            <div className="grid gap-4 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="football-type">Modalidad</Label><Select id="football-type" {...form.register('tipo_futbol', { valueAsNumber: true })}>{[5, 7, 9, 11].map((value) => <option key={value} value={value}>Fútbol {value}</option>)}</Select></div><div className="space-y-2"><Label htmlFor="max-teams">Cupo</Label><Select id="max-teams" {...form.register('max_equipos', { valueAsNumber: true })}>{[2, 4, 8, 16].map((value) => <option key={value} value={value}>{value} equipos</option>)}</Select></div></div>
-            <div className="grid gap-4 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="date">Fecha</Label><Input id="date" type="date" {...form.register('fecha')} />{form.formState.errors.fecha && <p className="text-xs text-error">{form.formState.errors.fecha.message}</p>}</div><div className="space-y-2"><Label htmlFor="visibility">Visibilidad</Label><Select id="visibility" {...form.register('visibilidad')}><option value="publico">Público</option><option value="privado">Privado</option></Select></div></div>
-            <div className="space-y-2"><Label htmlFor="place">Lugar</Label><Input id="place" placeholder="Complejo o club" {...form.register('lugar')} />{form.formState.errors.lugar && <p className="text-xs text-error">{form.formState.errors.lugar.message}</p>}</div>
-            <div className="alert border border-info/20 bg-info/10 text-sm"><LockKeyhole className="size-5 text-info" /><span>Si elegís privado, la clave se genera automáticamente y queda disponible en el detalle del torneo.</span></div>
-          </CardContent>
-        </Card>
+  // Valores en vivo para la vista previa y los contadores (useWatch en vez de form.watch)
+  const values = useWatch({ control: form.control })
+  const { errors } = form.formState
+  const describedBy = (field: keyof FormValues) => (errors[field] ? `${field}-error` : undefined)
 
-        <div className="space-y-5">
-          <Card className="border-primary/25 bg-[linear-gradient(145deg,rgba(53,244,110,.12),rgba(11,27,18,.9))]">
-            <CardHeader><CardDescription>Vista previa</CardDescription><CardTitle>{form.watch('nombre') || 'Nuevo torneo'}</CardTitle></CardHeader>
-            <CardContent className="space-y-4 text-sm">
-              <div className="flex items-center gap-3"><Shield className="size-4 text-primary" /> Fútbol {form.watch('tipo_futbol')}</div>
-              <div className="flex items-center gap-3"><Users className="size-4 text-primary" /> {form.watch('max_equipos')} equipos</div>
-              <div className="flex items-center gap-3"><CalendarDays className="size-4 text-primary" /> {form.watch('fecha') || 'Fecha pendiente'}</div>
-              <div className="flex items-center gap-3"><MapPin className="size-4 text-primary" /> {form.watch('lugar') || 'Lugar pendiente'}</div>
-            </CardContent>
-          </Card>
-          <Button type="submit" size="lg" className="w-full" disabled={mutation.isPending}>{mutation.isPending ? 'Creando torneo...' : 'Crear torneo'}</Button>
+  return (
+    <div className="anim-page flex flex-col gap-8 text-[#f4f8f5]">
+      <header className="flex flex-wrap items-end justify-between gap-5">
+        <div className="flex min-w-0 flex-col gap-2">
+          <p className="flex items-center gap-2.5 font-mono text-xs font-bold uppercase tracking-[0.16em] text-[#ffc94a]">
+            <span className="h-[3px] w-[18px] rounded-sm bg-[#ffc94a]" aria-hidden="true" />
+            Gestión · Torneos
+          </p>
+          <h1 className="font-display text-5xl font-black uppercase leading-[0.9] sm:text-7xl">Nuevo torneo</h1>
+          <p className="mt-1 max-w-2xl text-base text-[#b7c8bd]">Completá los datos y mirá a la derecha cómo va a quedar. La llave es de eliminación directa y se genera cuando estén los equipos.</p>
         </div>
+        <Link to="/app/admin/torneos" className={cn(BTN_SECONDARY, 'max-sm:w-full')}>
+          <ArrowLeft aria-hidden="true" />
+          Volver a torneos
+        </Link>
+      </header>
+
+      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="flex min-w-0 flex-col gap-6">
+          <FormSection step={1} index={0} title="Datos del torneo" description="Cómo se llama, cuándo y dónde se juega.">
+            <div className="space-y-2">
+              <div className="flex items-baseline justify-between gap-3">
+                <Label htmlFor="tournament-name">Nombre</Label>
+                <CharCount value={values.nombre ?? ''} max={120} />
+              </div>
+              <Input id="tournament-name" placeholder="Copa Fútbol 5 - Abierta" aria-invalid={!!errors.nombre} aria-describedby={describedBy('nombre')} {...form.register('nombre')} />
+              <FieldError id="nombre-error" message={errors.nombre?.message} />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-baseline justify-between gap-3">
+                <Label htmlFor="description">Descripción <span className="normal-case tracking-normal text-[#8fa596]">(opcional)</span></Label>
+                <CharCount value={values.descripcion ?? ''} max={600} />
+              </div>
+              <Textarea id="description" placeholder="Descripción breve del torneo" aria-invalid={!!errors.descripcion} aria-describedby={describedBy('descripcion')} {...form.register('descripcion')} />
+              <FieldError id="descripcion-error" message={errors.descripcion?.message} />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="date">Fecha</Label>
+                <Input id="date" type="date" aria-invalid={!!errors.fecha} aria-describedby={describedBy('fecha')} {...form.register('fecha')} />
+                <FieldError id="fecha-error" message={errors.fecha?.message} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="place">Lugar <span className="normal-case tracking-normal text-[#8fa596]">(opcional)</span></Label>
+                <Input id="place" placeholder="Complejo o club" aria-invalid={!!errors.lugar} aria-describedby={describedBy('lugar')} {...form.register('lugar')} />
+                <FieldError id="lugar-error" message={errors.lugar?.message} />
+              </div>
+            </div>
+          </FormSection>
+
+          <FormSection step={2} index={1} title="Modalidad y cupo" description="Cuántos juegan por lado y cuántos equipos entran en la llave.">
+            <Controller
+              control={form.control}
+              name="tipo_futbol"
+              render={({ field }) => <ModalityPicker name={field.name} value={field.value} onChange={field.onChange} onBlur={field.onBlur} />}
+            />
+            <Controller
+              control={form.control}
+              name="max_equipos"
+              render={({ field }) => <CupoPicker name={field.name} value={field.value} onChange={field.onChange} onBlur={field.onBlur} />}
+            />
+          </FormSection>
+
+          <FormSection step={3} index={2} title="Visibilidad" description="Quién puede inscribir a su equipo.">
+            <Controller
+              control={form.control}
+              name="visibilidad"
+              render={({ field }) => <VisibilityPicker name={field.name} value={field.value} onChange={field.onChange} onBlur={field.onBlur} />}
+            />
+          </FormSection>
+        </div>
+
+        <aside aria-label="Vista previa y confirmación" className="anim-stagger flex min-w-0 flex-col gap-4 lg:sticky lg:top-6" style={{ '--i': 3 } as CSSProperties}>
+          <p className="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-[#b7c8bd]">
+            <span className="size-2 rounded-full bg-[#35f46e]" aria-hidden="true" />
+            Vista previa en vivo
+          </p>
+          <TournamentPreview values={values} />
+          <button type="submit" className={cn(BTN_PRIMARY, 'min-h-[54px] w-full text-base')} disabled={mutation.isPending}>
+            <Plus className="size-5" strokeWidth={2.6} aria-hidden="true" />
+            {mutation.isPending ? 'Creando torneo...' : 'Crear torneo'}
+          </button>
+          <p className="text-center text-xs text-[#8fa596]">Después lo podés editar desde Gestión de torneos.</p>
+        </aside>
       </form>
     </div>
   )

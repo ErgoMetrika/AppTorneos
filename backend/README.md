@@ -47,7 +47,8 @@ Proyecto Torneo/
         ├── 20261029000005_codigo_solo_creador.sql <- solo el creador ve el código
         ├── 20261029000006_admin_del_equipo.sql    <- quitar invitados y salir del equipo
         ├── 20261029000007_creado_por.sql          <- columna equipos.creado_por (admin del equipo)
-        └── 20261029000008_quitar_en_inscripcion.sql <- bajas permitidas en torneos en inscripción
+        ├── 20261029000008_quitar_en_inscripcion.sql <- bajas permitidas en torneos en inscripción
+        └── 20261030000009_seguridad_revision.sql    <- mails privados, torneos privados y controles extra
 ```
 
 Una **migración** es un archivo SQL numerado que se aplica una sola vez y en orden.
@@ -193,13 +194,19 @@ no ocupen el último cupo al mismo tiempo.
 
 | Tabla | Visitante (`anon`) | Logueado (`authenticated`) | Admin |
 |---|---|---|---|
-| `usuarios` | – | Lee todos. Edita su nombre. | Todo (incl. cambiar roles) |
+| `usuarios` | – | Lee id, nombre y rol (**no el mail**). Edita solo su nombre. Su perfil con mail sale de `mi_perfil()` | Ve los mails de los libres con `usuarios_disponibles()`. El rol se cambia desde el SQL Editor |
 | `contactos` | Inserta | Inserta | Lee / borra |
 | `torneos` | Lee públicos | Lee públicos + privados donde está inscripto | Todo |
 | `equipos` | Lee (sin código) | Lee (sin código). Crea vía `crear_equipo()` | Todo |
 | `jugadores` | Lee | Lee. Entra vía funciones. Borra su propia fila si el equipo no compite | Todo |
-| `torneo_equipos` | Lee | Lee. Inscribe vía `inscribir_equipo()` | Todo |
-| `partidos` | Lee | Lee | Todo (vía `generar_llave()` / `cargar_resultado()`) |
+| `torneo_equipos` | Lee los de torneos públicos | Lee los de torneos que puede ver (`puede_ver_torneo()`). Inscribe vía `inscribir_equipo()` | Todo |
+| `partidos` | Lee los de torneos públicos | Lee los de torneos que puede ver | Todo (vía `generar_llave()` / `cargar_resultado()`) |
+
+Controles de la migración 9 (sin tablas ni columnas nuevas):
+- `buscar_jugador_por_mail(mail)`: solo para el admin de un equipo (o el admin general) y con el **mail completo**, para invitar.
+- Penales nunca negativos (`CHECK` en `partidos`).
+- La regla del plantel mínimo también vale cuando el admin general quita o mueve un jugador (trigger). Al generar la llave se revisa que todos los equipos lleguen al mínimo.
+- Si llegan dos bajas al mismo tiempo en un equipo, se procesan de a una (bloqueo de la fila del equipo).
 
 Las funciones son `SECURITY DEFINER`: corren con permisos del dueño de la base, por eso
 pueden escribir donde el usuario no puede directo, pero **cada una valida quién la llama**
