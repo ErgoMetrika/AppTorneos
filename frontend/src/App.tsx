@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { AppLayout } from '@/components/layout/app-layout'
 import { PublicLayout } from '@/components/layout/public-layout'
-import { AdminRoute, ProtectedRoute } from '@/components/layout/route-guards'
+import { AdminRoute, GuestOnly, ProtectedRoute, RedirectToApp } from '@/components/layout/route-guards'
 import { LoadingState } from '@/components/shared/states'
 
 const HomePage = lazy(() => import('@/pages/home-page').then((module) => ({ default: module.HomePage })))
@@ -23,19 +23,15 @@ export default function App() {
   return (
     <Suspense fallback={<div className="p-8"><LoadingState label="Cargando vista" /></div>}>
       <Routes>
+      {/* Sitio público: solo para visitantes. Con sesión iniciada se navega por el panel. */}
       <Route element={<PublicLayout />}>
-        <Route index element={<HomePage />} />
-        <Route path="contacto" element={<ContactPage />} />
+        <Route index element={<GuestOnly to="/app/torneos"><HomePage /></GuestOnly>} />
+        <Route path="contacto" element={<GuestOnly to="/app/contacto"><ContactPage /></GuestOnly>} />
       </Route>
 
-      <Route element={<ProtectedRoute />}>
-        <Route element={<PublicLayout />}>
-          <Route path="torneos" element={<TournamentsPage />} />
-          <Route path="torneos/:id" element={<TournamentDetailPage />} />
-          <Route path="equipos" element={<TeamsPage />} />
-          <Route path="equipos/:id" element={<TeamDetailPage />} />
-        </Route>
-      </Route>
+      {/* Torneos y equipos viven en el panel; las direcciones viejas redirigen ahí */}
+      <Route path="torneos/*" element={<RedirectToApp />} />
+      <Route path="equipos/*" element={<RedirectToApp />} />
 
       <Route path="login" element={<LoginPage />} />
       <Route path="registro" element={<RegisterPage />} />
