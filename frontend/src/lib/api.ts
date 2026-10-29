@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import type {
+  Contacto,
   EquipoDetalle,
   EquipoAdmin,
   EquipoResumen,
@@ -189,41 +190,26 @@ export async function getPlayer(id: number): Promise<JugadorDetalle> {
   }
 }
 
+// Usuarios generales sin equipo (solo admin). Los mails no se leen directo de la
+// tabla: los entrega una función de la base que controla quién pregunta.
 export async function getAvailableUsers(): Promise<UsuarioSeleccionable[]> {
-  const [{ data: users, error: usersError }, { data: players, error: playersError }] = await Promise.all([
-    supabase.from('usuarios').select('id, nombre, email, rol').eq('rol', 'general').order('nombre'),
-    supabase.from('jugadores').select('usuario_id'),
-  ])
-  throwIfError(usersError)
-  throwIfError(playersError)
-  const assigned = new Set((players ?? []).map((player) => player.usuario_id))
-  return (users ?? []).filter((user) => !assigned.has(user.id)) as UsuarioSeleccionable[]
+  const { data, error } = await supabase.rpc('usuarios_disponibles')
+  throwIfError(error)
+  return (data ?? []) as UsuarioSeleccionable[]
 }
 
-// Busca jugadores por mail para invitarlos a un equipo.
-// Solo lee: la base no deja sumar a otro usuario, cada uno entra con el código.
+// ¿El texto es un mail completo? La búsqueda de invitados solo funciona con el mail entero.
+export function isFullEmail(term: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(term.trim())
+}
+
+// Busca un jugador por su mail COMPLETO para invitarlo al equipo.
+// Solo puede usarla el administrador del equipo; la base lo controla.
 export async function searchUsersByEmail(term: string): Promise<UsuarioBuscado[]> {
-  const clean = term.trim().replace(/[%_,()*]/g, '')
-  if (clean.length < 3) return []
-
-  const { data: users, error: usersError } = await supabase
-    .from('usuarios')
-    .select('id, nombre, email')
-    .eq('rol', 'general')
-    .ilike('email', `%${clean}%`)
-    .order('email')
-    .limit(6)
-  throwIfError(usersError)
-  if (!users?.length) return []
-
-  const { data: players, error: playersError } = await supabase
-    .from('jugadores')
-    .select('usuario_id, equipo_id')
-    .in('usuario_id', users.map((user) => user.id))
-  throwIfError(playersError)
-
-  const teamByUser = new Map((players ?? []).map((player) => [player.usuario_id as string, player.equipo_id as number]))
-  return users.map((user) => ({ ...user, equipo_id: teamByUser.get(user.id) ?? null })) as UsuarioBuscado[]
+  if (!isFullEmail(term)) return []
+  const { data, error } = await supabase.rpc('buscar_jugador_por_mail', { p_mail: term.trim() })
+  throwIfError(error)
+  return (data ?? []) as UsuarioBuscado[]
 }
 
 export async function createAdminTeam(nombre: string): Promise<EquipoAdmin> {
@@ -267,15 +253,56 @@ export async function sendContact(input: { nombre: string; email: string; mensaj
   throwIfError(error)
 }
 
-export async function getProfile(userId: string): Promise<PerfilUsuario> {
-  const { data, error } = await supabase
-    .from('usuarios')
-    .select('id, nombre, email, rol')
-    .eq('id', userId)
-    .single()
-
+// Perfil del usuario logueado (con su mail). El parámetro queda por compatibilidad:
+// la base devuelve siempre el perfil de quien está logueado.
+export async function getProfile(_userId: string): Promise<PerfilUsuario> {
+  const { data, error } = await supabase.rpc('mi_perfil')
   throwIfError(error)
-  return data as PerfilUsuario
+  const perfil = (data as PerfilUsuario[] | null)?.[0]
+  if (!perfil) throw new Error('No encontramos tu perfil.')
+  return perfil
+}
+
+// ---------- Administrador general ----------
+
+// Carga el resultado de un partido. La base define el ganador (penales si empatan)
+// y lo pasa al partido siguiente; si era la final, el torneo queda finalizado.
+export async function loadMatchResult(input: { partidoId: number; golesLocal: number; golesVisitante: number; penalesLocal?: number | null; penalesVisitante?: number | null }) {
+  const { error } = await supabase.rpc('cargar_resultado', {
+    p_partido_id: input.partidoId,
+    p_goles_local: input.golesLocal,
+    p_goles_visitante: input.golesVisitante,
+    p_penales_local: input.penalesLocal ?? null,
+    p_penales_visitante: input.penalesVisitante ?? null,
+  })
+  throwIfError(error)
+}
+
+// Edita los datos de un torneo (solo el admin: lo controla la base)
+export async function updateTournament(id: number, input: Partial<NuevoTorneoInput>) {
+  const { error } = await supabase.from('torneos').update(input).eq('id', id)
+  throwIfError(error)
+}
+
+// Borra un torneo con sus inscripciones y partidos (solo el admin)
+export async function deleteTournament(id: number) {
+  const { error } = await supabase.from('torneos').delete().eq('id', id)
+  throwIfError(error)
+}
+
+// Consultas del formulario de Contacto (solo las lee el admin)
+export async function getContacts(): Promise<Contacto[]> {
+  const { data, error } = await supabase
+    .from('contactos')
+    .select('id, nombre, email, mensaje, creado_en')
+    .order('creado_en', { ascending: false })
+  throwIfError(error)
+  return (data ?? []) as Contacto[]
+}
+
+export async function deleteContact(id: number) {
+  const { error } = await supabase.from('contactos').delete().eq('id', id)
+  throwIfError(error)
 }
 
 // Torneos en los que está anotado un equipo (los privados solo los ven sus integrantes y el admin)

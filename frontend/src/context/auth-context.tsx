@@ -59,13 +59,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [queryClient])
 
+  const userId = session?.user.id
   useEffect(() => {
-    if (!session?.user.id) return
+    if (!userId) return
+    // Si cambia el usuario (o se desmonta) antes de que llegue la respuesta, la descartamos:
+    // así un perfil viejo no pisa el de la sesión actual
+    let active = true
     setLoading(true)
-    getProfile(session.user.id)
-      .then(setProfile)
-      .finally(() => setLoading(false))
-  }, [session?.user.id])
+    getProfile(userId)
+      .then((nextProfile) => {
+        if (active) setProfile(nextProfile)
+      })
+      .catch(() => {
+        // Sin perfil no hay rol: queda en null y la app se comporta como usuario sin datos
+        if (active) setProfile(null)
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [userId])
 
   const value = useMemo<AuthContextValue>(
     () => ({

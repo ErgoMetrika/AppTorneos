@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { EmptyCrest, PitchLines, TeamCrest, Trophy } from '@/components/visuals/art'
 import { useAuth } from '@/context/auth-context'
 import { enrollTeam, generateBracket, getBracket, getMyTeam, getTournament } from '@/lib/api'
+import { consultasDeInscripcion, invalidarConsultas } from '@/lib/query-keys'
 import { cn, formatDate, getErrorMessage } from '@/lib/utils'
 import type { PartidoLlave } from '@/types/domain'
 
@@ -140,8 +141,13 @@ function Datum({ label, children }: { label: string; children: ReactNode }) {
   )
 }
 
+// Se monta con key={id}: al pasar de un torneo a otro se reinicia todo el estado local (por ejemplo, el código privado)
 export function TournamentDetailPage() {
   const id = Number(useParams().id)
+  return <TournamentDetailContent key={id} id={id} />
+}
+
+function TournamentDetailContent({ id }: { id: number }) {
   const { session, isAdmin } = useAuth()
   const location = useLocation()
   const inApp = location.pathname.startsWith('/app')
@@ -161,8 +167,7 @@ export function TournamentDetailPage() {
     },
     onSuccess: () => {
       toast.success('Equipo inscripto al torneo')
-      void queryClient.invalidateQueries({ queryKey: ['tournament', id] })
-      void queryClient.invalidateQueries({ queryKey: ['tournaments'] })
+      invalidarConsultas(queryClient, consultasDeInscripcion(id))
     },
     onError: (error) => toast.error(getErrorMessage(error)),
   })
@@ -170,9 +175,7 @@ export function TournamentDetailPage() {
     mutationFn: () => generateBracket(id),
     onSuccess: () => {
       toast.success('Llave generada correctamente')
-      void queryClient.invalidateQueries({ queryKey: ['bracket', id] })
-      void queryClient.invalidateQueries({ queryKey: ['tournament', id] })
-      void queryClient.invalidateQueries({ queryKey: ['tournaments'] })
+      invalidarConsultas(queryClient, consultasDeInscripcion(id))
     },
     onError: (error) => toast.error(getErrorMessage(error)),
   })

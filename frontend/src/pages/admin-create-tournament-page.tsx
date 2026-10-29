@@ -19,13 +19,14 @@ import { getErrorMessage } from '@/lib/utils'
 import type { NuevoTorneoInput } from '@/types/domain'
 
 const schema = z.object({
-  nombre: z.string().min(3, 'Ingresá un nombre.'),
-  descripcion: z.string().max(600).optional(),
+  // trim(): no se aceptan textos hechos sólo de espacios y se manda el valor ya recortado
+  nombre: z.string().trim().min(3, 'Ingresá un nombre de al menos 3 caracteres.').max(120, 'El nombre puede tener hasta 120 caracteres.'),
+  descripcion: z.string().trim().max(600, 'La descripción puede tener hasta 600 caracteres.').optional(),
   tipo_futbol: z.number().refine((value) => [5, 7, 9, 11].includes(value)),
   max_equipos: z.number().refine((value) => [2, 4, 8, 16].includes(value)),
   visibilidad: z.enum(['publico', 'privado']),
   fecha: z.string().min(1, 'Elegí una fecha.'),
-  lugar: z.string().max(160).optional(),
+  lugar: z.string().trim().max(160, 'El lugar puede tener hasta 160 caracteres.').optional(),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -56,10 +57,10 @@ export function AdminCreateTournamentPage() {
           <CardHeader><CardTitle>Datos del torneo</CardTitle><CardDescription>La llave será de eliminación directa y se genera más adelante.</CardDescription></CardHeader>
           <CardContent className="space-y-5">
             <div className="space-y-2"><Label htmlFor="tournament-name">Nombre</Label><Input id="tournament-name" placeholder="Copa Fútbol 5 - Abierta" {...form.register('nombre')} />{form.formState.errors.nombre && <p className="text-xs text-error">{form.formState.errors.nombre.message}</p>}</div>
-            <div className="space-y-2"><Label htmlFor="description">Descripción</Label><Textarea id="description" placeholder="Descripción breve del torneo" {...form.register('descripcion')} /></div>
+            <div className="space-y-2"><Label htmlFor="description">Descripción</Label><Textarea id="description" placeholder="Descripción breve del torneo" {...form.register('descripcion')} />{form.formState.errors.descripcion && <p className="text-xs text-error">{form.formState.errors.descripcion.message}</p>}</div>
             <div className="grid gap-4 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="football-type">Modalidad</Label><Select id="football-type" {...form.register('tipo_futbol', { valueAsNumber: true })}>{[5, 7, 9, 11].map((value) => <option key={value} value={value}>Fútbol {value}</option>)}</Select></div><div className="space-y-2"><Label htmlFor="max-teams">Cupo</Label><Select id="max-teams" {...form.register('max_equipos', { valueAsNumber: true })}>{[2, 4, 8, 16].map((value) => <option key={value} value={value}>{value} equipos</option>)}</Select></div></div>
             <div className="grid gap-4 sm:grid-cols-2"><div className="space-y-2"><Label htmlFor="date">Fecha</Label><Input id="date" type="date" {...form.register('fecha')} />{form.formState.errors.fecha && <p className="text-xs text-error">{form.formState.errors.fecha.message}</p>}</div><div className="space-y-2"><Label htmlFor="visibility">Visibilidad</Label><Select id="visibility" {...form.register('visibilidad')}><option value="publico">Público</option><option value="privado">Privado</option></Select></div></div>
-            <div className="space-y-2"><Label htmlFor="place">Lugar</Label><Input id="place" placeholder="Complejo o club" {...form.register('lugar')} /></div>
+            <div className="space-y-2"><Label htmlFor="place">Lugar</Label><Input id="place" placeholder="Complejo o club" {...form.register('lugar')} />{form.formState.errors.lugar && <p className="text-xs text-error">{form.formState.errors.lugar.message}</p>}</div>
             <div className="alert border border-info/20 bg-info/10 text-sm"><LockKeyhole className="size-5 text-info" /><span>Si elegís privado, la clave se genera automáticamente y queda disponible en el detalle del torneo.</span></div>
           </CardContent>
         </Card>

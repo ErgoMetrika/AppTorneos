@@ -76,9 +76,9 @@ export function PlayerCard({ nombre, posicion, equipo, esAdminDelEquipo = false,
       </div>
 
       <div className="relative flex flex-col items-center gap-2 border-t border-[var(--glow)] bg-[rgba(6,17,11,0.88)] px-4 pb-[18px] pt-4 text-center">
-        <p className="line-clamp-2 break-words font-display text-[34px] font-black uppercase leading-none tracking-[0.02em] sm:text-[38px]">{nombre}</p>
+        <p className="line-clamp-2 w-full break-words [overflow-wrap:anywhere] font-display text-[34px] font-black uppercase leading-none tracking-[0.02em] sm:text-[38px]">{nombre}</p>
         <p className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#b7c8bd]">
-          <span>{equipo}</span>
+          <span className="min-w-0 max-w-full [overflow-wrap:anywhere]">{equipo}</span>
           <span className="text-primary" aria-hidden="true">·</span>
           <span className={cn(esAdminDelEquipo && 'text-[#f2c94c]')}>{rol}</span>
           {since && (

@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { createTeam, getMyTeam, joinTeam } from '@/lib/api'
+import { consultasDelPlantel, invalidarConsultas } from '@/lib/query-keys'
 import { clearPendingInvite, currentInvite } from '@/lib/invitation'
 import { getErrorMessage, positionLabel } from '@/lib/utils'
 import type { PosicionJugador } from '@/types/domain'
@@ -51,9 +52,7 @@ export function MyTeamPage() {
 
   const refreshTeam = (message: string) => {
     toast.success(message)
-    void queryClient.invalidateQueries({ queryKey: ['my-team'] })
-    void queryClient.invalidateQueries({ queryKey: ['teams'] })
-    void queryClient.invalidateQueries({ queryKey: ['players'] })
+    invalidarConsultas(queryClient, consultasDelPlantel)
   }
   const createMutation = useMutation({ mutationFn: createTeam, onSuccess: () => refreshTeam('Equipo creado correctamente'), onError: (error) => toast.error(getErrorMessage(error)) })
   const joinMutation = useMutation({ mutationFn: joinTeam, onSuccess: () => { dismissInvite(); refreshTeam('Te sumaste al equipo') }, onError: (error) => toast.error(getErrorMessage(error)) })
@@ -79,7 +78,7 @@ export function MyTeamPage() {
         )}
         <section className="relative mt-8 flex flex-col gap-6 overflow-hidden rounded-2xl border border-primary/20 bg-[radial-gradient(circle_at_12%_50%,rgba(53,244,110,.18),transparent_40%),linear-gradient(120deg,rgba(53,244,110,.08),rgba(11,27,18,.95)_58%)] p-6 shadow-[0_16px_40px_rgba(0,0,0,0.4)] md:flex-row md:items-center md:justify-between md:p-8">
           <PitchLines className="absolute -right-16 -top-6 hidden h-[340px] w-[520px] opacity-[0.12] md:block" />
-          <div className="relative flex items-center gap-5"><TeamMark name={team.nombre} label={`Escudo de ${team.nombre}`} className="anim-pop h-28 w-24" /><Jersey name={team.nombre} className="anim-pop hidden size-24 [animation-delay:160ms] lg:block" /><div><div className="flex flex-wrap gap-2"><Badge>{team.soy_creador ? 'Administrador del equipo' : 'Invitado'}</Badge><Badge variant="secondary">Mi posición: {positionLabel[team.mi_posicion]}</Badge></div><h2 className="mt-3 font-display text-4xl font-black uppercase sm:text-5xl">{team.nombre}</h2></div></div>
+          <div className="relative flex min-w-0 flex-col items-start gap-5 sm:flex-row sm:items-center"><TeamMark name={team.nombre} label={`Escudo de ${team.nombre}`} className="anim-pop h-28 w-24" /><Jersey name={team.nombre} className="anim-pop hidden size-24 shrink-0 [animation-delay:160ms] lg:block" /><div className="min-w-0 max-w-full"><div className="flex flex-wrap gap-2"><Badge>{team.soy_creador ? 'Administrador del equipo' : 'Invitado'}</Badge><Badge variant="secondary">Mi posición: {positionLabel[team.mi_posicion]}</Badge></div><h2 className="mt-3 break-words [overflow-wrap:anywhere] font-display text-4xl font-black uppercase sm:text-5xl">{team.nombre}</h2></div></div>
           <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center">{team.soy_creador && team.codigo_equipo ? <button type="button" onClick={() => { void navigator.clipboard.writeText(team.codigo_equipo ?? ''); toast.success('Código copiado') }} className="rounded-xl border border-primary/25 bg-base-100/50 p-4 text-left transition-[border-color,background-color,scale] duration-150 hover:border-primary/50 hover:bg-base-100/70 active:scale-[0.98] motion-reduce:active:scale-100"><span className="block font-mono text-[0.6rem] font-bold uppercase tracking-widest text-base-content/40">Código del equipo</span><span className="mt-1 flex items-center gap-3 font-mono text-xl font-black tracking-[0.18em] text-primary">{team.codigo_equipo}<Clipboard className="size-4" /></span></button> : <p className="max-w-56 rounded-xl border border-base-content/10 bg-base-100/50 p-4 text-xs leading-5 text-base-content/55">El código y las invitaciones los maneja el administrador del equipo.</p>}<LeaveTeamButton team={team} /></div>
         </section>
         {team.compitiendo && (

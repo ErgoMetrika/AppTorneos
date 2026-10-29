@@ -10,6 +10,7 @@ import { Jersey, Pitch, PitchLines, PlayerAvatar, Silhouette, TeamCrest } from '
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/context/auth-context'
 import { deletePlayer, getPlayer, getTeam, getTeamTournaments } from '@/lib/api'
+import { consultasDelPlantel, invalidarConsultas } from '@/lib/query-keys'
 import { formatDate, getErrorMessage, positionLabel, tournamentStateLabel } from '@/lib/utils'
 
 // Tarjeta oscura con rótulo verde en mono, como en el resto de las fichas
@@ -38,8 +39,7 @@ export function PlayerDetailPage() {
     mutationFn: () => deletePlayer(id),
     onSuccess: () => {
       toast.success('Jugador removido del plantel')
-      void queryClient.invalidateQueries({ queryKey: ['players'] })
-      void queryClient.invalidateQueries({ queryKey: ['teams'] })
+      invalidarConsultas(queryClient, consultasDelPlantel)
       navigate('/app/jugadores')
     },
     onError: (error) => toast.error(getErrorMessage(error)),
