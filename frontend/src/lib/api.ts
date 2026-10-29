@@ -12,6 +12,7 @@ import type {
   PosicionJugador,
   Torneo,
   TorneoDetalle,
+  TorneoDelEquipo,
   TorneoListado,
   UsuarioBuscado,
   UsuarioSeleccionable,
@@ -272,6 +273,19 @@ export async function getProfile(userId: string): Promise<PerfilUsuario> {
 
   throwIfError(error)
   return data as PerfilUsuario
+}
+
+// Torneos en los que está anotado un equipo (los privados solo los ven sus integrantes y el admin)
+export async function getTeamTournaments(teamId: number): Promise<TorneoDelEquipo[]> {
+  const { data, error } = await supabase
+    .from('torneo_equipos')
+    .select('torneos(id, nombre, tipo_futbol, estado, fecha, max_equipos)')
+    .eq('equipo_id', teamId)
+  throwIfError(error)
+  return ((data ?? []) as unknown as Array<{ torneos: TorneoDelEquipo | TorneoDelEquipo[] | null }>)
+    .map((row) => (Array.isArray(row.torneos) ? row.torneos[0] : row.torneos))
+    .filter((torneo): torneo is TorneoDelEquipo => !!torneo)
+    .sort((a, b) => a.fecha.localeCompare(b.fecha))
 }
 
 // Solo para el admin: código de cada equipo, por id de equipo

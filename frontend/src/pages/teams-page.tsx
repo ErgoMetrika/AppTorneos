@@ -5,6 +5,7 @@ import { Link, useLocation } from 'react-router-dom'
 
 import { CreateTeamDialog } from '@/components/admin/create-team-dialog'
 import { TeamMark } from '@/components/shared/team-mark'
+import { Jersey } from '@/components/visuals/art'
 import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -42,8 +43,9 @@ export function TeamsPage() {
         {!query.isLoading && !query.isError && teams.length === 0 && <EmptyState title="Sin equipos" description="Todavía no hay equipos para mostrar." />}
         <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
           {teams.map((team) => (
-            <Card key={team.equipo_id} className="flex items-center gap-4 p-5 transition hover:border-primary/30">
-              <TeamMark name={team.equipo} />
+            <Card key={team.equipo_id} className="group relative flex items-center gap-4 overflow-hidden p-5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_14px_30px_rgba(0,0,0,0.35)]">
+              <Jersey name={team.equipo} className="pointer-events-none absolute -bottom-6 right-16 size-28 opacity-[0.14] transition group-hover:opacity-25" />
+              <TeamMark name={team.equipo} label={`Escudo de ${team.equipo}`} className="h-[4.5rem] w-16" />
               <div className="min-w-0 flex-1"><h2 className="truncate font-display text-2xl font-bold uppercase">{team.equipo}</h2><p className="mt-1 flex items-center gap-2 text-xs text-base-content/45"><Users className="size-3.5" /> {team.cant_jugadores} jugadores</p>{codesQuery.data?.get(team.equipo_id) && <p className="mt-1 text-xs text-base-content/45">Código <span className="font-mono font-bold tracking-widest text-primary">{codesQuery.data.get(team.equipo_id)}</span></p>}</div>
               <Button asChild size="sm" variant="outline"><Link to={`${inApp ? '/app' : ''}/equipos/${team.equipo_id}`}>Ver</Link></Button>
             </Card>

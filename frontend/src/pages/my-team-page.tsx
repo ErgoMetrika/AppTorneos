@@ -12,6 +12,8 @@ import { ErrorState, LoadingState } from '@/components/shared/states'
 import { TeamMark } from '@/components/shared/team-mark'
 import { InviteSearchBar } from '@/components/team/invite-by-email'
 import { LeaveTeamButton, TeamRoster } from '@/components/team/team-roster'
+import { PositionSummary, TeamTournaments } from '@/components/team/team-tournaments'
+import { Jersey, PitchLines } from '@/components/visuals/art'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -75,10 +77,13 @@ export function MyTeamPage() {
             <Button type="button" size="sm" variant="outline" onClick={dismissInvite}>Cerrar</Button>
           </div>
         )}
-        <section className="mt-8 flex flex-col gap-6 rounded-2xl border border-primary/20 bg-[linear-gradient(120deg,rgba(53,244,110,.12),rgba(11,27,18,.9)_58%)] p-6 md:flex-row md:items-center md:justify-between md:p-8">
-          <div className="flex items-center gap-5"><TeamMark name={team.nombre} className="size-20" /><div><div className="flex flex-wrap gap-2"><Badge>{team.soy_creador ? 'Administrador del equipo' : 'Invitado'}</Badge><Badge variant="secondary">Mi posición: {positionLabel[team.mi_posicion]}</Badge></div><h2 className="mt-3 font-display text-4xl font-black uppercase sm:text-5xl">{team.nombre}</h2></div></div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">{team.soy_creador && team.codigo_equipo ? <button type="button" onClick={() => { void navigator.clipboard.writeText(team.codigo_equipo ?? ''); toast.success('Código copiado') }} className="rounded-xl border border-primary/25 bg-base-100/50 p-4 text-left"><span className="block font-mono text-[0.6rem] font-bold uppercase tracking-widest text-base-content/40">Código del equipo</span><span className="mt-1 flex items-center gap-3 font-mono text-xl font-black tracking-[0.18em] text-primary">{team.codigo_equipo}<Clipboard className="size-4" /></span></button> : <p className="max-w-56 rounded-xl border border-base-content/10 bg-base-100/50 p-4 text-xs leading-5 text-base-content/55">El código y las invitaciones los maneja el administrador del equipo.</p>}<LeaveTeamButton team={team} /></div>
+        <section className="relative mt-8 flex flex-col gap-6 overflow-hidden rounded-2xl border border-primary/20 bg-[radial-gradient(circle_at_12%_50%,rgba(53,244,110,.18),transparent_40%),linear-gradient(120deg,rgba(53,244,110,.08),rgba(11,27,18,.95)_58%)] p-6 shadow-[0_16px_40px_rgba(0,0,0,0.4)] md:flex-row md:items-center md:justify-between md:p-8">
+          <PitchLines className="absolute -right-16 -top-6 hidden h-[340px] w-[520px] opacity-[0.12] md:block" />
+          <div className="relative flex items-center gap-5"><TeamMark name={team.nombre} label={`Escudo de ${team.nombre}`} className="h-28 w-24" /><Jersey name={team.nombre} className="hidden size-24 lg:block" /><div><div className="flex flex-wrap gap-2"><Badge>{team.soy_creador ? 'Administrador del equipo' : 'Invitado'}</Badge><Badge variant="secondary">Mi posición: {positionLabel[team.mi_posicion]}</Badge></div><h2 className="mt-3 font-display text-4xl font-black uppercase sm:text-5xl">{team.nombre}</h2></div></div>
+          <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center">{team.soy_creador && team.codigo_equipo ? <button type="button" onClick={() => { void navigator.clipboard.writeText(team.codigo_equipo ?? ''); toast.success('Código copiado') }} className="rounded-xl border border-primary/25 bg-base-100/50 p-4 text-left"><span className="block font-mono text-[0.6rem] font-bold uppercase tracking-widest text-base-content/40">Código del equipo</span><span className="mt-1 flex items-center gap-3 font-mono text-xl font-black tracking-[0.18em] text-primary">{team.codigo_equipo}<Clipboard className="size-4" /></span></button> : <p className="max-w-56 rounded-xl border border-base-content/10 bg-base-100/50 p-4 text-xs leading-5 text-base-content/55">El código y las invitaciones los maneja el administrador del equipo.</p>}<LeaveTeamButton team={team} /></div>
         </section>
+        <div className="mt-8"><PositionSummary players={team.jugadores} /></div>
+        <div className="mt-6"><TeamTournaments teamId={team.id} players={team.jugadores} /></div>
         <TeamRoster team={team} />
       </div>
     )

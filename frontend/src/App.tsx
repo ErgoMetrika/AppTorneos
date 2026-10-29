@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { AppLayout } from '@/components/layout/app-layout'
 import { PublicLayout } from '@/components/layout/public-layout'
@@ -18,6 +18,7 @@ const MyTeamPage = lazy(() => import('@/pages/my-team-page').then((module) => ({
 const AdminCreateTournamentPage = lazy(() => import('@/pages/admin-create-tournament-page').then((module) => ({ default: module.AdminCreateTournamentPage })))
 const LoginPage = lazy(() => import('@/pages/auth-pages').then((module) => ({ default: module.LoginPage })))
 const RegisterPage = lazy(() => import('@/pages/auth-pages').then((module) => ({ default: module.RegisterPage })))
+const NotFoundPage = lazy(() => import('@/pages/not-found-page').then((module) => ({ default: module.NotFoundPage })))
 
 export default function App() {
   return (
@@ -53,7 +54,7 @@ export default function App() {
         </Route>
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
   )

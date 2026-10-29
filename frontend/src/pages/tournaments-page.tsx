@@ -11,7 +11,8 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useAuth } from '@/context/auth-context'
 import { getTournaments, searchPrivateTournament } from '@/lib/api'
-import { formatDate, getErrorMessage } from '@/lib/utils'
+import { EmptyCrest, Pitch, TeamCrest, Trophy } from '@/components/visuals/art'
+import { cn, formatDate, getErrorMessage } from '@/lib/utils'
 
 export function TournamentsPage() {
   const [search, setSearch] = useState('')
@@ -73,8 +74,14 @@ export function TournamentsPage() {
         {!query.isLoading && !query.isError && tournaments.length === 0 && <EmptyState title="Sin torneos" description="No encontramos torneos públicos con ese nombre." />}
         <div className="grid gap-5 2xl:grid-cols-2">
           {tournaments.map((tournament) => (
-            <Card key={tournament.id} className="group overflow-hidden transition hover:border-primary/35 hover:bg-base-200">
-              <div className="h-1 bg-gradient-to-r from-primary to-primary/10" />
+            <Card key={tournament.id} className="group overflow-hidden transition hover:-translate-y-0.5 hover:border-primary/35 hover:bg-base-200 hover:shadow-[0_16px_34px_rgba(0,0,0,0.4)]">
+              {/* Franja ilustrada: cancha según la modalidad y trofeo; el color de abajo indica el estado */}
+              <div className="relative h-28 overflow-hidden">
+                <Pitch large={tournament.tipo_futbol >= 9} className="absolute inset-0 h-full w-full scale-[1.35] object-cover opacity-80 drop-shadow-none" />
+                <div className="absolute inset-0 bg-gradient-to-r from-base-100/20 via-transparent to-base-100/85" />
+                <Trophy dim={tournament.estado === 'finalizado'} className="absolute bottom-2 right-5 h-24 w-20 transition group-hover:-translate-y-1" />
+                <div className={cn('absolute inset-x-0 bottom-0 h-1', tournament.estado === 'inscripcion' && 'bg-primary', tournament.estado === 'en_curso' && 'bg-info', tournament.estado === 'finalizado' && 'bg-base-content/30')} />
+              </div>
               <div className="p-6">
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -88,6 +95,12 @@ export function TournamentsPage() {
                   <span className="flex items-center gap-2"><CalendarDays className="size-4 text-primary" /> {formatDate(tournament.fecha, 'dd MMM yyyy')}</span>
                   <span className="flex items-center gap-2"><MapPin className="size-4 text-primary" /> {tournament.lugar || 'A confirmar'}</span>
                   <span className="flex items-center gap-2"><Users className="size-4 text-primary" /> {tournament.inscriptos} / {tournament.max_equipos}</span>
+                </div>
+                {/* Cupo: un escudo por lugar, lleno si está ocupado */}
+                <div className="mt-4 flex flex-wrap items-center gap-1.5" aria-label={`${tournament.inscriptos} de ${tournament.max_equipos} lugares ocupados`} role="img">
+                  {Array.from({ length: tournament.max_equipos }, (_, index) => index < tournament.inscriptos
+                    ? <TeamCrest key={index} name={`Lugar ${index + 1}`} color="verde" className="h-7 w-6 drop-shadow-none" />
+                    : <EmptyCrest key={index} className="h-7 w-6" />)}
                 </div>
                 <div className="mt-5 flex items-center justify-between">
                   <span className="font-mono text-[0.65rem] font-bold uppercase tracking-wider text-base-content/35">Eliminación directa</span>

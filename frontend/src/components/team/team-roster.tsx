@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Crown, LogOut, UserMinus, Users } from 'lucide-react'
+import { Crown, LogOut, UserMinus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 
@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/shared/states'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { PlayerAvatar } from '@/components/visuals/art'
 import { useAuth } from '@/context/auth-context'
 import { leaveTeam, removeTeamPlayer } from '@/lib/api'
 import { getErrorMessage, positionLabel } from '@/lib/utils'
@@ -82,7 +83,10 @@ export function TeamRoster({ team }: { team: MiEquipo }) {
             const canRemove = team.soy_creador && !isMe
             return (
               <div key={player.id} className="flex flex-wrap items-center gap-3 border-b border-base-content/10 p-4 last:border-0 sm:flex-nowrap">
-                <span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">{player.es_admin_del_equipo ? <Crown className="size-4" /> : <Users className="size-4" />}</span>
+                <div className="relative">
+                  <PlayerAvatar name={player.nombre} admin={player.es_admin_del_equipo} />
+                  {player.es_admin_del_equipo && <Crown className="absolute -right-1 -top-1 size-4 rounded-full bg-base-100 p-0.5 text-primary" aria-hidden="true" />}
+                </div>
                 <div className="min-w-0 flex-1">
                   <Link to={`/app/jugadores/${player.id}`} className="font-bold transition hover:text-primary">{player.nombre}{isMe && <span className="ml-2 text-xs font-normal text-base-content/45">(vos)</span>}</Link>
                   <p className="mt-0.5 text-xs text-base-content/45">{player.es_admin_del_equipo ? 'Administrador del equipo' : 'Invitado'}</p>

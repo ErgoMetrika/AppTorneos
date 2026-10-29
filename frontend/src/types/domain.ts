@@ -57,6 +57,15 @@ export interface UsuarioSeleccionable {
   rol: RolUsuario
 }
 
+export interface TorneoDelEquipo {
+  id: number
+  nombre: string
+  tipo_futbol: number
+  estado: EstadoTorneo
+  fecha: string
+  max_equipos: number
+}
+
 export interface UsuarioBuscado {
   id: string
   nombre: string
