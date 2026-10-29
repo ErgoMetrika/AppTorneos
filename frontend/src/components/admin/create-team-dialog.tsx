@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { useAuth } from '@/context/auth-context'
 import { createAdminTeam, createTeam, getMyTeam } from '@/lib/api'
+import { consultasDelPlantel, invalidarConsultas } from '@/lib/query-keys'
 import { getErrorMessage, positionLabel } from '@/lib/utils'
 import type { PosicionJugador } from '@/types/domain'
 
@@ -35,8 +36,7 @@ export function CreateTeamDialog() {
     mutationFn: (values: Values) => isAdmin ? createAdminTeam(values.nombre) : createTeam(values),
     onSuccess: (team) => {
       toast.success('Equipo creado correctamente')
-      void queryClient.invalidateQueries({ queryKey: ['teams'] })
-      void queryClient.invalidateQueries({ queryKey: ['my-team'] })
+      invalidarConsultas(queryClient, consultasDelPlantel)
       setOpen(false)
       form.reset()
       navigate(isAdmin ? `/app/equipos/${team.id}` : '/app/mi-equipo')

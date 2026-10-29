@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { createPlayer, getAvailableUsers, getTeams, updatePlayer } from '@/lib/api'
+import { consultasDelPlantel, invalidarConsultas } from '@/lib/query-keys'
 import { getErrorMessage, positionLabel } from '@/lib/utils'
 import type { JugadorDetalle, PosicionJugador } from '@/types/domain'
 
@@ -53,11 +54,7 @@ export function PlayerFormDialog({ defaultTeamId, player, trigger }: PlayerFormD
     },
     onSuccess: (created) => {
       toast.success(player ? 'Jugador actualizado' : 'Jugador agregado al plantel')
-      void queryClient.invalidateQueries({ queryKey: ['players'] })
-      void queryClient.invalidateQueries({ queryKey: ['player'] })
-      void queryClient.invalidateQueries({ queryKey: ['teams'] })
-      void queryClient.invalidateQueries({ queryKey: ['team'] })
-      void queryClient.invalidateQueries({ queryKey: ['available-users'] })
+      invalidarConsultas(queryClient, consultasDelPlantel)
       setOpen(false)
       if (!player) navigate(`/app/jugadores/${created.id}`)
     },

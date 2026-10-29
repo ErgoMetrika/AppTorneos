@@ -30,7 +30,7 @@ function TeamListCard({ name, players, code, to }: { name: string; players: numb
         <TeamMark name={name} label={`Escudo de ${name}`} className="h-[5.25rem] w-[4.5rem]" />
         <Jersey name={name} label={`Camiseta de ${name}`} className="size-20 shrink-0 sm:size-24" />
       </div>
-      <h2 className="truncate font-display text-4xl font-extrabold uppercase leading-none">{name}</h2>
+      <h2 className="truncate font-display text-4xl font-extrabold uppercase leading-none" title={name}>{name}</h2>
       <div className="flex items-center gap-3.5 border-t border-base-content/10 pt-4">
         <TeamMiniFormation name={name} players={players} minimum={MIN_PLAYERS} />
         <div className="min-w-0 flex-1">

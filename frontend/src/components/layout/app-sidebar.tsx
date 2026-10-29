@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { Contact, LockKeyhole, LogOut, Plus, Shield, Trophy as TrophyIcon, UserRound, Users, type LucideIcon } from 'lucide-react'
+import { ClipboardCheck, Home, Inbox, LockKeyhole, LogOut, Mail, Plus, Shield, Trophy as TrophyIcon, UserRound, Users, type LucideIcon } from 'lucide-react'
 import { Link, NavLink } from 'react-router-dom'
 
 import { EmptyCrest, PlayerAvatar, TeamCrest, Trophy } from '@/components/visuals/art'
@@ -8,13 +8,15 @@ import { getMyTeam, getTournaments } from '@/lib/api'
 import { cn, formatDate } from '@/lib/utils'
 import type { TorneoListado } from '@/types/domain'
 
-interface NavItem { to: string; label: string; icon: LucideIcon; action?: boolean }
+// end: solo se marca activo en esa ruta exacta (no en sus subrutas)
+interface NavItem { to: string; label: string; icon: LucideIcon; action?: boolean; end?: boolean }
 interface NavSection { id: string; label: string; items: NavItem[] }
 
 const torneos: NavItem = { to: '/app/torneos', label: 'Torneos', icon: TrophyIcon }
 const equipos: NavItem = { to: '/app/equipos', label: 'Equipos', icon: Shield }
 // Contacto se abre dentro del panel, sin salir al sitio público
-const contacto: NavItem = { to: '/app/contacto', label: 'Contacto', icon: Contact }
+// Contacto es un formulario que se responde por mail: ícono de sobre, no de chat
+const contacto: NavItem = { to: '/app/contacto', label: 'Contacto', icon: Mail }
 
 // Jugador general: no ve Jugadores, tiene Mi equipo
 const playerSections: NavSection[] = [
@@ -23,11 +25,18 @@ const playerSections: NavSection[] = [
   { id: 'ayuda', label: 'Ayuda', items: [contacto] },
 ]
 
-// Admin general: gestiona jugadores y crea torneos
+// Admin general: su inicio, gestión de torneos, resultados, planteles y consultas
 const adminSections: NavSection[] = [
-  { id: 'gestion', label: 'Gestión', items: [torneos, equipos, { to: '/app/jugadores', label: 'Jugadores', icon: UserRound }] },
+  { id: 'gestion', label: 'Gestión', items: [
+    { to: '/app/admin', label: 'Inicio', icon: Home, end: true },
+    { to: '/app/admin/torneos', label: 'Torneos', icon: TrophyIcon, end: true },
+    { to: '/app/admin/resultados', label: 'Resultados', icon: ClipboardCheck },
+    equipos,
+    { to: '/app/jugadores', label: 'Jugadores', icon: UserRound },
+  ] },
   { id: 'crear', label: 'Crear', items: [{ to: '/app/admin/torneos/nuevo', label: 'Nuevo torneo', icon: Plus, action: true }] },
-  { id: 'ayuda', label: 'Ayuda', items: [contacto] },
+  // El admin no usa el formulario de contacto: lee las consultas que llegan
+  { id: 'ayuda', label: 'Ayuda', items: [{ to: '/app/admin/consultas', label: 'Consultas', icon: Inbox }] },
 ]
 
 const sectionLabel = 'mb-1.5 ml-3 font-mono text-[0.625rem] font-bold uppercase tracking-[0.16em] text-[#8fa596]'
@@ -45,6 +54,7 @@ function SidebarNav({ sections, label, close }: { sections: NavSection[]; label:
                 <NavLink
                   key={item.to}
                   to={item.to}
+                  end={item.end}
                   onClick={close}
                   className={({ isActive }) => cn(
                     'relative flex h-11 items-center gap-3 rounded-full px-4 text-[0.9375rem] font-semibold text-[#b7c8bd] transition-[color,background-color,box-shadow] duration-200 ease-out hover:bg-[#10271a] hover:text-[#f4f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#35f46e]',

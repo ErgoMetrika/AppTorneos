@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { searchUsersByEmail } from '@/lib/api'
+import { isFullEmail, searchUsersByEmail } from '@/lib/api'
 import { inviteLink } from '@/lib/invitation'
 
 import { InvitationSentCard } from './invitation-sent'
@@ -35,7 +35,7 @@ export function InviteSearchBar({ teamId, teamName, teamCode }: InviteSearchBarP
   const query = useQuery({
     queryKey: ['invite-search', search],
     queryFn: () => searchUsersByEmail(search),
-    enabled: search.length >= 3,
+    enabled: isFullEmail(search),
   })
 
   const link = inviteLink(teamCode)
@@ -56,18 +56,18 @@ export function InviteSearchBar({ teamId, teamName, teamCode }: InviteSearchBarP
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
-    if (term.trim().length < 3) toast.error('Escribí al menos 3 letras del mail.')
+    if (!isFullEmail(term)) toast.error('Escribí el mail completo del jugador.')
     else setSearch(term.trim())
   }
 
-  const open = search.length >= 3
+  const open = isFullEmail(search)
 
   return (
     <div className="relative w-full sm:w-[28rem]">
       <form onSubmit={submit} className="flex gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3.5 size-4 text-base-content/30" />
-          <Input type="search" className="pl-10 pr-9" placeholder="Buscar jugador por mail" value={term} onChange={(event) => setTerm(event.target.value)} aria-label="Buscar jugador por mail" />
+          <Input type="search" className="pl-10 pr-9" placeholder="Mail completo del jugador" value={term} onChange={(event) => setTerm(event.target.value)} aria-label="Buscar jugador por mail" />
           {term && <button type="button" onClick={() => { setTerm(''); setSearch(''); setLastInvited(null) }} className="absolute right-3 top-3 text-base-content/40 hover:text-base-content" aria-label="Limpiar búsqueda"><X className="size-4" /></button>}
         </div>
         <Button type="submit"><Send className="size-4" /> Invitar</Button>
@@ -80,7 +80,7 @@ export function InviteSearchBar({ teamId, teamName, teamCode }: InviteSearchBarP
           {query.isFetching && <p className="p-4 text-xs text-base-content/45">Buscando...</p>}
           {query.isError && <p className="p-4 text-xs text-error">{query.error.message}</p>}
           {query.data && query.data.length === 0 && !query.isFetching && (
-            <p className="p-4 text-sm text-base-content/55">No hay usuarios con ese mail. Copiá el link y mandáselo para que se registre.</p>
+            <p className="p-4 text-sm text-base-content/55">Nadie se registró con ese mail. Copiá el link y mandáselo para que se registre.</p>
           )}
           {query.data && query.data.length > 0 && (
             <ul className="divide-y divide-base-content/10">

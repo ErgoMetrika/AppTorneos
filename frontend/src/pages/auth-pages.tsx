@@ -63,7 +63,7 @@ export function LoginPage() {
   const from = (location.state as { from?: string } | null)?.from
 
   useEffect(() => {
-    if (session) navigate(from || '/app/torneos', { replace: true })
+    if (session) navigate(from || '/app', { replace: true })
   }, [navigate, session, from])
 
   const submit = form.handleSubmit(async (values) => {
@@ -72,7 +72,7 @@ export function LoginPage() {
       toast.error(error.message)
       return
     }
-    navigate(from || '/app/torneos', { replace: true })
+    navigate(from || '/app', { replace: true })
   })
 
   return (

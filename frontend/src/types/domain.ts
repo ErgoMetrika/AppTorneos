@@ -59,6 +59,15 @@ export interface UsuarioSeleccionable {
   rol: RolUsuario
 }
 
+// Consulta enviada desde el formulario de Contacto
+export interface Contacto {
+  id: number
+  nombre: string
+  email: string
+  mensaje: string
+  creado_en: string
+}
+
 export interface TorneoDelEquipo {
   id: number
   nombre: string

@@ -9,16 +9,15 @@ import { Button } from '@/components/ui/button'
 import { PlayerAvatar } from '@/components/visuals/art'
 import { useAuth } from '@/context/auth-context'
 import { leaveTeam, removeTeamPlayer } from '@/lib/api'
+import { consultasDelPlantel, invalidarConsultas } from '@/lib/query-keys'
 import { getErrorMessage, positionLabel } from '@/lib/utils'
 import type { MiEquipo } from '@/types/domain'
-
-const TEAM_QUERIES = ['my-team', 'teams', 'team', 'players', 'player']
 
 function useRefreshTeam() {
   const queryClient = useQueryClient()
   return (message: string) => {
     toast.success(message)
-    for (const key of TEAM_QUERIES) void queryClient.invalidateQueries({ queryKey: [key] })
+    invalidarConsultas(queryClient, consultasDelPlantel)
   }
 }
 
