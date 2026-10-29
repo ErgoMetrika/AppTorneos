@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, Pencil, Trash2 } from 'lucide-react'
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
@@ -13,9 +13,10 @@ import { deletePlayer, getPlayer, getTeam, getTeamTournaments } from '@/lib/api'
 import { formatDate, getErrorMessage, positionLabel, tournamentStateLabel } from '@/lib/utils'
 
 // Tarjeta oscura con rótulo verde en mono, como en el resto de las fichas
-function FichaCard({ title, children, className = '' }: { title: string; children: ReactNode; className?: string }) {
+// index: orden de entrada escalonada de las tarjetas
+function FichaCard({ title, children, className = '', index = 0 }: { title: string; children: ReactNode; className?: string; index?: number }) {
   return (
-    <section className={`flex flex-col gap-4 rounded-2xl border border-base-content/10 bg-[#0b1b12] p-5 shadow-[0_10px_28px_rgba(0,0,0,0.35)] sm:p-6 ${className}`}>
+    <section style={{ '--i': index } as CSSProperties} className={`anim-stagger flex flex-col gap-4 rounded-2xl border border-base-content/10 bg-[#0b1b12] p-5 shadow-[0_10px_28px_rgba(0,0,0,0.35)] sm:p-6 ${className}`}>
       <h2 className="font-mono text-[0.7rem] font-bold uppercase tracking-[0.12em] text-primary">{title}</h2>
       {children}
     </section>
@@ -62,7 +63,7 @@ export function PlayerDetailPage() {
         <PitchLines className="absolute -right-20 -top-2 hidden h-[360px] w-[560px] opacity-[0.14] md:block" />
 
         <div className="relative flex h-56 shrink-0 items-end justify-center overflow-hidden rounded-2xl border border-primary/30 bg-[radial-gradient(circle_at_50%_28%,rgba(53,244,110,0.22),#0b1b12_72%)] shadow-[0_10px_28px_rgba(0,0,0,0.4)] sm:h-72 md:h-[340px] md:w-[280px]">
-          <Silhouette label={`Silueta de ${player.nombre}`} className="h-[92%] w-auto" />
+          <Silhouette label={`Silueta de ${player.nombre}`} className="anim-pop h-[92%] w-auto" />
         </div>
 
         <div className="relative flex min-w-0 flex-1 flex-col justify-between gap-6 md:py-2">
@@ -77,7 +78,7 @@ export function PlayerDetailPage() {
 
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <Link to={`/app/equipos/${player.equipo_id}`} className="group flex items-center gap-4">
-              <TeamCrest name={player.equipo} label={`Escudo de ${player.equipo}`} className="h-[84px] w-[72px] shrink-0" />
+              <TeamCrest name={player.equipo} label={`Escudo de ${player.equipo}`} className="anim-pop h-[84px] w-[72px] shrink-0 [animation-delay:200ms]" />
               <span className="min-w-0">
                 <span className="block font-mono text-[0.7rem] font-bold uppercase tracking-[0.12em] text-base-content/70">Equipo actual</span>
                 <span className="mt-1 block break-words font-display text-3xl font-extrabold uppercase transition group-hover:text-primary sm:text-4xl">{player.equipo}</span>
@@ -94,14 +95,14 @@ export function PlayerDetailPage() {
           <p className="text-sm text-base-content/75">Juega de <strong className="text-base-content">{positionLabel[player.posicion].toLowerCase()}</strong>: marcamos su zona en la cancha.</p>
         </FichaCard>
 
-        <FichaCard title="Camiseta del equipo">
+        <FichaCard title="Camiseta del equipo" index={1}>
           <div className="grid h-52 place-items-center rounded-xl bg-[radial-gradient(circle_at_50%_40%,rgba(53,244,110,0.14),transparent_70%)]">
             <Jersey name={player.equipo} label={`Camiseta de ${player.equipo}`} className="size-48" />
           </div>
           <p className="text-sm text-base-content/75">Con los colores de {player.equipo}.</p>
         </FichaCard>
 
-        <FichaCard title="Su recorrido" className="md:col-span-2 lg:col-span-1">
+        <FichaCard title="Su recorrido" index={2} className="md:col-span-2 lg:col-span-1">
           <ol className="relative flex flex-col gap-5">
             <span aria-hidden="true" className="absolute bottom-3 left-[5px] top-2.5 w-0.5 bg-primary/25" />
             <li className="relative flex items-start gap-3.5">
@@ -132,11 +133,11 @@ export function PlayerDetailPage() {
           ? <p className="text-sm text-base-content/70">Por ahora es el único jugador de {player.equipo}.</p>
           : (
             <ul className="flex flex-wrap gap-2.5">
-              {teammates.map((member) => {
+              {teammates.map((member, index) => {
                 const title = member.es_admin_del_equipo ? `${member.nombre}, administrador del equipo` : member.nombre
                 return (
-                  <li key={member.id}>
-                    <Link to={`/app/jugadores/${member.id}`} title={title} aria-label={`Ver ficha de ${title}`} className="block rounded-full transition hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+                  <li key={member.id} style={{ '--i': index } as CSSProperties} className="anim-stagger">
+                    <Link to={`/app/jugadores/${member.id}`} title={title} aria-label={`Ver ficha de ${title}`} className="block rounded-full transition motion-safe:hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
                       <PlayerAvatar name={member.nombre} admin={member.es_admin_del_equipo} />
                     </Link>
                   </li>

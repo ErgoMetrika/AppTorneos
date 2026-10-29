@@ -79,11 +79,21 @@ export function Jersey({ name, color, pattern, number, label, className }: Label
 }
 
 // ---------- Trofeo: copa con asas, base escalonada y brillo ----------
-export function Trophy({ label, className, dim = false }: Labelled & { dim?: boolean }) {
+// shine (opcional): un brillo diagonal cruza la copa cada unos segundos. No se muestra si está apagado (dim).
+export function Trophy({ label, className, dim = false, shine = false }: Labelled & { dim?: boolean; shine?: boolean }) {
   const id = useId()
+  const showShine = shine && !dim
   return (
     <svg viewBox="0 0 120 150" fill="none" className={cn(dim && 'opacity-40 grayscale', className)} {...a11y(label)}>
-      <defs><linearGradient id={`${id}g`} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#c99a22" /><stop offset="0.4" stopColor="#ffe08a" /><stop offset="0.7" stopColor="#f2c94c" /><stop offset="1" stopColor="#b8901f" /></linearGradient></defs>
+      <defs>
+        <linearGradient id={`${id}g`} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#c99a22" /><stop offset="0.4" stopColor="#ffe08a" /><stop offset="0.7" stopColor="#f2c94c" /><stop offset="1" stopColor="#b8901f" /></linearGradient>
+        {showShine && (
+          <>
+            <linearGradient id={`${id}s`} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset="0.5" stopColor="#fff" stopOpacity="0.7" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></linearGradient>
+            <clipPath id={`${id}k`}><path d="M26 14h68v30c0 24-14 40-34 42-20-2-34-18-34-42V14z" /><rect x="22" y="9" width="76" height="9" rx="3" /><rect x="38" y="103" width="44" height="14" rx="2" /><rect x="30" y="117" width="60" height="14" rx="2" /></clipPath>
+          </>
+        )}
+      </defs>
       <ellipse cx="60" cy="144" rx="44" ry="5" fill="#000" fillOpacity="0.35" />
       <path d="M30 24C10 24 8 60 38 68M90 24c20 0 22 36-8 44" stroke="#d9ad34" strokeWidth="7" strokeLinecap="round" />
       <path d="M26 14h68v30c0 24-14 40-34 42-20-2-34-18-34-42V14z" fill={`url(#${id}g)`} />
@@ -95,6 +105,11 @@ export function Trophy({ label, className, dim = false }: Labelled & { dim?: boo
       <rect x="30" y="117" width="60" height="14" rx="2" fill="#c99a22" />
       <rect x="26" y="131" width="68" height="8" rx="2" fill="#8a6a16" />
       <rect x="46" y="121" width="28" height="6" rx="1" fill={DARK} fillOpacity="0.3" />
+      {showShine && (
+        <g clipPath={`url(#${id}k)`}>
+          <polygon className="trophy-shine" points="10,0 32,0 12,150 -10,150" fill={`url(#${id}s)`} />
+        </g>
+      )}
     </svg>
   )
 }

@@ -27,14 +27,17 @@ function throwIfError(error: { message: string } | null) {
 export async function getTournaments(): Promise<TorneoListado[]> {
   const { data, error } = await supabase
     .from('torneos')
-    .select('id, nombre, descripcion, tipo_futbol, max_equipos, visibilidad, fecha, lugar, estado, torneo_equipos(count)')
+    .select('id, nombre, descripcion, tipo_futbol, max_equipos, visibilidad, fecha, lugar, estado, torneo_equipos(equipos(id, nombre))')
     .order('fecha')
 
   throwIfError(error)
-  return (data ?? []).map((row) => ({
-    ...row,
-    inscriptos: row.torneo_equipos?.[0]?.count ?? 0,
-  })) as TorneoListado[]
+  // Cada torneo trae sus equipos inscriptos (para dibujar el cupo con escudos y nombres)
+  return ((data ?? []) as unknown as Array<Torneo & { torneo_equipos?: Array<{ equipos: { id: number; nombre: string } | Array<{ id: number; nombre: string }> | null }> }>).map(({ torneo_equipos, ...row }) => {
+    const equipos = (torneo_equipos ?? [])
+      .map((item) => (Array.isArray(item.equipos) ? item.equipos[0] : item.equipos))
+      .filter((team): team is { id: number; nombre: string } => !!team)
+    return { ...row, inscriptos: equipos.length, equipos_inscriptos: equipos }
+  }) as TorneoListado[]
 }
 
 export async function getTournament(id: number, includeAccessCode = false, privateCode?: string): Promise<TorneoDetalle> {

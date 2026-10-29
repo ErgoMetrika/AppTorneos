@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 
 import { TournamentStateBadge } from '@/components/shared/tournament-state-badge'
@@ -32,7 +33,7 @@ export function TeamTournaments({ teamId, players }: { teamId: number; players: 
             <p className="text-sm text-base-content/60">Todavía no está anotado en ningún torneo. Desde Torneos se inscribe con un clic.</p>
           </div>
         )}
-        {query.data?.map((torneo) => {
+        {query.data?.map((torneo, index) => {
           const minimum = torneo.tipo_futbol + 2
           const ratio = Math.min(1, count / minimum)
           const tone = count > minimum ? 'ok' : count === minimum ? 'limit' : 'short'
@@ -42,8 +43,9 @@ export function TeamTournaments({ teamId, players }: { teamId: number; players: 
             short: `Faltan ${minimum - count} jugadores para el mínimo.`,
           }[tone]
           return (
-            <Link key={torneo.id} to={`/app/torneos/${torneo.id}`} className="group flex items-center gap-4 rounded-xl border border-base-content/10 bg-base-300/60 p-4 transition hover:border-primary/40">
-              <Trophy className="h-[3.25rem] w-10 shrink-0 transition group-hover:-translate-y-0.5" />
+            // Entrada escalonada (--i) y elevación al pasar el mouse
+            <Link key={torneo.id} to={`/app/torneos/${torneo.id}`} style={{ '--i': index } as CSSProperties} className="anim-stagger card-lift group flex items-center gap-4 rounded-xl border border-base-content/10 bg-base-300/60 p-4 hover:border-primary/40">
+              <Trophy className="h-[3.25rem] w-10 shrink-0 transition motion-safe:group-hover:-translate-y-0.5" />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="font-display text-xl font-extrabold uppercase leading-none">{torneo.nombre}</p>
@@ -52,7 +54,8 @@ export function TeamTournaments({ teamId, players }: { teamId: number; players: 
                 </div>
                 <div className="mt-3 flex items-center gap-3">
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-base-content/10">
-                    <div className={cn('h-full rounded-full', tone === 'ok' && 'bg-primary', tone === 'limit' && 'bg-[#f2c94c]', tone === 'short' && 'bg-error')} style={{ width: `${ratio * 100}%` }} />
+                    {/* La barra se llena al aparecer, después de que entra la tarjeta */}
+                    <div className={cn('anim-fill h-full rounded-full', tone === 'ok' && 'bg-primary', tone === 'limit' && 'bg-[#f2c94c]', tone === 'short' && 'bg-error')} style={{ width: `${ratio * 100}%`, '--i': index } as CSSProperties} />
                   </div>
                   <span className="whitespace-nowrap text-sm font-bold">{count} de {minimum} mínimos</span>
                 </div>
@@ -73,10 +76,10 @@ const PLURAL: Record<PosicionJugador, string> = { arquero: 'Arqueros', defensor:
 export function PositionSummary({ players }: { players: Jugador[] }) {
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-      {ORDER.map((posicion) => {
+      {ORDER.map((posicion, index) => {
         const total = players.filter((player) => player.posicion === posicion).length
         return (
-          <div key={posicion} className={cn('flex items-center gap-3 rounded-xl border border-base-content/10 bg-base-200/60 px-4 py-3', total === 0 && 'border-dashed')}>
+          <div key={posicion} style={{ '--i': index } as CSSProperties} className={cn('anim-stagger flex items-center gap-3 rounded-xl border border-base-content/10 bg-base-200/60 px-4 py-3', total === 0 && 'border-dashed')}>
             <span className={cn('font-display text-3xl font-black leading-none', total === 0 ? 'text-base-content/30' : 'text-primary')}>{total}</span>
             <span className="text-xs leading-tight text-base-content/65">{total === 1 ? positionLabel[posicion] : PLURAL[posicion]}{total === 0 && <><br /><span className="text-error/80">Falta</span></>}</span>
           </div>

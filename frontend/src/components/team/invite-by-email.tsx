@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input'
 import { searchUsersByEmail } from '@/lib/api'
 import { inviteLink } from '@/lib/invitation'
 
+import { InvitationSentCard } from './invitation-sent'
+
 interface InviteSearchBarProps {
   teamId: number
   teamName: string
@@ -21,6 +23,8 @@ export function InviteSearchBar({ teamId, teamName, teamCode }: InviteSearchBarP
   const [term, setTerm] = useState('')
   const [search, setSearch] = useState('')
   const [invited, setInvited] = useState<Set<string>>(new Set())
+  // Último invitado: muestra la tarjeta "Invitación lista" arriba de los resultados
+  const [lastInvited, setLastInvited] = useState<{ id: string; nombre: string } | null>(null)
 
   // Busca solo mientras se escribe, con una pequeña pausa
   useEffect(() => {
@@ -39,8 +43,9 @@ export function InviteSearchBar({ teamId, teamName, teamCode }: InviteSearchBarP
   const mailtoFor = (email: string) =>
     `mailto:${email}?subject=${encodeURIComponent(`Invitación a ${teamName}`)}&body=${encodeURIComponent(message)}`
 
-  const markInvited = (userId: string) => {
+  const markInvited = (userId: string, nombre: string) => {
     setInvited((current) => new Set(current).add(userId))
+    setLastInvited({ id: userId, nombre })
     toast.success('Invitación lista para enviar por mail')
   }
 
@@ -63,13 +68,15 @@ export function InviteSearchBar({ teamId, teamName, teamCode }: InviteSearchBarP
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3.5 size-4 text-base-content/30" />
           <Input type="search" className="pl-10 pr-9" placeholder="Buscar jugador por mail" value={term} onChange={(event) => setTerm(event.target.value)} aria-label="Buscar jugador por mail" />
-          {term && <button type="button" onClick={() => { setTerm(''); setSearch('') }} className="absolute right-3 top-3 text-base-content/40 hover:text-base-content" aria-label="Limpiar búsqueda"><X className="size-4" /></button>}
+          {term && <button type="button" onClick={() => { setTerm(''); setSearch(''); setLastInvited(null) }} className="absolute right-3 top-3 text-base-content/40 hover:text-base-content" aria-label="Limpiar búsqueda"><X className="size-4" /></button>}
         </div>
         <Button type="submit"><Send className="size-4" /> Invitar</Button>
       </form>
 
       {open && (
         <div className="absolute right-0 top-full z-30 mt-2 w-full overflow-hidden rounded-xl border border-base-content/10 bg-base-200 shadow-2xl">
+          {/* La key reinicia la animación con cada invitado nuevo */}
+          {lastInvited && <InvitationSentCard key={lastInvited.id} name={lastInvited.nombre} onClose={() => setLastInvited(null)} />}
           {query.isFetching && <p className="p-4 text-xs text-base-content/45">Buscando...</p>}
           {query.isError && <p className="p-4 text-xs text-error">{query.error.message}</p>}
           {query.data && query.data.length === 0 && !query.isFetching && (
@@ -91,7 +98,7 @@ export function InviteSearchBar({ teamId, teamName, teamCode }: InviteSearchBarP
                   ) : invited.has(user.id) ? (
                     <Badge><Check className="mr-1 size-3" /> Invitado</Badge>
                   ) : (
-                    <Button asChild size="sm"><a href={mailtoFor(user.email)} onClick={() => markInvited(user.id)}><Mail className="size-4" /> Invitar</a></Button>
+                    <Button asChild size="sm"><a href={mailtoFor(user.email)} onClick={() => markInvited(user.id, user.nombre)}><Mail className="size-4" /> Invitar</a></Button>
                   )}
                 </li>
               ))}

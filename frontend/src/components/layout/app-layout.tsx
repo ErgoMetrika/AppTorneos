@@ -1,6 +1,6 @@
 import { Menu } from 'lucide-react'
-import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { useLayoutEffect, useRef, useState } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
 
 import { AppSidebar } from '@/components/layout/app-sidebar'
 import { Brand } from '@/components/shared/brand'
@@ -8,6 +8,18 @@ import { Brand } from '@/components/shared/brand'
 export function AppLayout() {
   // El drawer de daisyUI se controla con el checkbox: lo cerramos al navegar desde el menú (mobile)
   const [open, setOpen] = useState(false)
+  const { pathname } = useLocation()
+  const pageRef = useRef<HTMLDivElement>(null)
+
+  // Transición de página: al cambiar de ruta reiniciamos la animación de entrada del
+  // contenido sin volver a montar la página (no se pierde estado ni se repiten consultas)
+  useLayoutEffect(() => {
+    const el = pageRef.current
+    if (!el) return
+    el.classList.remove('anim-page')
+    void el.offsetWidth // fuerza el reflow para que la animación arranque de nuevo
+    el.classList.add('anim-page')
+  }, [pathname])
 
   return (
     <div className="drawer lg:drawer-open min-h-screen bg-base-100">
@@ -20,7 +32,7 @@ export function AppLayout() {
           </label>
         </header>
         <main className="min-h-screen p-5 sm:p-8 xl:p-10">
-          <div className="mx-auto max-w-7xl"><Outlet /></div>
+          <div ref={pageRef} className="anim-page mx-auto max-w-7xl"><Outlet /></div>
         </main>
       </div>
       <div className="drawer-side z-50">

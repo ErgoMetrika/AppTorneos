@@ -7,7 +7,6 @@ import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { EmptyState } from '@/components/shared/states'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { PlayerAvatar } from '@/components/visuals/art'
 import { useAuth } from '@/context/auth-context'
 import { leaveTeam, removeTeamPlayer } from '@/lib/api'
@@ -77,24 +76,26 @@ export function TeamRoster({ team }: { team: MiEquipo }) {
       {team.jugadores.length === 0 ? (
         <div className="mt-4"><EmptyState title="Sin jugadores" description="Buscá jugadores por mail para invitarlos." /></div>
       ) : (
-        <Card className="mt-4 overflow-hidden">
+        // Tarjetas compactas: una columna en celular, dos en pantallas grandes,
+        // así el nombre, la posición y el botón quedan cerca
+        <div className="mt-4 grid gap-3 lg:grid-cols-2">
           {team.jugadores.map((player) => {
             const isMe = player.usuario_id === myUserId
             const canRemove = team.soy_creador && !isMe
             return (
-              <div key={player.id} className="flex flex-wrap items-center gap-3 border-b border-base-content/10 p-4 last:border-0 sm:flex-nowrap">
+              <div key={player.id} className={`flex items-center gap-3 rounded-xl border bg-base-200/60 p-3 transition hover:border-primary/30 ${player.es_admin_del_equipo ? 'border-primary/30' : 'border-base-content/10'}`}>
                 <div className="relative">
                   <PlayerAvatar name={player.nombre} admin={player.es_admin_del_equipo} />
                   {player.es_admin_del_equipo && <Crown className="absolute -right-1 -top-1 size-4 rounded-full bg-base-100 p-0.5 text-primary" aria-hidden="true" />}
                 </div>
                 <div className="min-w-0 flex-1">
                   <Link to={`/app/jugadores/${player.id}`} className="font-bold transition hover:text-primary">{player.nombre}{isMe && <span className="ml-2 text-xs font-normal text-base-content/45">(vos)</span>}</Link>
-                  <p className="mt-0.5 text-xs text-base-content/45">{player.es_admin_del_equipo ? 'Administrador del equipo' : 'Invitado'}</p>
+                  <p className="mt-0.5 truncate text-xs text-base-content/60">{player.es_admin_del_equipo ? 'Administrador del equipo' : 'Invitado'}<span className="sm:hidden"> · {positionLabel[player.posicion]}</span></p>
                 </div>
                 {/* La posición la elige cada jugador al entrar: acá solo se muestra.
-                    Columnas de ancho fijo para que posición y botón queden alineados en todas las filas. */}
-                <div className="flex w-32 justify-start"><Badge variant="secondary">{positionLabel[player.posicion]}</Badge></div>
-                {team.soy_creador && <div className="flex w-28 justify-end">{canRemove && (
+                    Ancho fijo para que posición y botón queden alineados en todas las tarjetas. */}
+                <div className="hidden w-28 justify-end sm:flex"><Badge variant="secondary">{positionLabel[player.posicion]}</Badge></div>
+                {team.soy_creador && <div className="flex w-24 shrink-0 justify-end">{canRemove && (
                   <ConfirmDialog
                     trigger={<Button size="sm" variant="outline" disabled={team.compitiendo}><UserMinus className="size-4" /> Quitar</Button>}
                     icon={<UserMinus className="size-5" />}
@@ -110,7 +111,7 @@ export function TeamRoster({ team }: { team: MiEquipo }) {
               </div>
             )
           })}
-        </Card>
+        </div>
       )}
     </div>
   )

@@ -1,20 +1,18 @@
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft, ChevronRight, Clipboard } from 'lucide-react'
+import { ArrowLeft, Clipboard } from 'lucide-react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { PlayerFormDialog } from '@/components/admin/player-form-dialog'
 import { TeamMark } from '@/components/shared/team-mark'
 import { PositionSummary, TeamTournaments } from '@/components/team/team-tournaments'
-import { Jersey, PitchLines, PlayerAvatar } from '@/components/visuals/art'
+import { PlayerCard } from '@/components/player/player-card'
+import { Jersey, PitchLines } from '@/components/visuals/art'
 import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states'
 import { InvitePlayerDialog } from '@/components/team/invite-player-dialog'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { useAuth } from '@/context/auth-context'
 import { getMyTeam, getTeam, getTeamCodes } from '@/lib/api'
-import { positionLabel } from '@/lib/utils'
 
 export function TeamDetailPage() {
   const id = Number(useParams().id)
@@ -50,16 +48,13 @@ export function TeamDetailPage() {
       <div className="mt-8">
         <div className="mb-4"><p className="font-mono text-[0.65rem] font-bold uppercase tracking-widest text-primary">Plantel</p><h2 className="font-display text-3xl font-black uppercase">Jugadores</h2></div>
         {team.jugadores.length === 0 ? <EmptyState title="Plantel vacío" description="Este equipo todavía no tiene jugadores." /> : (
-          <Card className="overflow-hidden">
-            <div className="grid grid-cols-[1fr_160px_36px] border-b border-base-content/10 bg-base-300/50 px-5 py-3 font-mono text-[0.6rem] font-bold uppercase tracking-widest text-base-content/40"><span>Jugador</span><span>Posición</span><span /></div>
-            {team.jugadores.map((player, index) => (
-              <div key={`${player.nombre}-${index}`} className="grid grid-cols-[1fr_160px_36px] items-center border-b border-base-content/10 px-5 py-4 last:border-0">
-                <Link to={`/app/jugadores/${player.id}`} className="flex items-center gap-3 font-semibold transition hover:text-primary"><PlayerAvatar name={player.nombre} admin={player.es_admin_del_equipo} className="size-9 text-sm" /> {player.nombre}{player.es_admin_del_equipo && <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider text-primary">Admin del equipo</span>}</Link>
-                <Badge variant="secondary">{positionLabel[player.posicion]}</Badge>
-                <Button asChild size="icon" variant="ghost" className="size-8"><Link to={`/app/jugadores/${player.id}`} aria-label={`Ver ficha de ${player.nombre}`}><ChevronRight className="size-4" /></Link></Button>
-              </div>
+          <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {team.jugadores.map((player) => (
+              <li key={player.id} className="mx-auto w-full max-w-[340px]">
+                <PlayerCard nombre={player.nombre} posicion={player.posicion} equipo={team.nombre} esAdminDelEquipo={player.es_admin_del_equipo} unidoEn={player.unido_en} to={`/app/jugadores/${player.id}`} />
+              </li>
             ))}
-          </Card>
+          </ul>
         )}
       </div>
     </div>

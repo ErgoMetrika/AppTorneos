@@ -91,3 +91,72 @@ button, a { cursor: pointer; }
 @media (max-width: 640px) {
   .container-shell { width: min(100% - 1.25rem, 82rem); }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* ---------- Movimiento: animaciones cortas y suaves ----------
+   Todas usan fill-mode "backwards": el estado inicial se aplica durante el retraso
+   y al terminar no queda ningún transform pegado (no rompe position: fixed ni layout). */
+:root {
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes t90-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes t90-pop {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes t90-grow-w {
+  from { width: 0; }
+}
+
+/* Barrido de brillo del trofeo: cruza rápido y descansa el resto del ciclo */
+@keyframes t90-shine {
+  0% { transform: translateX(-40px); }
+  8%, 100% { transform: translateX(150px); }
+}
+
+/* En la capa components: así los utilitarios de Tailwind (p. ej. [animation-delay:200ms]) pueden ajustarlas */
+@layer components {
+/* Entrada de cada página del panel */
+.anim-page { animation: t90-fade-up 320ms var(--ease-out-soft) backwards; }
+
+/* Entrada escalonada en listas: style={{ '--i': index }} (tope de retraso para listas largas) */
+.anim-stagger {
+  animation: t90-fade-up 380ms var(--ease-out-soft) backwards;
+  animation-delay: min(calc(var(--i, 0) * 55ms), 330ms);
+}
+
+/* Aparición leve de escudos e ilustraciones destacadas */
+.anim-pop { animation: t90-pop 420ms var(--ease-out-soft) 80ms backwards; }
+
+/* Barra de progreso que se llena al aparecer (respeta el ancho inline final) */
+.anim-fill {
+  animation: t90-grow-w 450ms var(--ease-out-soft) backwards;
+  animation-delay: calc(150ms + min(calc(var(--i, 0) * 55ms), 330ms));
+}
+
+.trophy-shine {
+  animation: t90-shine 5.5s ease-in-out 1.2s infinite backwards;
+  transform: translateX(-40px);
+}
+
+/* Elevación al pasar el mouse en tarjetas clickeables */
+.card-lift {
+  transition: transform 200ms var(--ease-out-soft), box-shadow 200ms var(--ease-out-soft), border-color 200ms ease, background-color 200ms ease;
+}
+.card-lift:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4); }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-page, .anim-stagger, .anim-pop, .anim-fill, .trophy-shine { animation: none !important; }
+  .trophy-shine { opacity: 0; }
+  .card-lift, .card-lift:hover { transform: none; transition: none; }
+}
+}

@@ -47,15 +47,17 @@ function SidebarNav({ sections, label, close }: { sections: NavSection[]; label:
                   to={item.to}
                   onClick={close}
                   className={({ isActive }) => cn(
-                    'relative flex h-11 items-center gap-3 rounded-full px-4 text-[0.9375rem] font-semibold text-[#b7c8bd] transition-colors hover:bg-[#10271a] hover:text-[#f4f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#35f46e]',
+                    'relative flex h-11 items-center gap-3 rounded-full px-4 text-[0.9375rem] font-semibold text-[#b7c8bd] transition-[color,background-color,box-shadow] duration-200 ease-out hover:bg-[#10271a] hover:text-[#f4f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#35f46e]',
+                    // Marcador verde a la izquierda: siempre está, pero sólo crece en el ítem activo
+                    'before:absolute before:left-1.5 before:top-1/2 before:h-5 before:w-1 before:-translate-y-1/2 before:scale-y-0 before:rounded-full before:bg-[#35f46e] before:opacity-0 before:transition-[scale,opacity] before:duration-300 before:ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:before:transition-none',
                     item.action && !isActive && 'border border-dashed border-[#35f46e]/55 font-bold text-[#35f46e] hover:text-[#7dffa3]',
-                    // Ítem activo: píldora con marcador verde a la izquierda
-                    isActive && 'bg-[#35f46e]/15 font-bold text-[#f4f8f5] ring-1 ring-[#35f46e]/40 before:absolute before:left-1.5 before:top-1/2 before:h-5 before:w-1 before:-translate-y-1/2 before:rounded-full before:bg-[#35f46e]',
+                    // Ítem activo: píldora resaltada y marcador visible
+                    isActive && 'bg-[#35f46e]/15 font-bold text-[#f4f8f5] ring-1 ring-[#35f46e]/40 before:scale-y-100 before:opacity-100',
                   )}
                 >
                   {({ isActive }) => (
                     <>
-                      <Icon className={cn('size-5 shrink-0', isActive && 'text-[#35f46e]')} aria-hidden="true" />
+                      <Icon className={cn('size-5 shrink-0 transition-[color,scale] duration-200 ease-out', isActive && 'scale-110 text-[#35f46e]')} aria-hidden="true" />
                       <span className="flex-1">{item.label}</span>
                     </>
                   )}
@@ -97,7 +99,7 @@ function TeamCard({ close }: { close: () => void }) {
       onClick={close}
       className="relative flex items-center gap-3.5 overflow-hidden rounded-2xl border border-[#35f46e]/35 bg-[linear-gradient(150deg,rgba(53,244,110,0.2),#0b1b12_70%)] p-4 transition-colors hover:border-[#35f46e]/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#35f46e]"
     >
-      <TeamCrest name={team.nombre} className="h-[3.9rem] w-[3.4rem] shrink-0" />
+      <TeamCrest name={team.nombre} className="anim-pop h-[3.9rem] w-[3.4rem] shrink-0" />
       <div className="min-w-0">
         <p className="truncate font-display text-[1.75rem] font-extrabold uppercase leading-none text-[#f4f8f5]">{team.nombre}</p>
         <p className="mt-1.5 font-mono text-[0.625rem] font-bold uppercase tracking-[0.08em] text-[#35f46e]">
@@ -128,7 +130,7 @@ function NextTournament({ close }: { close: () => void }) {
       onClick={close}
       className="flex items-center gap-3 rounded-[0.875rem] border border-[#f2c94c]/30 bg-[#f2c94c]/[0.07] p-3.5 transition-colors hover:border-[#f2c94c]/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2c94c]"
     >
-      <Trophy className="h-[2.7rem] w-[2.1rem] shrink-0" />
+      <Trophy shine className="h-[2.7rem] w-[2.1rem] shrink-0" />
       <div className="min-w-0">
         <p className="font-mono text-[0.625rem] font-bold uppercase tracking-[0.12em] text-[#f2c94c]">Próximo torneo</p>
         <p className="mt-0.5 truncate font-bold text-[#f4f8f5]">

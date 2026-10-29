@@ -27,6 +27,8 @@ export interface Torneo {
 
 export interface TorneoListado extends Torneo {
   inscriptos: number
+  // Equipos anotados (id y nombre), para mostrar el cupo con escudos
+  equipos_inscriptos: Array<{ id: number; nombre: string }>
 }
 
 export interface EquipoResumen {
