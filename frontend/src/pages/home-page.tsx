@@ -4,10 +4,12 @@ import { Link } from 'react-router-dom'
 
 import { TournamentStateBadge } from '@/components/shared/tournament-state-badge'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/context/auth-context'
 import { getTournaments } from '@/lib/api'
 import { formatDate } from '@/lib/utils'
 
 export function HomePage() {
+  const { session } = useAuth()
   const { data: tournaments = [] } = useQuery({ queryKey: ['tournaments'], queryFn: getTournaments })
   const nextTournament = tournaments.find((item) => item.estado !== 'finalizado')
 
@@ -32,7 +34,8 @@ export function HomePage() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild size="lg"><Link to="/torneos">Explorar torneos <ArrowRight className="size-4" /></Link></Button>
-              <Button asChild size="lg" variant="outline"><Link to="/registro"><UserPlus className="size-4" /> Crear cuenta general</Link></Button>
+              {/* Crear cuenta solo tiene sentido sin sesión iniciada */}
+              {!session && <Button asChild size="lg" variant="outline"><Link to="/registro"><UserPlus className="size-4" /> Crear cuenta general</Link></Button>}
             </div>
           </div>
 
