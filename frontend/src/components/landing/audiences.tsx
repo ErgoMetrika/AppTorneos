@@ -98,12 +98,12 @@ export function Audiences() {
                   }}
                 >
                   <div className="flex items-center justify-between gap-4">
-                    <h3 className="font-display text-[40px] font-black uppercase leading-none sm:text-5xl">
+                    <h3 className="min-w-0 font-display text-[40px] font-black uppercase leading-none sm:text-5xl md:text-[40px] lg:text-5xl">
                       {audience.title}
                     </h3>
                     <span
                       aria-hidden="true"
-                      className="transition-transform duration-500 motion-safe:group-hover:-translate-y-1 motion-safe:group-hover:rotate-[-4deg]"
+                      className="shrink-0 pr-1 transition-transform duration-500 motion-safe:group-hover:-translate-y-1 motion-safe:group-hover:rotate-[-4deg]"
                     >
                       {audience.art}
                     </span>
