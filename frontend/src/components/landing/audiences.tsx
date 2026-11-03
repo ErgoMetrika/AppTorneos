@@ -75,7 +75,7 @@ export function Audiences() {
         <SectionHeading
           id="para-quien"
           kicker="Para quién es"
-          title="Para los que juegan y los que organizan"
+          title="Para los que juegan y los que organizan"
         />
         <Reveal self={false} className="grid gap-5 md:grid-cols-2">
           {AUDIENCES.map((audience, index) => {

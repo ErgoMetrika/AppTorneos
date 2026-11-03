@@ -240,9 +240,7 @@ export function Hero({
             className="anim-stagger max-w-130 text-[17px] leading-relaxed text-[#b7c8bd]"
             style={{ "--i": 3 } as CSSProperties}
           >
-            Armá tu equipo, invitá a tus amigos e inscribite en torneos de
-            fútbol 5 y fútbol 11. La llave se arma sola y ves cada cruce hasta
-            la final.
+            Armá tu equipo, invitá a tus amigos e inscribite en torneos de&nbsp;fútbol&nbsp;5 y fútbol&nbsp;11. La llave se arma sola y ves cada cruce hasta&nbsp;la final.
           </p>
           <div
             className="anim-stagger mt-2 flex flex-wrap gap-3"

@@ -138,7 +138,7 @@ function Stats({ numbers, loading, failed }: { numbers: PlatformNumbers; loading
   const { ref, visible } = useReveal<HTMLDivElement>()
   return (
     <div ref={ref} className={cn('lr-reveal lr-self flex flex-col gap-3', visible && 'is-visible')}>
-      <div className="grid gap-7 rounded-[20px] border border-[#f4f8f5]/10 bg-[#0b1b12] px-8 py-7 shadow-[0_14px_34px_rgba(0,0,0,0.38)] sm:grid-cols-3">
+      <div className="grid gap-7 rounded-[20px] border border-[#f4f8f5]/10 bg-[#0b1b12] px-8 py-7 shadow-[0_14px_34px_rgba(0,0,0,0.38)] sm:grid-cols-3 place-content-center md:place-items-center">
         <StatItem run={visible} loading={loading} value={numbers.openTournaments} label={numbers.openTournaments === 1 ? "torneo abierto" : "torneos abiertos"} art={<Trophy className="h-[60px] w-12" />} />
         <StatItem run={visible} loading={loading} value={numbers.teams} label={numbers.teams === 1 ? "equipo" : "equipos"} art={<TeamCrest name="Equipos" color="verde" className="h-14 w-12" />} />
         <StatItem run={visible} loading={loading} value={numbers.players} label={numbers.players === 1 ? "jugador" : "jugadores"} art={<Jersey name="Jugadores" color="verde" pattern="bastones" className="size-14" />} />

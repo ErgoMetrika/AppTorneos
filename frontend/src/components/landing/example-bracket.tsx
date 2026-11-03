@@ -61,7 +61,7 @@ export function ExampleBracket() {
   return (
     <section aria-labelledby="la-llave" className="py-14 md:py-24">
       <div className={`${SHELL} flex flex-col gap-9`}>
-        <SectionHeading id="la-llave" kicker="La llave" title="Cada cruce, a la vista">
+        <SectionHeading id="la-llave" kicker="La llave" title="Cada cruce, a la vista">
           <p className="flex flex-wrap items-center gap-2.5 text-[15px] text-[#b7c8bd]">
             <span className="rounded-md bg-[#f4f8f5]/8 px-2.5 py-[5px] font-mono text-[11px] font-bold uppercase text-[#f4f8f5]">Ejemplo</span>
             Así se ve una llave de 4 equipos. Los nombres son ilustrativos.
@@ -111,7 +111,7 @@ export function ExampleBracket() {
             </div>
           </div>
         </div>
-        <p className="-mt-5 text-sm text-[#b7c8bd] md:hidden">Deslizá la llave hacia el costado para verla completa.</p>
+        <p className="-mt-5 text-sm text-[#b7c8bd] md:hidden">Deslizá la llave hacia el costado para verla completa.</p>
       </div>
     </section>
   )

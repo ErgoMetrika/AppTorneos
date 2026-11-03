@@ -4,10 +4,10 @@ import type { CSSProperties } from 'react'
 import { Reveal, SectionHeading } from './reveal'
 
 const QUESTIONS = [
-  { q: '¿Es gratis?', a: 'Sí. Crear una cuenta y usar la plataforma no tiene costo: armás tu equipo y te inscribís en torneos sin pagar nada.' },
+  { q: '¿Es gratis?', a: 'Sí. Crear una cuenta y usar la plataforma no tiene costo: armás tu equipo y te inscribís en torneos sin pagar nada.' },
   { q: '¿Cómo invito a mis amigos?', a: 'El administrador del equipo los busca por su mail y les manda un link para sumarse. También puede compartirles el código del equipo.' },
   { q: '¿Qué pasa si empatamos?', a: 'Se define por penales, y los penales no pueden terminar empatados: en la llave siempre pasa un solo equipo.' },
-  { q: '¿Puedo estar en dos equipos?', a: 'No. Cada cuenta está en un solo equipo.' },
+  { q: '¿Puedo estar en dos equipos?', a: 'No. Cada cuenta está en un solo equipo.' },
 ]
 
 export function Faq() {

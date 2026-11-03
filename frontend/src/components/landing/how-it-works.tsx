@@ -13,7 +13,7 @@ const STEPS: Array<{
 }> = [
   {
     title: "Armá tu equipo",
-    text: "Creá el equipo, elegí tu posición e invitá a tus amigos.",
+    text: "Creá el equipo, elegí tu posición e invitá a tus amigos.",
     art: (
       <Jersey
         name="Tu equipo"
@@ -26,7 +26,7 @@ const STEPS: Array<{
   },
   {
     title: "Inscribite",
-    text: "Buscá un torneo abierto o uno privado con su código y anotá a tu equipo.",
+    text: "Buscá un torneo abierto o uno privado con su código y anotá a tu equipo.",
     art: (
       <TeamCrest name="Tu equipo" color="verde" className="h-32 w-[110px]" />
     ),
@@ -34,7 +34,7 @@ const STEPS: Array<{
   },
   {
     title: "Jugá la llave",
-    text: "Cuando cierra la inscripción se arma la llave. Ganá cada cruce hasta levantar la copa.",
+    text: "Cuando cierra la inscripción se arma la llave. Ganá cada cruce hasta levantar la copa.",
     art: <Trophy shine className="h-[138px] w-[110px]" />,
     glow: "rgba(242,201,76,0.16)",
   },
@@ -50,7 +50,7 @@ export function HowItWorks() {
         <SectionHeading
           id="como-funciona"
           kicker="Cómo funciona"
-          title="De la cancha a la copa en 3 pasos"
+          title="De la cancha a la copa en 3 pasos"
         />
         <Reveal self={false} as="ul" className="grid gap-5 md:grid-cols-3">
           {STEPS.map((step, index) => (
