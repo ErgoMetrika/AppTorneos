@@ -48,7 +48,8 @@ Proyecto Torneo/
         ├── 20261029000006_admin_del_equipo.sql    <- quitar invitados y salir del equipo
         ├── 20261029000007_creado_por.sql          <- columna equipos.creado_por (admin del equipo)
         ├── 20261029000008_quitar_en_inscripcion.sql <- bajas permitidas en torneos en inscripción
-        └── 20261030000009_seguridad_revision.sql    <- mails privados, torneos privados y controles extra
+        ├── 20261030000009_seguridad_revision.sql    <- mails privados, torneos privados y controles extra
+        └── 20261103000010_escudos.sql               <- escudo elegido por cada equipo + imágenes en Storage
 ```
 
 Una **migración** es un archivo SQL numerado que se aplica una sola vez y en orden.
@@ -77,7 +78,7 @@ Así la base se puede recrear desde cero, igual, en cualquier proyecto Supabase.
 | `usuarios` | Perfil público del usuario: nombre, email, **rol** (`admin` / `general`). La contraseña **no** está acá: la guarda Supabase Auth con hash bcrypt. | `id` = mismo uuid que `auth.users`. Se crea solo con un trigger al registrarse. |
 | `contactos` | Mensajes del formulario de contacto. | Cualquiera puede insertar; solo el admin los lee. |
 | `torneos` | Torneo: tipo de fútbol (5/7/9/11), cupo (`max_equipos` 2/4/8/16), visibilidad, código de acceso si es privado, fecha, lugar, estado (`inscripcion` → `en_curso` → `finalizado`). | `CHECK` en tipo y cupo. El código privado se genera solo (trigger). |
-| `equipos` | Equipo con nombre único, `codigo_equipo` de 6 letras para que otros se sumen y `creado_por`, que marca al administrador del equipo. | El código se genera solo (`default`). `creado_por` lo mantiene un trigger. |
+| `equipos` | Equipo con nombre único, `codigo_equipo` de 6 letras para que otros se sumen y `creado_por`, que marca al administrador del equipo. Las columnas `escudo_*` guardan el escudo elegido. | El código se genera solo (`default`). `creado_por` lo mantiene un trigger. El escudo se cambia con `cambiar_escudo()`. |
 | `jugadores` | Relación usuario ↔ equipo con la posición. | `usuario_id UNIQUE` → un usuario está en **máximo 1 equipo**. `equipo_id NOT NULL` → un jugador siempre tiene equipo. |
 | `torneo_equipos` | Inscripción de un equipo a un torneo. | PK compuesta `(torneo_id, equipo_id)` → no se puede inscribir dos veces. |
 | `partidos` | Cada cruce de la llave: ronda, posición (`llave`), equipos, goles, penales, ganador y a qué partido avanza el ganador. | `UNIQUE (torneo_id, ronda, llave)`. Equipos en `NULL` hasta que se resuelva la ronda anterior. |
@@ -127,6 +128,18 @@ Los demás integrantes son **invitados**. La columna la mantiene sola el trigger
 
 El administrador del equipo ve el código, invita jugadores y puede quitar invitados.
 La **posición** la elige cada jugador al entrar y nadie más la cambia (salvo el administrador general).
+
+**Escudo del equipo (migración 10).** Cada equipo puede elegir su escudo, de dos maneras:
+
+- Un **modelo dibujado**: `escudo_modelo` (pelota, alas, rayo, sol, corona, estrellas, parche, llamas,
+  diamante, montana), `escudo_color`, `escudo_color2` (`auto` = tono oscuro del principal) y
+  `escudo_borde` (`oro` o `plata`).
+- Una **imagen propia** en `escudo_url`. La imagen vive en el bucket público `escudos` de Storage,
+  en la carpeta del equipo (`escudos/<equipo_id>/...`): PNG, JPG o WEBP de hasta 2 MB.
+
+Si todas las columnas están en `NULL`, la web dibuja el escudo automático de siempre.
+Lo cambian solo el administrador general o el administrador del equipo, con `cambiar_escudo()`;
+las políticas de Storage usan la misma regla (`puede_editar_escudo()`) para subir o borrar imágenes.
 
 ### 4.3 Torneos
 
