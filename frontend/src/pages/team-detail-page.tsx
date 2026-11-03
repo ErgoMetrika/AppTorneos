@@ -9,6 +9,7 @@ import { PositionSummary, TeamTournaments } from '@/components/team/team-tournam
 import { PlayerCard } from '@/components/player/player-card'
 import { Jersey, PitchLines } from '@/components/visuals/art'
 import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states'
+import { CambiarEscudoDialog } from '@/components/team/cambiar-escudo-dialog'
 import { InvitePlayerDialog } from '@/components/team/invite-player-dialog'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/context/auth-context'
@@ -32,6 +33,8 @@ export function TeamDetailPage() {
   const canInvite = !isAdmin && myTeamQuery.data?.id === team.id && !!myTeamQuery.data?.codigo_equipo
   const adminCode = codesQuery.data?.get(team.id)
   const adminPlayer = team.jugadores.find((player) => player.es_admin_del_equipo)
+  // El escudo lo cambia el admin general o el administrador del equipo
+  const canEditCrest = inApp && (isAdmin || (myTeamQuery.data?.id === team.id && !!myTeamQuery.data?.soy_creador))
   return (
     <div className="container-shell py-12 sm:py-16">
       <Button asChild variant="ghost" size="sm"><Link to={`${inApp ? '/app' : ''}/equipos`}><ArrowLeft className="size-4" /> Volver a equipos</Link></Button>
@@ -39,7 +42,7 @@ export function TeamDetailPage() {
         <PitchLines className="absolute -right-16 -top-6 hidden h-[340px] w-[520px] opacity-[0.12] md:block" />
         <div className="relative flex min-w-0 flex-col items-start gap-5 sm:flex-row sm:items-center"><TeamMark name={team.nombre} label={`Escudo de ${team.nombre}`} className="h-32 w-28" /><div className="min-w-0 max-w-full"><p className="font-mono text-[0.65rem] font-bold uppercase tracking-widest text-primary">Equipo registrado</p><h1 className="break-words [overflow-wrap:anywhere] font-display text-5xl font-black uppercase leading-[0.9] sm:text-6xl">{team.nombre}</h1>{adminPlayer && <p className="mt-2 break-words [overflow-wrap:anywhere] text-sm text-base-content/65">Administrador del equipo: <strong className="text-base-content">{adminPlayer.nombre}</strong></p>}</div></div>
         <Jersey name={team.nombre} label={`Camiseta de ${team.nombre}`} className="relative hidden size-32 lg:block" />
-        <div className="relative flex flex-wrap items-center gap-4">{isAdmin && <PlayerFormDialog defaultTeamId={team.id} />}{canInvite && myTeamQuery.data?.codigo_equipo && <InvitePlayerDialog teamName={team.nombre} teamCode={myTeamQuery.data.codigo_equipo} />}{isAdmin && adminCode && <button type="button" onClick={() => { void navigator.clipboard.writeText(adminCode); toast.success('Código copiado') }} className="rounded-xl border border-primary/25 bg-base-100/50 px-4 py-3 text-left"><span className="block font-mono text-[0.6rem] font-bold uppercase tracking-widest text-base-content/40">Código del equipo</span><span className="mt-1 flex items-center gap-2 font-mono text-lg font-black tracking-[0.18em] text-primary">{adminCode}<Clipboard className="size-4" /></span></button>}<div className="stats bg-transparent shadow-none"><div className="stat px-4"><div className="stat-title text-xs text-base-content/40">Plantel</div><div className="stat-value font-display text-4xl text-primary">{team.jugadores.length}</div><div className="stat-desc text-base-content/45">jugadores</div></div></div></div>
+        <div className="relative flex flex-wrap items-center gap-4">{canEditCrest && <CambiarEscudoDialog equipoId={team.id} nombre={team.nombre} />}{isAdmin && <PlayerFormDialog defaultTeamId={team.id} />}{canInvite && myTeamQuery.data?.codigo_equipo && <InvitePlayerDialog teamName={team.nombre} teamCode={myTeamQuery.data.codigo_equipo} />}{isAdmin && adminCode && <button type="button" onClick={() => { void navigator.clipboard.writeText(adminCode); toast.success('Código copiado') }} className="rounded-xl border border-primary/25 bg-base-100/50 px-4 py-3 text-left"><span className="block font-mono text-[0.6rem] font-bold uppercase tracking-widest text-base-content/40">Código del equipo</span><span className="mt-1 flex items-center gap-2 font-mono text-lg font-black tracking-[0.18em] text-primary">{adminCode}<Clipboard className="size-4" /></span></button>}<div className="stats bg-transparent shadow-none"><div className="stat px-4"><div className="stat-title text-xs text-base-content/40">Plantel</div><div className="stat-value font-display text-4xl text-primary">{team.jugadores.length}</div><div className="stat-desc text-base-content/45">jugadores</div></div></div></div>
       </section>
 
       <div className="mt-8"><PositionSummary players={team.jugadores} /></div>

@@ -304,6 +304,13 @@ await supabase.from('usuarios').update({ rol: 'admin' }).eq('email', 'sofia@mail
 | `inscribir_equipo` | jugador del equipo | `p_torneo_id`, `p_equipo_id`, `p_codigo_acceso?` | fila de `torneo_equipos` |
 | `generar_llave` | admin | `p_torneo_id` | lista de `partidos` |
 | `cargar_resultado` | admin | `p_partido_id`, `p_goles_local`, `p_goles_visitante`, `p_penales_local?`, `p_penales_visitante?` | fila de `partidos` |
+| `cambiar_escudo` | admin o administrador del equipo | `p_equipo_id`, `p_modelo`, `p_color`, `p_color2`, `p_borde`, `p_url` (`null` = modelo dibujado) | nada |
+
+**Escudos.** Las columnas `escudo_modelo`, `escudo_color`, `escudo_color2`, `escudo_borde` y `escudo_url`
+de `equipos` se leen como el nombre. Para una imagen propia: primero se sube al bucket `escudos`
+en `"<equipo_id>/<archivo>"` (`supabase.storage.from('escudos').upload(...)`), y después se llama a
+`cambiar_escudo` con la URL pública (`getPublicUrl`). La función rechaza URLs de otra carpeta.
+En el front todo esto está en `src/lib/escudos.ts`.
 
 Valores de los enumerados:
 

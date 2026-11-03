@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Check, Clipboard, LockKeyhole, MailOpen, PlusCircle, Shield, UserPlus } from 'lucide-react'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -10,6 +10,8 @@ import { z } from 'zod'
 import { PageHeader } from '@/components/shared/page-header'
 import { ErrorState, LoadingState } from '@/components/shared/states'
 import { TeamMark } from '@/components/shared/team-mark'
+import { CambiarEscudoDialog } from '@/components/team/cambiar-escudo-dialog'
+import { EscudoPicker } from '@/components/team/escudo-picker'
 import { InviteSearchBar } from '@/components/team/invite-by-email'
 import { LeaveTeamButton, TeamRoster } from '@/components/team/team-roster'
 import { PositionSummary, TeamTournaments } from '@/components/team/team-tournaments'
@@ -21,6 +23,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { createTeam, getMyTeam, joinTeam } from '@/lib/api'
+import { eleccionDesde, guardarEscudo, type EleccionEscudo } from '@/lib/escudos'
 import { consultasDelPlantel, invalidarConsultas } from '@/lib/query-keys'
 import { clearPendingInvite, currentInvite } from '@/lib/invitation'
 import { getErrorMessage, positionLabel } from '@/lib/utils'
@@ -54,7 +57,26 @@ export function MyTeamPage() {
     toast.success(message)
     invalidarConsultas(queryClient, consultasDelPlantel)
   }
-  const createMutation = useMutation({ mutationFn: createTeam, onSuccess: () => refreshTeam('Equipo creado correctamente'), onError: (error) => toast.error(getErrorMessage(error)) })
+  const [escudo, setEscudo] = useState<EleccionEscudo>(() => eleccionDesde(undefined))
+  const createName = useWatch({ control: createForm.control, name: 'nombre' })
+  const createMutation = useMutation({
+    mutationFn: async (values: CreateValues) => {
+      if (escudo.modo === 'imagen' && !escudo.archivo) throw new Error('Elegí una imagen para el escudo o un modelo.')
+      const team = await createTeam(values)
+      // El equipo ya existe: si falla el escudo, se avisa y se puede cambiar después
+      try {
+        await guardarEscudo(team.id, escudo)
+      } catch (error) {
+        toast.error(`El equipo se creó, pero no se pudo guardar el escudo: ${getErrorMessage(error)}`)
+      }
+      return team
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['escudos'] })
+      refreshTeam('Equipo creado correctamente')
+    },
+    onError: (error) => toast.error(getErrorMessage(error)),
+  })
   const joinMutation = useMutation({ mutationFn: joinTeam, onSuccess: () => { dismissInvite(); refreshTeam('Te sumaste al equipo') }, onError: (error) => toast.error(getErrorMessage(error)) })
 
   if (query.isLoading) return <LoadingState label="Consultando tu equipo" />
@@ -79,7 +101,7 @@ export function MyTeamPage() {
         <section className="relative mt-8 flex flex-col gap-6 overflow-hidden rounded-2xl border border-primary/20 bg-[radial-gradient(circle_at_12%_50%,rgba(53,244,110,.18),transparent_40%),linear-gradient(120deg,rgba(53,244,110,.08),rgba(11,27,18,.95)_58%)] p-6 shadow-[0_16px_40px_rgba(0,0,0,0.4)] md:flex-row md:items-center md:justify-between md:p-8">
           <PitchLines className="absolute -right-16 -top-6 hidden h-[340px] w-[520px] opacity-[0.12] md:block" />
           <div className="relative flex min-w-0 flex-col items-start gap-5 sm:flex-row sm:items-center"><TeamMark name={team.nombre} label={`Escudo de ${team.nombre}`} className="anim-pop h-28 w-24" /><Jersey name={team.nombre} className="anim-pop hidden size-24 shrink-0 [animation-delay:160ms] lg:block" /><div className="min-w-0 max-w-full"><div className="flex flex-wrap gap-2"><Badge>{team.soy_creador ? 'Administrador del equipo' : 'Invitado'}</Badge><Badge variant="secondary">Mi posición: {positionLabel[team.mi_posicion]}</Badge></div><h2 className="mt-3 break-words [overflow-wrap:anywhere] font-display text-4xl font-black uppercase sm:text-5xl">{team.nombre}</h2></div></div>
-          <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center">{team.soy_creador && team.codigo_equipo ? <button type="button" onClick={() => { void navigator.clipboard.writeText(team.codigo_equipo ?? ''); toast.success('Código copiado') }} className="rounded-xl border border-primary/25 bg-base-100/50 p-4 text-left transition-[border-color,background-color,scale] duration-150 hover:border-primary/50 hover:bg-base-100/70 active:scale-[0.98] motion-reduce:active:scale-100"><span className="block font-mono text-[0.6rem] font-bold uppercase tracking-widest text-base-content/40">Código del equipo</span><span className="mt-1 flex items-center gap-3 font-mono text-xl font-black tracking-[0.18em] text-primary">{team.codigo_equipo}<Clipboard className="size-4" /></span></button> : <p className="max-w-56 rounded-xl border border-base-content/10 bg-base-100/50 p-4 text-xs leading-5 text-base-content/55">El código y las invitaciones los maneja el administrador del equipo.</p>}<LeaveTeamButton team={team} /></div>
+          <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center">{team.soy_creador && <CambiarEscudoDialog equipoId={team.id} nombre={team.nombre} />}{team.soy_creador && team.codigo_equipo ? <button type="button" onClick={() => { void navigator.clipboard.writeText(team.codigo_equipo ?? ''); toast.success('Código copiado') }} className="rounded-xl border border-primary/25 bg-base-100/50 p-4 text-left transition-[border-color,background-color,scale] duration-150 hover:border-primary/50 hover:bg-base-100/70 active:scale-[0.98] motion-reduce:active:scale-100"><span className="block font-mono text-[0.6rem] font-bold uppercase tracking-widest text-base-content/40">Código del equipo</span><span className="mt-1 flex items-center gap-3 font-mono text-xl font-black tracking-[0.18em] text-primary">{team.codigo_equipo}<Clipboard className="size-4" /></span></button> : <p className="max-w-56 rounded-xl border border-base-content/10 bg-base-100/50 p-4 text-xs leading-5 text-base-content/55">El código y las invitaciones los maneja el administrador del equipo.</p>}<LeaveTeamButton team={team} /></div>
         </section>
         {team.compitiendo && (
           // Explica por qué "Pedir el pase" y "Quitar" están bloqueados
@@ -127,7 +149,7 @@ export function MyTeamPage() {
         <Card>
           <CardHeader><div className="tabs tabs-box bg-base-100"><button type="button" className={`tab flex-1 ${mode === 'create' ? 'tab-active bg-primary text-primary-content' : ''}`} onClick={() => setMode('create')}><PlusCircle className="mr-2 size-4" /> Crear</button><button type="button" className={`tab flex-1 ${mode === 'join' ? 'tab-active bg-primary text-primary-content' : ''}`} onClick={() => setMode('join')}><UserPlus className="mr-2 size-4" /> Unirme</button></div><CardTitle>{mode === 'create' ? 'Crear equipo' : 'Ingresar código'}</CardTitle><CardDescription>{mode === 'create' ? 'Elegí un nombre y tu posición.' : 'Elegí tu posición e ingresá el código del equipo.'}</CardDescription></CardHeader>
           <CardContent>
-            {mode === 'create' ? <form className="space-y-5" onSubmit={createForm.handleSubmit((values) => createMutation.mutate(values))}><div className="space-y-2"><Label htmlFor="team-name">Nombre del equipo</Label><Input id="team-name" placeholder="Ej. Los Pibes" {...createForm.register('nombre')} />{createForm.formState.errors.nombre && <p className="text-xs text-error">{createForm.formState.errors.nombre.message}</p>}</div><div className="space-y-2"><Label htmlFor="create-position">Tu posición</Label><Select id="create-position" {...createForm.register('posicion')}>{positions.map((position) => <option key={position} value={position}>{positionLabel[position]}</option>)}</Select></div><Button type="submit" className="w-full" disabled={createMutation.isPending}>{createMutation.isPending ? 'Creando...' : 'Crear equipo'}</Button></form> : <form className="space-y-5" onSubmit={joinForm.handleSubmit((values) => joinMutation.mutate(values))}><div className="space-y-2"><Label htmlFor="team-code">Código del equipo</Label><Input id="team-code" maxLength={6} className="font-mono uppercase tracking-[0.18em]" placeholder="PIBES1" {...joinForm.register('codigo', { setValueAs: (value: string) => value.toUpperCase() })} />{joinForm.formState.errors.codigo && <p className="text-xs text-error">{joinForm.formState.errors.codigo.message}</p>}</div><div className="space-y-2"><Label htmlFor="join-position">Tu posición</Label><Select id="join-position" {...joinForm.register('posicion')}>{positions.map((position) => <option key={position} value={position}>{positionLabel[position]}</option>)}</Select></div><Button type="submit" className="w-full" disabled={joinMutation.isPending}>{joinMutation.isPending ? 'Ingresando...' : 'Unirme al equipo'}</Button></form>}
+            {mode === 'create' ? <form className="space-y-5" onSubmit={createForm.handleSubmit((values) => createMutation.mutate(values))}><div className="space-y-2"><Label htmlFor="team-name">Nombre del equipo</Label><Input id="team-name" placeholder="Ej. Los Pibes" {...createForm.register('nombre')} />{createForm.formState.errors.nombre && <p className="text-xs text-error">{createForm.formState.errors.nombre.message}</p>}</div><div className="space-y-2"><Label htmlFor="create-position">Tu posición</Label><Select id="create-position" {...createForm.register('posicion')}>{positions.map((position) => <option key={position} value={position}>{positionLabel[position]}</option>)}</Select></div><div className="space-y-2"><p className="text-sm font-medium">Escudo</p><EscudoPicker nombre={createName ?? ''} value={escudo} onChange={setEscudo} /></div><Button type="submit" className="w-full" disabled={createMutation.isPending}>{createMutation.isPending ? 'Creando...' : 'Crear equipo'}</Button></form> : <form className="space-y-5" onSubmit={joinForm.handleSubmit((values) => joinMutation.mutate(values))}><div className="space-y-2"><Label htmlFor="team-code">Código del equipo</Label><Input id="team-code" maxLength={6} className="font-mono uppercase tracking-[0.18em]" placeholder="PIBES1" {...joinForm.register('codigo', { setValueAs: (value: string) => value.toUpperCase() })} />{joinForm.formState.errors.codigo && <p className="text-xs text-error">{joinForm.formState.errors.codigo.message}</p>}</div><div className="space-y-2"><Label htmlFor="join-position">Tu posición</Label><Select id="join-position" {...joinForm.register('posicion')}>{positions.map((position) => <option key={position} value={position}>{positionLabel[position]}</option>)}</Select></div><Button type="submit" className="w-full" disabled={joinMutation.isPending}>{joinMutation.isPending ? 'Ingresando...' : 'Unirme al equipo'}</Button></form>}
           </CardContent>
         </Card>
       </div>

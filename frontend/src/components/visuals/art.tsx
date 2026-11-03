@@ -2,8 +2,11 @@
 // Son SVG dibujados en código (sin imágenes externas) y comparten colores y trazos.
 import { useId } from 'react'
 
+import { useEscudo } from '@/lib/escudos'
 import { cn } from '@/lib/utils'
 import type { PosicionJugador } from '@/types/domain'
+
+import { ProCrest } from './pro-crest'
 
 import { TEAM_COLORS, personInitials, teamColorKey, teamInitials, teamPattern, type JerseyPattern, type TeamColorKey } from './palette'
 
@@ -21,8 +24,17 @@ const SH_OUT = 'M36 2L68 11v27c0 23-14 37-32 44C18 75 4 61 4 38V11L36 2z'
 const SH_MID = 'M36 7L63 14.6V38c0 19.6-11.8 31.6-27 38.1C20.8 69.6 9 57.6 9 38V14.6L36 7z'
 const SH_IN = 'M36 10.5L59.5 17.2V38c0 17.4-10.3 28.2-23.5 34.1C22.8 66.2 12.5 55.4 12.5 38V17.2L36 10.5z'
 
+// Si el equipo eligió escudo (modelo o imagen), se muestra ese; si no, el automático.
+// Con "color" fijo es un escudo decorativo y no se busca en la base.
 export function TeamCrest({ name, color, label, className }: Labelled & { name: string; color?: TeamColorKey }) {
   const id = useId()
+  const escudo = useEscudo(name, !color)
+  if (escudo?.escudo_url) {
+    return <img src={escudo.escudo_url} alt={label ?? ''} aria-hidden={label ? undefined : true} loading="lazy" className={cn('object-contain drop-shadow-[0_6px_12px_rgba(0,0,0,0.4)]', className)} />
+  }
+  if (escudo?.escudo_modelo) {
+    return <ProCrest name={name} modelo={escudo.escudo_modelo} color={escudo.escudo_color ?? 'verde'} color2={escudo.escudo_color2} borde={escudo.escudo_borde} label={label} className={className} />
+  }
   const c = TEAM_COLORS[color ?? teamColorKey(name)]
   const text = teamInitials(name)
   return (
