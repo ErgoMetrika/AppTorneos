@@ -92,7 +92,7 @@ export function PublicLayout() {
         <div className="mx-auto flex w-full max-w-[1240px] flex-wrap items-center gap-x-7 gap-y-4 px-4 pb-9 pt-7">
           <SiteBrand small />
           <span className="text-sm text-[#8fa596]">Donde empieza el juego</span>
-          <nav aria-label="Pie de página" className="flex gap-5 w-full justify-content-center sm:ml-auto">
+          <nav aria-label="Pie de página" className="flex gap-5 w-full justify-center sm:ml-auto">
             {footerItems.map((item) => (
               <Link
                 key={item.to}
