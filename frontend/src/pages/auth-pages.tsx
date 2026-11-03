@@ -29,6 +29,29 @@ const registerSchema = z.object({
   path: ['confirmPassword'],
 })
 
+// Supabase devuelve los errores de login y registro en inglés: los pasamos a castellano
+const AUTH_ERRORS: Record<string, string> = {
+  invalid_credentials: 'Email o contraseña incorrectos.',
+  email_not_confirmed: 'Todavía no confirmaste tu email.',
+  user_already_exists: 'Ya existe una cuenta con ese email.',
+  email_exists: 'Ya existe una cuenta con ese email.',
+  weak_password: 'La contraseña es muy débil. Probá con una más larga.',
+  email_address_invalid: 'Ese email no es válido.',
+  signup_disabled: 'El registro está deshabilitado por el momento.',
+  over_request_rate_limit: 'Demasiados intentos. Esperá unos minutos y probá de nuevo.',
+  over_email_send_rate_limit: 'Demasiados intentos. Esperá unos minutos y probá de nuevo.',
+}
+
+function authErrorMessage(error: { code?: string; message: string }) {
+  if (error.code && AUTH_ERRORS[error.code]) return AUTH_ERRORS[error.code]
+  const text = error.message.toLowerCase()
+  if (text.includes('invalid login credentials')) return AUTH_ERRORS.invalid_credentials
+  if (text.includes('already registered')) return AUTH_ERRORS.user_already_exists
+  if (text.includes('email not confirmed')) return AUTH_ERRORS.email_not_confirmed
+  if (text.includes('failed to fetch')) return 'No hay conexión con el servidor. Revisá tu internet.'
+  return 'No se pudo completar la operación. Probá de nuevo.'
+}
+
 type LoginValues = z.infer<typeof loginSchema>
 type RegisterValues = z.infer<typeof registerSchema>
 
@@ -69,7 +92,7 @@ export function LoginPage() {
   const submit = form.handleSubmit(async (values) => {
     const { error } = await supabase.auth.signInWithPassword(values)
     if (error) {
-      toast.error(error.message)
+      toast.error(authErrorMessage(error))
       return
     }
     navigate(from || '/app', { replace: true })
@@ -102,7 +125,7 @@ export function RegisterPage() {
   const submit = form.handleSubmit(async ({ nombre, email, password }) => {
     const { error } = await supabase.auth.signUp({ email, password, options: { data: { nombre } } })
     if (error) {
-      toast.error(error.message)
+      toast.error(authErrorMessage(error))
       return
     }
     toast.success('Cuenta general creada correctamente')
