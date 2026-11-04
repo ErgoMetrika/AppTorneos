@@ -256,7 +256,9 @@ export function ProCrest({ name, modelo, color, color2, borde, label, className 
             <path d="M22 22H118V50C92 44 48 44 22 50Z" fill={url('s')} />
           </g>
         </g>
-        {texto(siglas, 50, tres ? 54 : 56, tres ? 22 : 28, tinta)}
+        {/* Placa oscura detrás de las siglas: el cielo es claro y sin ella no se leen */}
+        <rect x="27" y={tres ? 34 : 33} width="46" height={tres ? 27 : 30} rx="5" fill={NOCHE} fillOpacity="0.82" stroke={url('m')} strokeWidth="1.5" />
+        {texto(siglas, 50, tres ? 54 : 56, tres ? 22 : 28, color === 'negro' ? '#f4f8f5' : c.light)}
       </>
     ),
   }

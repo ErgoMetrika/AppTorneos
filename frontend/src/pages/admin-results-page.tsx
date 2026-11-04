@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 
 import { EMPTY_DRAFT, draftWinner, groupRounds, isTied, matchName, matchStatus, roundName, type MatchRow, type ScoreDraft } from '@/components/admin/results/bracket-utils'
 import { ChampionCelebration } from '@/components/admin/results/champion-celebration'
+import { GoalCelebration, type GoalCelebrationData } from '@/components/admin/results/goal-celebration'
 import { MatchResultPanel } from '@/components/admin/results/match-result-panel'
 import { ResultsBracket, type AdvancePreview } from '@/components/admin/results/results-bracket'
 import { ResultsSteps, type StepState } from '@/components/admin/results/results-steps'
@@ -38,6 +39,7 @@ function TournamentResults({ tournament, onFinished }: { tournament: TorneoLista
   const [touched, setTouched] = useState(false)
   const [saved, setSaved] = useState<SavedInfo | null>(null)
   const [champion, setChampion] = useState<string | null>(null)
+  const [goalFx, setGoalFx] = useState<GoalCelebrationData | null>(null)
 
   const matches = useMemo(() => (bracketQuery.data ?? []) as MatchRow[], [bracketQuery.data])
   const rounds = useMemo(() => groupRounds(matches), [matches])
@@ -102,6 +104,10 @@ function TournamentResults({ tournament, onFinished }: { tournament: TorneoLista
       detail: `Ganó ${high} a ${low}${tied ? ' por penales' : ''}`,
       nextName: nextMatch ? matchName(nextMatch, lastRound) : null,
     })
+    // Festejo de gol: sólo acá, cuando la base ya confirmó el guardado
+    if (winnerSide) {
+      setGoalFx({ local: selected.local ?? 'Local', visitante: selected.visitante ?? 'Visitante', draft, tied, winnerSide, isFinal })
+    }
     if (isFinal) {
       setChampion(winnerName)
       onFinished(tournament.id)
@@ -131,6 +137,7 @@ function TournamentResults({ tournament, onFinished }: { tournament: TorneoLista
 
   return (
     <>
+      {goalFx && <GoalCelebration data={goalFx} onClose={() => setGoalFx(null)} />}
       {champion && <ChampionCelebration champion={champion} tournamentName={tournament.nombre} tournamentId={tournament.id} onClose={() => setChampion(null)} />}
 
       <ResultsSteps states={steps} />

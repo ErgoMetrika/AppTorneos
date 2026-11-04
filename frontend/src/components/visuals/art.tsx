@@ -2,7 +2,7 @@
 // Son SVG dibujados en código (sin imágenes externas) y comparten colores y trazos.
 import { useId } from 'react'
 
-import { useEscudo } from '@/lib/escudos'
+import { ESCUDO_COLORES, useEscudo } from '@/lib/escudos'
 import { cn } from '@/lib/utils'
 import type { PosicionJugador } from '@/types/domain'
 
@@ -62,10 +62,17 @@ export function EmptyCrest({ className }: { className?: string }) {
 // ---------- Camiseta: cuello, mangas, costuras, degradé y variantes ----------
 const BODY = 'M40 10L16 21L5 45l18 8 5-9v64h64V44l5 9 18-8-11-24-24-11c-4 8-11 12-20 12s-16-4-20-12z'
 
+// Si el equipo eligió un escudo dibujado, la camiseta usa sus colores (principal y secundario).
 export function Jersey({ name, color, pattern, number, label, className }: Labelled & { name: string; color?: TeamColorKey; pattern?: JerseyPattern; number?: string }) {
   const id = useId()
-  const c = TEAM_COLORS[color ?? teamColorKey(name)]
-  const variant = pattern ?? teamPattern(name)
+  const escudo = useEscudo(name, !color)
+  const deEscudo = !escudo?.escudo_url && escudo?.escudo_color ? escudo : undefined
+  const c = deEscudo?.escudo_color ? ESCUDO_COLORES[deEscudo.escudo_color] : TEAM_COLORS[color ?? teamColorKey(name)]
+  const sec = deEscudo?.escudo_color2 && deEscudo.escudo_color2 !== 'auto' ? ESCUDO_COLORES[deEscudo.escudo_color2].base : undefined
+  // Con color secundario y diseño liso, la camiseta lleva bastones para que se note
+  const variant = pattern ?? (sec && teamPattern(name) === 'lisa' ? 'bastones' : teamPattern(name))
+  const stripe = sec ?? DARK
+  const stripeOpacity = sec ? 0.9 : 0.3
   return (
     <svg viewBox="0 0 120 120" fill="none" className={className} {...a11y(label)}>
       <defs>
@@ -75,8 +82,8 @@ export function Jersey({ name, color, pattern, number, label, className }: Label
       <ellipse cx="60" cy="113" rx="36" ry="4" fill="#000" fillOpacity="0.35" />
       <path d={BODY} fill={`url(#${id}g)`} />
       <g clipPath={`url(#${id}c)`}>
-        {variant === 'bastones' && [33, 51, 69, 87].map((x) => <rect key={x} x={x} y="0" width="9" height="120" fill={DARK} fillOpacity="0.3" />)}
-        {variant === 'bandas' && [48, 70, 92].map((y) => <rect key={y} x="0" y={y} width="120" height="10" fill={DARK} fillOpacity="0.3" />)}
+        {variant === 'bastones' && [33, 51, 69, 87].map((x) => <rect key={x} x={x} y="0" width="9" height="120" fill={stripe} fillOpacity={stripeOpacity} />)}
+        {variant === 'bandas' && [48, 70, 92].map((y) => <rect key={y} x="0" y={y} width="120" height="10" fill={stripe} fillOpacity={stripeOpacity} />)}
         <rect x="0" y="0" width="120" height="30" fill={c.light} fillOpacity="0.12" />
       </g>
       <path d="M28 46V106M92 46V106" stroke={DARK} strokeOpacity="0.2" strokeWidth="1.5" />
