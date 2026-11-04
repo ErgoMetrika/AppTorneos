@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
-import { createPlayer, getAvailableUsers, getTeams, updatePlayer } from '@/lib/api'
+import { createPlayer, getAvailableUsers, getCompetingTeamIds, getTeams, updatePlayer } from '@/lib/api'
 import { consultasDelPlantel, invalidarConsultas } from '@/lib/query-keys'
 import { getErrorMessage, positionLabel } from '@/lib/utils'
 import type { JugadorDetalle, PosicionJugador } from '@/types/domain'
@@ -37,6 +37,8 @@ export function PlayerFormDialog({ defaultTeamId, player, trigger }: PlayerFormD
   const queryClient = useQueryClient()
   const usersQuery = useQuery({ queryKey: ['available-users'], queryFn: getAvailableUsers, enabled: open && !player })
   const teamsQuery = useQuery({ queryKey: ['teams'], queryFn: getTeams, enabled: open })
+  const competingQuery = useQuery({ queryKey: ['competing-teams'], queryFn: getCompetingTeamIds, enabled: open })
+  const competing = new Set(competingQuery.data ?? [])
   const form = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: { usuario_id: player?.usuario_id ?? '', equipo_id: player?.equipo_id ?? defaultTeamId ?? 0, posicion: player?.posicion ?? 'defensor' },
@@ -48,6 +50,9 @@ export function PlayerFormDialog({ defaultTeamId, player, trigger }: PlayerFormD
 
   const mutation = useMutation({
     mutationFn: async (values: Values) => {
+      if (competing.has(values.equipo_id) && values.equipo_id !== player?.equipo_id) {
+        throw new Error('El equipo está jugando un torneo: no puede sumar jugadores hasta que termine.')
+      }
       if (!player) return createPlayer(values)
       await updatePlayer(player.id, { equipo_id: values.equipo_id, posicion: values.posicion })
       return { id: player.id }
@@ -75,14 +80,19 @@ export function PlayerFormDialog({ defaultTeamId, player, trigger }: PlayerFormD
           <DialogTitle>{player ? 'Editar jugador' : 'Nuevo jugador'}</DialogTitle>
           <DialogDescription>{player ? 'Actualizá su equipo o posición.' : 'Asigná a un usuario general registrado a un equipo. Una cuenta solo puede pertenecer a un plantel.'}</DialogDescription>
         </DialogHeader>
-        {(usersQuery.isLoading || teamsQuery.isLoading) ? <LoadingState label="Cargando opciones" /> : (
+        {(usersQuery.isLoading || teamsQuery.isLoading || competingQuery.isLoading) ? <LoadingState label="Cargando opciones" /> : (
           <form className="space-y-5" onSubmit={form.handleSubmit((values) => mutation.mutate(values))}>
             {!player && <div className="space-y-2"><Label htmlFor="player-user">Usuario registrado</Label><Select id="player-user" {...form.register('usuario_id')}><option value="">Seleccionar usuario</option>{usersQuery.data?.map((user) => <option key={user.id} value={user.id}>{user.nombre} · {user.email}</option>)}</Select>{form.formState.errors.usuario_id && <p className="text-xs text-error">{form.formState.errors.usuario_id.message}</p>}</div>}
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2"><Label htmlFor="player-team">Equipo</Label><Select id="player-team" {...form.register('equipo_id', { valueAsNumber: true })}><option value={0}>Seleccionar equipo</option>{teamsQuery.data?.map((team) => <option key={team.equipo_id} value={team.equipo_id}>{team.equipo}</option>)}</Select>{form.formState.errors.equipo_id && <p className="text-xs text-error">{form.formState.errors.equipo_id.message}</p>}</div>
+              <div className="space-y-2"><Label htmlFor="player-team">Equipo</Label><Select id="player-team" {...form.register('equipo_id', { valueAsNumber: true })}><option value={0}>Seleccionar equipo</option>{teamsQuery.data?.map((team) => {
+                // Los que juegan un torneo en curso se ven, pero no se pueden elegir (salvo que ya sea su equipo)
+                const locked = competing.has(team.equipo_id) && team.equipo_id !== player?.equipo_id
+                return <option key={team.equipo_id} value={team.equipo_id} disabled={locked}>{team.equipo}{locked ? ' · jugando un torneo' : ''}</option>
+              })}</Select>{form.formState.errors.equipo_id && <p className="text-xs text-error">{form.formState.errors.equipo_id.message}</p>}</div>
               <div className="space-y-2"><Label htmlFor="player-position">Posición</Label><Select id="player-position" {...form.register('posicion')}>{positions.map((position) => <option key={position} value={position}>{positionLabel[position]}</option>)}</Select></div>
             </div>
-            {willBeCreator && <div className="rounded-lg border border-primary/30 bg-primary/10 p-4 text-sm text-base-content">Es el primer jugador de <strong>{selectedTeam.equipo}</strong>: va a quedar como <strong className="text-primary">administrador del equipo</strong>. Será el único jugador que vea el código, invite a otros y pueda quitar a los invitados.</div>}
+            {selectedTeam && competing.has(selectedTeam.equipo_id) && selectedTeam.equipo_id !== player?.equipo_id && <div className="rounded-lg border border-warning/25 bg-warning/10 p-4 text-sm text-warning"><strong>{selectedTeam.equipo}</strong> está jugando un torneo: no puede sumar jugadores hasta que termine. Elegí otro equipo.</div>}
+            {willBeCreator &&<div className="rounded-lg border border-primary/30 bg-primary/10 p-4 text-sm text-base-content">Es el primer jugador de <strong>{selectedTeam.equipo}</strong>: va a quedar como <strong className="text-primary">administrador del equipo</strong>. Será el único jugador que vea el código, invite a otros y pueda quitar a los invitados.</div>}
             {noUsers && <div className="rounded-lg border border-warning/25 bg-warning/10 p-4 text-sm text-warning">No hay usuarios generales libres. Primero deben registrarse desde la pantalla pública.</div>}
             <div className="flex flex-wrap justify-end gap-3"><Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button><Button type="submit" disabled={mutation.isPending || noUsers}>{mutation.isPending ? 'Guardando...' : player ? 'Guardar cambios' : 'Agregar jugador'}</Button></div>
           </form>

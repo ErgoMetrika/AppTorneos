@@ -196,7 +196,8 @@ function TournamentDetailContent({ id }: { id: number }) {
 
   return (
     <div className={cn('flex flex-col gap-6', !inApp && 'container-shell py-10 sm:py-12')}>
-      <Link to={`${prefix}/torneos`} className="inline-flex items-center gap-2 self-start text-[13px] font-bold uppercase tracking-[0.06em] text-[#b7c8bd] transition hover:text-primary">
+      {/* El admin vuelve a su propia vista de torneos (la de gestión), no a la del jugador */}
+      <Link to={isAdmin && inApp ? '/app/admin/torneos' : `${prefix}/torneos`} className="inline-flex items-center gap-2 self-start text-[13px] font-bold uppercase tracking-[0.06em] text-[#b7c8bd] transition hover:text-primary">
         <ChevronLeft className="size-4" aria-hidden="true" /> Volver a torneos
       </Link>
 

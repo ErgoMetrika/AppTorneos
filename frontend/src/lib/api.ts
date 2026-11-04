@@ -114,6 +114,17 @@ export async function getTeams(): Promise<EquipoResumen[]> {
   return (data ?? []) as EquipoResumen[]
 }
 
+// Ids de los equipos anotados en un torneo en curso: su plantel está congelado (no suman ni pierden jugadores)
+export async function getCompetingTeamIds(): Promise<number[]> {
+  const { data, error } = await supabase
+    .from('torneo_equipos')
+    .select('equipo_id, torneos!inner(estado)')
+    .eq('torneos.estado', 'en_curso')
+
+  throwIfError(error)
+  return [...new Set(((data ?? []) as Array<{ equipo_id: number }>).map((row) => row.equipo_id))]
+}
+
 export async function getTeam(id: number): Promise<EquipoDetalle> {
   const { data, error } = await supabase
     .from('equipos')
