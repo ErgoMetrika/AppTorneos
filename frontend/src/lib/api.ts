@@ -21,8 +21,24 @@ import type {
 
 const tournamentOwnerColumnEnabled = import.meta.env.VITE_TOURNAMENT_OWNER_COLUMN === 'true'
 
-function throwIfError(error: { message: string } | null) {
-  if (error) throw new Error(error.message)
+// Mensajes claros para los datos repetidos (código 23505 de Postgres), según la restricción que falló
+const DUPLICATE_MESSAGES: Array<[string, string]> = [
+  ['equipos_nombre', 'Ya hay un equipo con ese nombre. Probá con otro (por ejemplo, agregándole el barrio o un número).'],
+  ['equipos_codigo', 'No pudimos generar el código del equipo. Probá de nuevo.'],
+  ['usuarios_email', 'Ya existe una cuenta con ese email.'],
+  ['jugadores_usuario', 'Esa persona ya forma parte de un equipo.'],
+  ['torneo_equipos', 'El equipo ya está inscripto en este torneo.'],
+  ['torneos_nombre', 'Ya hay un torneo con ese nombre. Probá con otro.'],
+]
+
+function friendlyMessage(error: { message: string; code?: string }) {
+  if (error.code !== '23505' && !/duplicate key/i.test(error.message)) return error.message
+  const match = DUPLICATE_MESSAGES.find(([constraint]) => error.message.includes(constraint))
+  return match ? match[1] : 'Ese dato ya está cargado. Revisá que no esté repetido.'
+}
+
+function throwIfError(error: { message: string; code?: string } | null) {
+  if (error) throw new Error(friendlyMessage(error))
 }
 
 export async function getTournaments(): Promise<TorneoListado[]> {

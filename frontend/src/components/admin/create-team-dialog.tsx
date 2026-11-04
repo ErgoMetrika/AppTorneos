@@ -56,7 +56,15 @@ export function CreateTeamDialog() {
       setEscudo(eleccionDesde(undefined))
       navigate(isAdmin ? `/app/equipos/${team.id}` : '/app/mi-equipo')
     },
-    onError: (error) => toast.error(getErrorMessage(error)),
+    onError: (error) => {
+      const message = getErrorMessage(error)
+      // Nombre repetido: se marca en el campo para que se vea qué hay que cambiar
+      if (/equipo con ese nombre/i.test(message)) {
+        form.setError('nombre', { message: 'Ya hay un equipo con ese nombre. Probá con otro.' }, { shouldFocus: true })
+        return
+      }
+      toast.error(message)
+    },
   })
 
   if (!isAdmin && myTeamQuery.data) {

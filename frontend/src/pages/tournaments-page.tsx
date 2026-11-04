@@ -78,18 +78,21 @@ function SlotsByCrest({ tournament }: { tournament: TorneoListado }) {
       {tournament.equipos_inscriptos.map((team) => {
         const color = TEAM_COLORS[teamColorKey(team.nombre)].base;
         return (
-          <li
-            key={team.id}
-            className="flex min-h-12 min-w-0 items-center gap-3 rounded-lg border px-3 py-2"
-            style={{ backgroundColor: `${color}1c`, borderColor: `${color}40` }}
-          >
-            <TeamCrest
-              name={team.nombre}
-              className="h-7 w-6 shrink-0 drop-shadow-none"
-            />
-            <span className="min-w-0 break-words text-sm font-medium leading-snug text-slate-100">
-              {team.nombre}
-            </span>
+          <li key={team.id} className="min-w-0">
+            <Link
+              to={`/app/equipos/${team.id}`}
+              aria-label={`Ver equipo ${team.nombre}`}
+              className="flex min-h-12 min-w-0 items-center gap-3 rounded-lg border px-3 py-2 transition hover:brightness-125 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              style={{ backgroundColor: `${color}1c`, borderColor: `${color}40` }}
+            >
+              <TeamCrest
+                name={team.nombre}
+                className="h-7 w-6 shrink-0 drop-shadow-none"
+              />
+              <span className="min-w-0 break-words text-sm font-medium leading-snug text-slate-100">
+                {team.nombre}
+              </span>
+            </Link>
           </li>
         );
       })}
