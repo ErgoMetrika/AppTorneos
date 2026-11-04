@@ -296,7 +296,9 @@ export function GoalCelebration({ data, onClose }: { data: GoalCelebrationData; 
       <canvas data-fx="confetti" aria-hidden="true" className="pointer-events-none absolute inset-0 size-full" />
 
       {!reduced && (
-        <div className="relative w-full max-w-[760px]" aria-hidden="true">
+        // Escena grande: hasta 1080 px, todo el ancho en el celu y sin pasarse del alto
+        // (deja lugar abajo para el "¡GOOOL!" y el resultado)
+        <div className="relative w-[min(1080px,100vw,calc((100dvh-250px)*2.1))] max-w-none shrink-0" aria-hidden="true">
           <svg viewBox="0 0 800 380" className="block h-auto w-full overflow-visible">
             <defs>
               <pattern id={`${uid}grass`} width="80" height="60" patternUnits="userSpaceOnUse">

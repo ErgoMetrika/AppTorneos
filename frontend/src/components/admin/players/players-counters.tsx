@@ -49,8 +49,9 @@ export function PlayersCounters({ total, byPosition, teams, loading }: PlayersCo
         return (
           <div key={position} className={cn(CARD, 'anim-stagger flex min-w-0 flex-col gap-2 overflow-hidden px-4 py-4')} style={{ '--i': index + 1 } as CSSProperties}>
             <span className="flex items-center justify-between gap-2">
-              <span className="truncate font-mono text-[11px] font-bold uppercase tracking-[0.1em]" style={{ color }}>{positionLabel[position]}</span>
-              <span className="font-display text-sm font-extrabold text-[#8fa596]" aria-hidden="true">{POSITION_TAG[position]}</span>
+              <span className="min-w-0 truncate font-mono text-[11px] font-bold uppercase tracking-[0.1em]" style={{ color }}>{positionLabel[position]}</span>
+              {/* La sigla solo en tablet: en celu y compu la tarjeta es angosta y se pisaba con "Mediocampista" */}
+              <span className="shrink-0 font-display text-sm font-extrabold text-[#8fa596] max-sm:hidden xl:hidden" aria-hidden="true">{POSITION_TAG[position]}</span>
             </span>
             <span className="font-display text-[40px] font-black leading-none text-[#f4f8f5]">
               {value(count)}<span className="sr-only"> {count === 1 ? 'jugador' : 'jugadores'}</span>

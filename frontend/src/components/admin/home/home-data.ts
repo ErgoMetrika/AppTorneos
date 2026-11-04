@@ -62,7 +62,6 @@ export const byDateAsc = (a: TorneoListado, b: TorneoListado) => time(a) - time(
 export const byDateDesc = (a: TorneoListado, b: TorneoListado) => time(b) - time(a)
 
 // Cuántos equipos le faltan a un torneo en inscripción para completar su cupo (2, 4, 8 o 16)
-export const missingTeams = (tournament: TorneoListado) => Math.max(0, tournament.max_equipos - tournament.inscriptos)
 
 // "1 equipo" / "3 equipos", "1 partido" / "2 partidos"
 export const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`

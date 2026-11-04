@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { CalendarDays, CircleCheck, ClipboardList, Eye, Info, MapPin, Network, Trash2, Trophy as TrophyIcon } from 'lucide-react'
+import { CalendarDays, CircleCheck, ClipboardList, Eye, Info, MapPin, Network, Pencil, Trash2, Trophy as TrophyIcon } from 'lucide-react'
 import { useId, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -165,7 +165,7 @@ export function AdminTournamentRow({ tournament, index }: { tournament: TorneoLi
         {isPrivate ? (
           <TournamentAccessKey tournamentId={id} tournamentName={nombre} />
         ) : estado !== 'inscripcion' ? (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col items-start gap-2">
             <span className={LABEL}>Llave</span>
             {finished ? (
               <StatusChip tone="grey">{bracket?.campeon ? `Campeón ${bracket.campeon}` : 'Terminada'}</StatusChip>
@@ -174,7 +174,7 @@ export function AdminTournamentRow({ tournament, index }: { tournament: TorneoLi
             )}
           </div>
         ) : (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col items-start gap-2">
             <span className={LABEL}>Visibilidad</span>
             <StatusChip tone="green">Público</StatusChip>
           </div>
@@ -183,14 +183,17 @@ export function AdminTournamentRow({ tournament, index }: { tournament: TorneoLi
         {/* Estado y acciones */}
         <div className="flex flex-col gap-3 border-t border-[#f4f8f5]/8 pt-4 xl:col-span-full xl:flex-row xl:flex-wrap xl:items-center">
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2.5 gap-y-2 xl:min-w-60">
-            {status.icon === 'ok' ? (
-              <CircleCheck className="size-5 shrink-0 text-[#35f46e]" aria-hidden="true" />
-            ) : status.icon === 'trophy' ? (
-              <TrophyIcon className="size-5 shrink-0 text-[#f2c94c]" aria-hidden="true" />
-            ) : (
-              <Info className="size-5 shrink-0 text-[#b7c8bd]" aria-hidden="true" />
-            )}
-            <span id={statusId} className="min-w-0 text-sm text-[#b7c8bd]">{status.text}</span>
+            {/* Ícono y texto juntos: en pantallas chicas el texto no cae debajo del ícono */}
+            <p className="flex min-w-0 items-start gap-2.5">
+              {status.icon === 'ok' ? (
+                <CircleCheck className="size-5 shrink-0 text-[#35f46e]" aria-hidden="true" />
+              ) : status.icon === 'trophy' ? (
+                <TrophyIcon className="size-5 shrink-0 text-[#f2c94c]" aria-hidden="true" />
+              ) : (
+                <Info className="size-5 shrink-0 text-[#b7c8bd]" aria-hidden="true" />
+              )}
+              <span id={statusId} className="min-w-0 text-sm text-[#b7c8bd]">{status.text}</span>
+            </p>
             {estado === 'inscripcion' && (
               <div className="h-1.5 w-40 max-w-full overflow-hidden rounded-[3px] bg-[#f4f8f5]/10" aria-hidden="true">
                 <div className="anim-fill h-full rounded-[3px] bg-[linear-gradient(90deg,#1a9c45,#35f46e)]" style={{ width: `${progress}%`, '--i': index } as CSSProperties} />
@@ -221,7 +224,21 @@ export function AdminTournamentRow({ tournament, index }: { tournament: TorneoLi
               <Eye aria-hidden="true" />
               {estado === 'inscripcion' ? 'Ver' : 'Ver llave'}
             </Link>
-            <EditTournamentDialog tournament={tournament} />
+            {/* Solo se edita en inscripción: en curso o finalizado, los datos quedan fijos */}
+            {estado === 'inscripcion' ? (
+              <EditTournamentDialog tournament={tournament} />
+            ) : (
+              <button
+                type="button"
+                className={BTN_SECONDARY}
+                disabled
+                title={estado === 'en_curso' ? 'No se puede editar un torneo en curso' : 'No se puede editar un torneo finalizado'}
+                aria-label={`Editar ${nombre} (no disponible: el torneo ${estado === 'en_curso' ? 'está en curso' : 'ya terminó'})`}
+              >
+                <Pencil aria-hidden="true" />
+                Editar
+              </button>
+            )}
             <ConfirmDialog
               trigger={
                 <button type="button" className={cn(BTN_DANGER, 'col-span-2 sm:col-span-1')} aria-label={`Borrar ${nombre}`}>

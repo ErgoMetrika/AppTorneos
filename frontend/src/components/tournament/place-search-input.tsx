@@ -88,7 +88,7 @@ interface PlaceSearchInputProps {
   placeholder?: string
 }
 
-export function PlaceSearchInput({ id, value, exacto, onTextChange, onSelect, onBlur, invalid, describedBy, placeholder = 'Buscá el complejo, club o dirección' }: PlaceSearchInputProps) {
+export function PlaceSearchInput({ id, value, exacto, onTextChange, onSelect, onBlur, invalid, describedBy, placeholder = 'Complejo, club o dirección' }: PlaceSearchInputProps) {
   const listId = useId()
   const [abierto, setAbierto] = useState(false)
   const [cargando, setCargando] = useState(false)

@@ -3,7 +3,7 @@
 // la base (cargar_resultado) valida todo y pasa al ganador al partido siguiente.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Check, ChevronLeft, CircleAlert, Lock, Network } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
@@ -40,6 +40,21 @@ function TournamentResults({ tournament, onFinished }: { tournament: TorneoLista
   const [saved, setSaved] = useState<SavedInfo | null>(null)
   const [champion, setChampion] = useState<string | null>(null)
   const [goalFx, setGoalFx] = useState<GoalCelebrationData | null>(null)
+  // Panel de carga: al elegir un partido se lleva a la vista (en celu y tablet queda debajo de la llave)
+  const panelRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (selectedId == null) return
+    const frame = window.requestAnimationFrame(() => {
+      const panel = panelRef.current
+      if (!panel) return
+      const { top } = panel.getBoundingClientRect()
+      if (top > window.innerHeight * 0.6 || top < 0) {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        panel.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+      }
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [selectedId])
 
   const matches = useMemo(() => (bracketQuery.data ?? []) as MatchRow[], [bracketQuery.data])
   const rounds = useMemo(() => groupRounds(matches), [matches])
@@ -191,7 +206,7 @@ function TournamentResults({ tournament, onFinished }: { tournament: TorneoLista
         </p>
       </section>
 
-      <div className="grid min-w-0 items-start gap-6 xl:grid-cols-[1.3fr_1fr]">
+      <div ref={panelRef} className="grid min-w-0 scroll-mt-20 items-start gap-6 xl:grid-cols-[1.3fr_1fr]">
         {selected
           ? (
             <MatchResultPanel

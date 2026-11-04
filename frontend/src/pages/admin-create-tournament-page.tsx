@@ -166,7 +166,7 @@ export function AdminCreateTournamentPage() {
             <Plus className="size-5" strokeWidth={2.6} aria-hidden="true" />
             {mutation.isPending ? 'Creando torneo...' : 'Crear torneo'}
           </button>
-          <p className="text-center text-xs text-[#8fa596]">Después lo podés editar desde Gestión de torneos.</p>
+          <p className="text-center text-xs text-[#8fa596]">Mientras esté en inscripción, lo podés editar desde Gestión de torneos.</p>
         </aside>
       </form>
     </div>

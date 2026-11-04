@@ -9,12 +9,12 @@ import { clampGoals, draftWinner, isTied, type MatchRow, type ScoreDraft } from 
 
 const LEGEND = 'flex items-center gap-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em]'
 const STEP_BADGE = 'inline-grid size-[22px] place-items-center rounded-full border-2 text-[11px]'
-const SIDE_BTN = 'grid size-11 shrink-0 place-items-center rounded-xl border border-[#f4f8f5]/20 bg-[#10271a] text-[#f4f8f5] transition hover:border-primary hover:bg-[#143220] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-[#f4f8f5]/20'
+const SIDE_BTN = 'grid size-10 shrink-0 sm:size-11 place-items-center rounded-xl border border-[#f4f8f5]/20 bg-[#10271a] text-[#f4f8f5] transition hover:border-primary hover:bg-[#143220] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-[#f4f8f5]/20'
 
 // Número con − y +: nunca baja de 0
 function GoalStepper({ id, team, value, highlight, onChange }: { id: string; team: string; value: number; highlight: boolean; onChange: (value: number) => void }) {
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-1 sm:gap-1.5">
       <button type="button" aria-label={`Restar un gol a ${team}`} disabled={value <= 0} onClick={() => onChange(clampGoals(value - 1))} className={SIDE_BTN}>
         <Minus className="size-5" aria-hidden="true" />
       </button>
@@ -28,7 +28,7 @@ function GoalStepper({ id, team, value, highlight, onChange }: { id: string; tea
         onChange={(event) => onChange(clampGoals(event.target.valueAsNumber))}
         onFocus={(event) => event.target.select()}
         className={cn(
-          'h-[60px] w-[68px] rounded-xl border-2 bg-[#0b1b12] text-center font-display text-[34px] font-black text-[#f4f8f5] outline-none [appearance:textfield] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#7dffa3] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+          'h-[52px] w-14 rounded-xl border-2 bg-[#0b1b12] text-center font-display text-[28px] font-black sm:h-[60px] sm:w-[68px] sm:text-[34px] text-[#f4f8f5] outline-none [appearance:textfield] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#7dffa3] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
           highlight ? 'border-primary' : 'border-[#f4f8f5]/30',
         )}
       />
@@ -91,7 +91,7 @@ export function MatchResultPanel({ match, name, isFinal, draft, onDraftChange, p
     : null
 
   return (
-    <section aria-labelledby={`${uid}-titulo`} className="anim-page flex min-w-0 flex-col gap-[22px] rounded-[20px] border border-primary/35 p-6 shadow-[0_18px_44px_rgba(0,0,0,0.45)] sm:px-[30px] sm:py-7" style={{ background: 'linear-gradient(170deg, #0f2418, #0b1b12 40%)' }}>
+    <section aria-labelledby={`${uid}-titulo`} className="anim-page flex min-w-0 flex-col gap-[22px] rounded-[20px] border border-primary/35 p-4 shadow-[0_18px_44px_rgba(0,0,0,0.45)] sm:p-6 sm:px-[30px] sm:py-7" style={{ background: 'linear-gradient(170deg, #0f2418, #0b1b12 40%)' }}>
       <div className="flex flex-wrap items-center justify-between gap-2.5">
         <div className="min-w-0">
           <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-primary">{name}</p>
@@ -105,11 +105,12 @@ export function MatchResultPanel({ match, name, isFinal, draft, onDraftChange, p
       {/* Paso 2: goles */}
       <fieldset className="m-0 min-w-0 border-0 p-0">
         <legend className={cn(LEGEND, 'mb-3.5 text-[#f4f8f5]')}><span className={cn(STEP_BADGE, 'border-primary text-primary')}>2</span>Goles</legend>
-        <div className="grid grid-cols-1 items-center gap-4 rounded-2xl border border-[#f4f8f5]/8 bg-[#06110b] p-5 sm:grid-cols-[1fr_auto_1fr] sm:gap-3">
+        {/* En el celu, una fila por equipo (escudo y nombre a la izquierda, goles a la derecha); desde tablet, enfrentados */}
+        <div className="grid grid-cols-1 items-center gap-3 rounded-2xl border border-[#f4f8f5]/8 bg-[#06110b] p-3 sm:grid-cols-[1fr_auto_1fr] sm:gap-3 sm:p-5">
           {([['local', local, draft.golesLocal, 'golesLocal'], ['visitante', visitante, draft.golesVisitante, 'golesVisitante']] as const).map(([side, team, value, key], index) => (
-            <div key={side} className={cn('flex min-w-0 flex-col items-center gap-2.5', index === 1 && 'sm:order-3')}>
-              <TeamCrest name={team} className="anim-pop h-[70px] w-[60px]" />
-              <label htmlFor={`${uid}-${key}`} className="max-w-full break-words text-center font-bold">{team}</label>
+            <div key={side} className={cn('grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2.5 sm:flex sm:flex-col', index === 1 && 'sm:order-3')}>
+              <TeamCrest name={team} className="anim-pop h-12 w-10 sm:h-[70px] sm:w-[60px]" />
+              <label htmlFor={`${uid}-${key}`} className="max-w-full break-words text-left text-sm font-bold sm:text-center sm:text-base">{team}</label>
               <GoalStepper id={`${uid}-${key}`} team={team} value={value} highlight={winnerSide === side} onChange={(next) => set({ [key]: next })} />
             </div>
           ))}
