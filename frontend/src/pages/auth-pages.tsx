@@ -63,7 +63,7 @@ function AuthFrame({ children, title, description }: { children: ReactNode; titl
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(53,244,110,.2),transparent_30%),linear-gradient(180deg,rgba(6,17,11,.2),rgba(6,17,11,.96))]" />
         <div className="relative flex h-full flex-col justify-between p-12 xl:p-16">
           <Brand />
-          <div className="max-w-xl"><p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-primary">Gestión de torneos</p><h1 className="mt-5 font-display text-7xl font-black uppercase leading-[0.88]">Organizá el juego.<br />Viví cada partido.</h1><p className="mt-6 text-base leading-7 text-base-content/55">Torneos, equipos, planteles y llaves en un solo lugar.</p></div>
+          <div className="max-w-xl"><p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-primary">Gestión de torneos</p><h1 className="mt-5 font-display text-7xl font-black uppercase leading-[0.88]">Organizá el juego.<br />Viví cada partido.</h1><p className="mt-6 text-base leading-7 text-base-content/55">Torneos, equipos, planteles y llaves en un solo lugar.</p></div>
           <p className="font-mono text-[0.6rem] uppercase tracking-widest text-base-content/30">Temporada 2026</p>
         </div>
       </section>
@@ -99,7 +99,7 @@ export function LoginPage() {
   })
 
   return (
-    <AuthFrame title="Volvé a la cancha" description={'Ingresá como administrador o usuario\u00a0general.'}>
+    <AuthFrame title="Volvé a la cancha" description={'Ingresá como administrador o usuario general.'}>
       <form onSubmit={submit} className="space-y-5">
         <div className="space-y-2"><Label htmlFor="email">Email</Label><div className="relative"><Mail className="absolute left-3 top-3.5 size-4 text-base-content/30" /><Input id="email" type="email" autoComplete="email" className="pl-10" placeholder="tu@email.com" {...form.register('email')} /></div>{form.formState.errors.email && <p className="text-xs text-error">{form.formState.errors.email.message}</p>}</div>
         <div className="space-y-2"><Label htmlFor="password">Contraseña</Label><div className="relative"><LockKeyhole className="absolute left-3 top-3.5 size-4 text-base-content/30" /><Input id="password" type="password" autoComplete="current-password" className="pl-10" placeholder="••••••" {...form.register('password')} /></div>{form.formState.errors.password && <p className="text-xs text-error">{form.formState.errors.password.message}</p>}</div>
@@ -133,7 +133,7 @@ export function RegisterPage() {
   })
 
   return (
-    <AuthFrame title="Registro general" description="Creá una cuenta para formar tu equipo e inscribirte.">
+    <AuthFrame title="Registro general" description="Creá una cuenta para formar tu equipo e inscribirte.">
       <form onSubmit={submit} className="space-y-4">
         <div className="space-y-2"><Label htmlFor="nombre">Nombre</Label><div className="relative"><UserRound className="absolute left-3 top-3.5 size-4 text-base-content/30" /><Input id="nombre" className="pl-10" placeholder="Tu nombre" {...form.register('nombre')} /></div>{form.formState.errors.nombre && <p className="text-xs text-error">{form.formState.errors.nombre.message}</p>}</div>
         <div className="space-y-2"><Label htmlFor="register-email">Email</Label><Input id="register-email" type="email" autoComplete="email" placeholder="tu@email.com" {...form.register('email')} />{form.formState.errors.email && <p className="text-xs text-error">{form.formState.errors.email.message}</p>}</div>
