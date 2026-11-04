@@ -1,6 +1,6 @@
-// Plano ilustrado del lugar del torneo: manzanas, avenida, una canchita y un pin con halo.
-// El dibujo es decorativo; tocándolo se abre la ruta en Google Maps. Si el torneo tiene
-// coordenadas (lugar elegido del buscador) la ruta va al punto exacto; si no, busca por el texto.
+// "Dónde se juega": mapa real de Google Maps (embebido, sin clave) con el pin en el lugar del torneo,
+// y el botón "Cómo llegar" que abre la ruta. Con coordenadas (lugar elegido del buscador) va al punto
+// exacto; si no, busca por el texto. Sin lugar cargado se muestra un plano dibujado de relleno.
 import { MapPin, Navigation } from 'lucide-react'
 import { useId } from 'react'
 
@@ -62,6 +62,12 @@ interface VenueMapProps {
 }
 
 // Link de Google Maps con la ruta hasta el lugar (no pide clave)
+// Mapa embebido: el formato "output=embed" de Google Maps no pide clave ni cuenta
+function mapaEmbebido(place: string, latitud?: number | null, longitud?: number | null) {
+  const punto = latitud != null && longitud != null ? `${latitud},${longitud}` : place
+  return `https://maps.google.com/maps?q=${encodeURIComponent(punto)}&z=16&hl=es&output=embed`
+}
+
 function rutaEnMaps(place: string, latitud?: number | null, longitud?: number | null) {
   const destino = latitud != null && longitud != null ? `${latitud},${longitud}` : place
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destino)}`
@@ -69,31 +75,39 @@ function rutaEnMaps(place: string, latitud?: number | null, longitud?: number | 
 
 export function VenueMap({ lugar, latitud, longitud, className }: VenueMapProps) {
   const place = lugar?.trim() || null
-  const mapsUrl = place ? rutaEnMaps(place, latitud, longitud) : null
 
-  const art = (
-    <>
-      <MapArt className="block h-[210px] w-full" />
-      {/* Cartel con el lugar, como en un plano */}
-      <span className="absolute bottom-2.5 left-3.5 max-w-[calc(100%-1.75rem)] truncate rounded bg-[#06110b]/75 px-2 py-1 font-mono text-[11px] font-bold uppercase text-[#b7c8bd]">
-        {place ?? 'Lugar a confirmar'}
-      </span>
-    </>
-  )
 
   return (
     <section className={cn('flex min-w-0 flex-col gap-3.5 rounded-2xl border border-[#f4f8f5]/10 bg-[#0b1b12] p-6 shadow-[0_10px_28px_rgba(0,0,0,0.35)]', className)}>
       <style>{HALO_CSS}</style>
       <h2 className="flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-primary"><MapPin className="size-3.5" aria-hidden="true" /> Dónde se juega</h2>
-      {mapsUrl ? (
-        <a href={mapsUrl} target="_blank" rel="noreferrer" aria-label={`Abrir ${place} en Google Maps`} className="relative block overflow-hidden rounded-xl outline-none ring-primary/70 transition hover:brightness-110 focus-visible:ring-2">
-          {art}
-          <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-md bg-[#06110b]/80 px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-primary"><Navigation className="size-3" aria-hidden="true" /> Cómo llegar</span>
-        </a>
+      {place ? (
+        <div className="relative overflow-hidden rounded-xl border border-[#f4f8f5]/10 bg-[#0f2a1a]">
+          <iframe
+            title={`Mapa de ${place}`}
+            src={mapaEmbebido(place, latitud, longitud)}
+            className="block h-[240px] w-full border-0"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            allowFullScreen
+          />
+          <a
+            href={rutaEnMaps(place, latitud, longitud)}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`Cómo llegar a ${place} (abre Google Maps)`}
+            className="absolute right-2.5 top-2.5 inline-flex min-h-9 items-center gap-1.5 rounded-md bg-[#06110b]/90 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-primary shadow-lg outline-none ring-primary/70 transition hover:bg-[#06110b] focus-visible:ring-2"
+          >
+            <Navigation className="size-3.5" aria-hidden="true" /> Cómo llegar
+          </a>
+        </div>
       ) : (
-        <div className="relative overflow-hidden rounded-xl opacity-70">{art}</div>
+        <div className="relative overflow-hidden rounded-xl opacity-70">
+          <MapArt className="block h-[210px] w-full" />
+          <span className="absolute bottom-2.5 left-3.5 rounded bg-[#06110b]/75 px-2 py-1 font-mono text-[11px] font-bold uppercase text-[#b7c8bd]">Lugar a confirmar</span>
+        </div>
       )}
-      <p className="text-sm text-[#b7c8bd]">{place ? `${place}. Tocando el mapa abre la ruta.` : 'El organizador todavía no cargó el lugar del torneo.'}</p>
+      <p className="text-sm text-[#b7c8bd]">{place ?? 'El organizador todavía no cargó el lugar del torneo.'}</p>
     </section>
   )
 }

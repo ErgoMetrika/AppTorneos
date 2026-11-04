@@ -132,11 +132,12 @@ function Bracket({ matches, maxTeams, teamHref }: { matches: PartidoLlave[]; max
   )
 }
 
-function Datum({ label, children }: { label: string; children: ReactNode }) {
+// "title": texto completo al pasar el mouse cuando el valor se corta en una línea
+function Datum({ label, children, title }: { label: string; children: ReactNode; title?: string }) {
   return (
     <div className="min-w-0">
       <p className={cn(LABEL, 'text-[#8fa596]')}>{label}</p>
-      <p className="mt-1 break-words text-lg font-bold">{children}</p>
+      <p className={cn('mt-1 text-lg font-bold', title ? 'truncate' : 'break-words')} title={title}>{children}</p>
     </div>
   )
 }
@@ -267,7 +268,8 @@ function TournamentDetailContent({ id }: { id: number }) {
         <div className={cn(CARD, 'grid grid-cols-2 content-start gap-x-5 gap-y-[18px] p-6')}>
           <Datum label="Fecha">{formatDate(tournament.fecha, 'd MMM yyyy')}</Datum>
           <Datum label="Modalidad">Fútbol {tournament.tipo_futbol}</Datum>
-          <Datum label="Lugar">{tournament.lugar || 'A confirmar'}</Datum>
+          {/* El lugar puede ser una dirección larga: se corta en una línea (completo en el mapa) */}
+          <Datum label="Lugar" title={tournament.lugar || undefined}>{tournament.lugar || 'A confirmar'}</Datum>
           <Datum label="Cupo">{tournament.max_equipos} equipos</Datum>
           <div className="col-span-full flex flex-col gap-3 border-t border-[#f4f8f5]/10 pt-4">
             <div className="flex items-center justify-between gap-3">
