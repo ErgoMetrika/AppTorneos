@@ -4,13 +4,12 @@ import { Link } from 'react-router-dom'
 
 import { TeamCrest, Trophy } from '@/components/visuals/art'
 
-// Confeti sutil: pocos papelitos que caen una sola vez. Con "reducir movimiento" no se muestran.
+// Confeti sutil: pocos papelitos que caen una sola vez. Se ven siempre, aunque el equipo tenga "reducir movimiento".
 const CONFETTI_CSS = `
 @keyframes t90-confeti { 0% { transform: translate3d(0, -20px, 0) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 100% { transform: translate3d(var(--dx, 0px), 260px, 0) rotate(540deg); opacity: 0; } }
 @keyframes t90-halo { 0%, 100% { opacity: 0.55; transform: scale(1); } 50% { opacity: 0.9; transform: scale(1.06); } }
 .t90-confeti { animation: t90-confeti 2.6s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) 1 both; }
 .t90-halo { animation: t90-halo 3.2s ease-in-out infinite; }
-@media (prefers-reduced-motion: reduce) { .t90-confeti { display: none; } .t90-halo { animation: none; } }
 `
 
 const COLORS = ['#35f46e', '#ffc94a', '#f4f8f5', '#7dffa3', '#f2c94c']

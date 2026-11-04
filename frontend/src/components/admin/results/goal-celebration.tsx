@@ -1,6 +1,6 @@
 // Festejo a pantalla completa al guardar un resultado: botín que patea, arquero que se tira para el otro lado,
 // pelota en cámara lenta contra la red, tribuna que salta y "¡GOOOOL!". En la final, además, copa y papelitos.
-// Se cierra solo (o tocando / con Esc). Con "reducir movimiento" aparece sólo el cartel.
+// Se cierra solo (o tocando / con Esc). Se ve completo siempre, aunque el equipo tenga "reducir movimiento".
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -65,7 +65,8 @@ export function GoalCelebration({ data, onClose }: { data: GoalCelebrationData; 
   const onCloseRef = useRef(onClose)
   useEffect(() => { onCloseRef.current = onClose }, [onClose])
   const [visible, setVisible] = useState(false)
-  const [reduced] = useState(() => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  // Siempre se ve el festejo completo, aunque el equipo tenga activado "reducir movimiento"
+  const [reduced] = useState(false)
   // Con movimiento reducido el número ya aparece actualizado
   const [bumped, setBumped] = useState(reduced)
 
