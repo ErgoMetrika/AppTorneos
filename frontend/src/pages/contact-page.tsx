@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { PitchLines } from '@/components/visuals/art'
-import { sendContact } from '@/lib/api'
+import { SITE_EMAIL, sendContact } from '@/lib/api'
 import { cn, getErrorMessage } from '@/lib/utils'
 
 const schema = z.object({
@@ -51,7 +51,7 @@ export function ContactPage({ embedded = false }: { embedded?: boolean }) {
         <div className="relative max-w-xl">
           <p className="font-mono text-[0.65rem] font-bold uppercase tracking-[0.16em] text-primary">Contacto</p>
           <h1 className="mt-2 font-display text-5xl font-black uppercase leading-[0.95] sm:text-6xl">Hablemos de fútbol</h1>
-          <p className="mt-3 text-sm leading-relaxed text-base-content/75">Escribinos por torneos, inscripciones o administración de equipos. El administrador recibirá tu consulta y podrá responderte por email.</p>
+          <p className="mt-3 text-sm leading-relaxed text-base-content/75">Escribinos por torneos, inscripciones o administración de equipos. Tu consulta llega a <a href={`mailto:${SITE_EMAIL}`} className="font-semibold text-primary underline-offset-2 hover:underline">{SITE_EMAIL}</a> y el administrador te responde por email.</p>
           <ul className="mt-5 flex flex-wrap gap-2 font-mono text-[0.68rem] font-bold uppercase tracking-[0.1em] text-base-content/80">
             <li className="inline-flex items-center gap-1.5 rounded-full border border-base-content/15 bg-base-100/60 px-3 py-1.5"><Mail className="size-3.5 text-primary" aria-hidden="true" />Atencion las 24hs</li>
             <li className="inline-flex items-center gap-1.5 rounded-full border border-base-content/15 bg-base-100/60 px-3 py-1.5"><Clock className="size-3.5 text-primary" aria-hidden="true" />Torneos · Equipos · Inscripciones</li>

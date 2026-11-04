@@ -1,5 +1,5 @@
 // Inicio del administrador general (/app/admin): el admin cae acá al entrar al panel.
-// Todo sale de la base: torneos (getTournaments), llaves (getBracket) y consultas (getContacts).
+// Todo sale de la base: torneos (getTournaments) y llaves (getBracket).
 // Si una consulta falla, esa parte muestra su error y el resto de la pantalla sigue funcionando.
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { Plus } from 'lucide-react'
@@ -10,11 +10,11 @@ import { ActionList, type LiveBracket } from '@/components/admin/home/action-lis
 import { ChampionsCard, type ChampionEntry } from '@/components/admin/home/champions-card'
 import { BTN_PRIMARY, bracketProgress, byDateAsc, byDateDesc, championOf } from '@/components/admin/home/home-data'
 import { LiveTournamentCard, NoLiveTournamentCard } from '@/components/admin/home/live-tournament-card'
-import { ContactsCard, QuickLinks } from '@/components/admin/home/side-cards'
+import { QuickLinks } from '@/components/admin/home/side-cards'
 import { StateCounters } from '@/components/admin/home/state-counters'
 import { ErrorState, LoadingState } from '@/components/shared/states'
 import { useAuth } from '@/context/auth-context'
-import { getBracket, getContacts, getTournaments } from '@/lib/api'
+import { getBracket, getTournaments } from '@/lib/api'
 import { cn, getErrorMessage } from '@/lib/utils'
 
 // Finales que se revisan para "Últimos campeones" (las más recientes) y cuántos se muestran
@@ -26,7 +26,6 @@ export function AdminHomePage() {
   const firstName = profile?.nombre?.trim().split(/\s+/)[0]
 
   const tournamentsQuery = useQuery({ queryKey: ['tournaments'], queryFn: getTournaments })
-  const contactsQuery = useQuery({ queryKey: ['contacts'], queryFn: getContacts })
 
   const tournaments = useMemo(() => tournamentsQuery.data ?? [], [tournamentsQuery.data])
   const live = useMemo(() => tournaments.filter((item) => item.estado === 'en_curso').sort(byDateAsc), [tournaments])
@@ -97,13 +96,7 @@ export function AdminHomePage() {
         </>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        <ContactsCard
-          count={contactsQuery.data ? contactsQuery.data.length : null}
-          loading={contactsQuery.isLoading}
-          failed={contactsQuery.isError}
-          retry={() => void contactsQuery.refetch()}
-        />
+      <div className="grid gap-6 md:grid-cols-2">
         <QuickLinks />
         {tournamentsQuery.data && (
           <ChampionsCard

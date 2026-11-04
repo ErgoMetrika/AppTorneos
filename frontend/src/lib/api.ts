@@ -248,6 +248,10 @@ export async function generateBracket(tournamentId: number) {
   return data
 }
 
+// Casilla simulada del sitio: es el destino de las consultas del formulario de Contacto
+export const SITE_EMAIL = 'consultas@torneo90.com.ar'
+
+// La consulta se guarda en la tabla contactos, dirigida a la casilla del sitio
 export async function sendContact(input: { nombre: string; email: string; mensaje: string }) {
   const { error } = await supabase.from('contactos').insert(input)
   throwIfError(error)

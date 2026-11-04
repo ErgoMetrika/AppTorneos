@@ -2,10 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ClipboardCheck,
   Home,
-  Inbox,
   LockKeyhole,
   LogOut,
-  Mail,
   Plus,
   Shield,
   Trophy as TrophyIcon,
@@ -46,13 +44,6 @@ const torneos: NavItem = {
   icon: TrophyIcon,
 };
 const equipos: NavItem = { to: "/app/equipos", label: "Equipos", icon: Shield };
-// Contacto se abre dentro del panel, sin salir al sitio público
-// Contacto es un formulario que se responde por mail: ícono de sobre, no de chat
-const contacto: NavItem = {
-  to: "/app/contacto",
-  label: "Contacto",
-  icon: Mail,
-};
 
 // Jugador general: no ve Jugadores, tiene Mi equipo
 const playerSections: NavSection[] = [
@@ -62,10 +53,9 @@ const playerSections: NavSection[] = [
     items: [torneos, { to: "/app/mi-equipo", label: "Mi equipo", icon: Users }],
   },
   { id: "explorar", label: "Explorar", items: [equipos] },
-  { id: "ayuda", label: "Ayuda", items: [contacto] },
 ];
 
-// Admin general: su inicio, gestión de torneos, resultados, planteles y consultas
+// Admin general: su inicio, gestión de torneos, resultados y planteles
 const adminSections: NavSection[] = [
   {
     id: "gestion",
@@ -98,12 +88,6 @@ const adminSections: NavSection[] = [
         action: true,
       },
     ],
-  },
-  // El admin no usa el formulario de contacto: lee las consultas que llegan
-  {
-    id: "ayuda",
-    label: "Ayuda",
-    items: [{ to: "/app/admin/consultas", label: "Consultas", icon: Inbox }],
   },
 ];
 
