@@ -1,8 +1,8 @@
 // Mazo de tarjetas para celu: quedan apiladas una arriba de la otra y la de arriba
-// se desliza con el dedo o arrastrándola con el mouse. Hacia la izquierda pasa a la
-// siguiente y hacia la derecha vuelve a la anterior.
+// se desliza con el dedo o arrastrándola con el mouse, para cualquiera de los dos lados.
+// La que se saca sale hacia ese lado y vuelve a meterse abajo de todo, así el mazo da la vuelta.
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRef, useState, type PointerEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -10,6 +10,10 @@ import { cn } from "@/lib/utils";
 const SWIPE_THRESHOLD = 70;
 // Cuántas tarjetas se ven asomando detrás de la de arriba
 const VISIBLE_BEHIND = 2;
+// Cuánto tarda la tarjeta en salir antes de meterse abajo del mazo
+const THROW_MS = 260;
+
+type Thrown = { key: string; dir: 1 | -1 };
 
 export function TournamentDeck({
   items,
@@ -21,13 +25,32 @@ export function TournamentDeck({
   const [active, setActive] = useState(0);
   const [dx, setDx] = useState(0);
   const [dragging, setDragging] = useState(false);
+  // La tarjeta que se acaba de sacar: primero sale volando y después se mete abajo
+  const [thrown, setThrown] = useState<Thrown | null>(null);
   // Los datos del gesto van en una referencia para que el soltar lea siempre lo último
   const drag = useRef({ x: 0, y: 0, id: -1, on: false, moved: false });
   const justDragged = useRef(false);
+  const throwTimer = useRef<number | undefined>(undefined);
   const count = items.length;
-  const current = Math.min(active, count - 1);
+  const current = ((active % count) + count) % count;
 
-  const go = (index: number) => setActive(Math.max(0, Math.min(count - 1, index)));
+  useEffect(() => () => window.clearTimeout(throwTimer.current), []);
+
+  // Saca la de arriba hacia un lado y pasa a la siguiente
+  const next = (dir: 1 | -1) => {
+    if (count < 2) return;
+    const top = items[current];
+    if (top) setThrown({ key: top.key, dir });
+    setActive((value) => value + 1);
+    window.clearTimeout(throwTimer.current);
+    throwTimer.current = window.setTimeout(() => setThrown(null), THROW_MS);
+  };
+  // Trae arriba la que estaba abajo de todo
+  const previous = () => {
+    if (count < 2) return;
+    setThrown(null);
+    setActive((value) => value - 1);
+  };
 
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -53,26 +76,25 @@ export function TournamentDeck({
         // Sin captura igual sigue el arrastre mientras el puntero esté encima
       }
     }
-    // En la primera y la última la tarjeta se resiste un poco
-    const atEdge = (moveX > 0 && current === 0) || (moveX < 0 && current === count - 1);
-    setDx(atEdge ? moveX / 3 : moveX);
+    setDx(count < 2 ? moveX / 3 : moveX);
   };
   const finish = (event: PointerEvent<HTMLDivElement>) => {
     const state = drag.current;
     if (!state.on || event.pointerId !== state.id) return;
     state.on = false;
     setDragging(false);
-    if (state.moved) {
-      justDragged.current = true;
-      window.setTimeout(() => {
-        justDragged.current = false;
-      }, 0);
-      const moveX = event.type === "pointercancel" ? 0 : event.clientX - state.x;
-      if (moveX < -SWIPE_THRESHOLD) go(current + 1);
-      else if (moveX > SWIPE_THRESHOLD) go(current - 1);
-    }
     setDx(0);
+    if (!state.moved) return;
+    justDragged.current = true;
+    window.setTimeout(() => {
+      justDragged.current = false;
+    }, 0);
+    const moveX = event.type === "pointercancel" ? 0 : event.clientX - state.x;
+    // Para cualquiera de los dos lados pasa a la siguiente
+    if (Math.abs(moveX) > SWIPE_THRESHOLD) next(moveX > 0 ? 1 : -1);
   };
+
+  const progress = Math.min(1, Math.abs(dx) / (SWIPE_THRESHOLD * 2));
 
   return (
     <div role="region" aria-roledescription="carrusel" aria-label={label} className="flex flex-col gap-4">
@@ -91,18 +113,18 @@ export function TournamentDeck({
         }}
       >
         {items.map((item, index) => {
-          const position = index - current;
+          // 0 es la de arriba; 1, 2... las que siguen debajo
+          const position = (index - current + count) % count;
           const top = position === 0;
-          const gone = position < 0;
-          const hidden = gone || position > VISIBLE_BEHIND;
-          // Mientras se arrastra, la de atrás se va acomodando para ocupar el lugar
-          const progress = Math.min(1, Math.abs(dx) / (SWIPE_THRESHOLD * 2));
+          const flying = thrown?.key === item.key;
+          // Mientras se arrastra, la de abajo se va acomodando para ocupar el lugar
           const depth = top ? 0 : Math.max(0, position - (position === 1 ? progress : 0));
+          const shown = Math.min(depth, VISIBLE_BEHIND);
           const transform = top
             ? `translateX(${dx}px) rotate(${dx / 22}deg)`
-            : gone
-              ? "translateX(-115%) rotate(-8deg)"
-              : `translateY(${-Math.min(depth, VISIBLE_BEHIND) * 13}px) scale(${1 - Math.min(depth, VISIBLE_BEHIND) * 0.05})`;
+            : flying
+              ? `translateX(${thrown.dir * 115}%) rotate(${thrown.dir * 10}deg)`
+              : `translateY(${-shown * 13}px) scale(${1 - shown * 0.05})`;
           return (
             <div
               key={item.key}
@@ -115,8 +137,9 @@ export function TournamentDeck({
               )}
               style={{
                 transform,
-                opacity: hidden ? 0 : top ? 1 : 1 - depth * 0.18,
-                zIndex: count - Math.abs(position),
+                opacity: flying || top ? 1 : position > VISIBLE_BEHIND ? 0 : 1 - shown * 0.18,
+                // Mientras sale queda por encima de todo; después se mete abajo del mazo
+                zIndex: flying ? count + 1 : count - position,
                 pointerEvents: top ? "auto" : "none",
               }}
             >
@@ -130,10 +153,9 @@ export function TournamentDeck({
         <div className="flex items-center justify-center gap-2">
           <button
             type="button"
-            onClick={() => go(current - 1)}
-            disabled={current === 0}
+            onClick={previous}
             aria-label="Torneo anterior"
-            className="grid size-9 place-items-center rounded-full border border-slate-700 text-slate-300 transition hover:border-primary hover:text-primary disabled:opacity-30"
+            className="grid size-9 place-items-center rounded-full border border-slate-700 text-slate-300 transition hover:border-primary hover:text-primary"
           >
             <ChevronLeft className="size-4" aria-hidden="true" />
           </button>
@@ -144,7 +166,10 @@ export function TournamentDeck({
                 type="button"
                 aria-label={`Ver ${item.title} (${index + 1} de ${count})`}
                 aria-current={index === current}
-                onClick={() => go(index)}
+                onClick={() => {
+                  setThrown(null);
+                  setActive(index);
+                }}
                 className="grid size-6 place-items-center"
               >
                 <span
@@ -158,10 +183,9 @@ export function TournamentDeck({
           </div>
           <button
             type="button"
-            onClick={() => go(current + 1)}
-            disabled={current === count - 1}
+            onClick={() => next(-1)}
             aria-label="Torneo siguiente"
-            className="grid size-9 place-items-center rounded-full border border-slate-700 text-slate-300 transition hover:border-primary hover:text-primary disabled:opacity-30"
+            className="grid size-9 place-items-center rounded-full border border-slate-700 text-slate-300 transition hover:border-primary hover:text-primary"
           >
             <ChevronRight className="size-4" aria-hidden="true" />
           </button>
