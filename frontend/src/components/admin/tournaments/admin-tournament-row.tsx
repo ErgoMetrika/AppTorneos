@@ -139,7 +139,7 @@ export function AdminTournamentRow({ tournament, index }: { tournament: TorneoLi
       style={{ '--i': index } as CSSProperties}
     >
       <div aria-hidden="true" className={cn('w-1.5 flex-none', BAND[estado])} />
-      <div className="grid min-w-0 flex-1 items-center gap-x-8 gap-y-5 p-4 sm:px-6 sm:py-[22px] lg:grid-cols-[minmax(0,1.5fr)_auto_auto]">
+      <div className="grid min-w-0 flex-1 items-center gap-x-8 gap-y-5 p-4 sm:px-6 sm:py-[22px] xl:grid-cols-[minmax(0,1.5fr)_auto_auto]">
         {/* Identidad: cancha chica con la copa, nombre, chips y datos */}
         <div className="flex min-w-0 items-center gap-[18px]">
           <div className="relative hidden h-[74px] w-[116px] shrink-0 sm:block" aria-hidden="true">
@@ -181,8 +181,8 @@ export function AdminTournamentRow({ tournament, index }: { tournament: TorneoLi
         )}
 
         {/* Estado y acciones */}
-        <div className="flex flex-col gap-3 border-t border-[#f4f8f5]/8 pt-4 lg:col-span-full lg:flex-row lg:flex-wrap lg:items-center">
-          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2.5 gap-y-2 lg:min-w-60">
+        <div className="flex flex-col gap-3 border-t border-[#f4f8f5]/8 pt-4 xl:col-span-full xl:flex-row xl:flex-wrap xl:items-center">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2.5 gap-y-2 xl:min-w-60">
             {status.icon === 'ok' ? (
               <CircleCheck className="size-5 shrink-0 text-[#35f46e]" aria-hidden="true" />
             ) : status.icon === 'trophy' ? (

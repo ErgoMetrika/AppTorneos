@@ -63,7 +63,7 @@ export function NotFoundPage() {
   const { session } = useAuth()
   const back = session ? '/app/torneos' : '/'
   return (
-    <main className="relative grid min-h-screen place-items-center overflow-hidden bg-[#06110b] px-4 py-16 text-[#f4f8f5]">
+    <main className="relative grid min-h-dvh place-items-center overflow-hidden bg-[#06110b] px-4 py-16 text-[#f4f8f5]">
       <PitchLines className="absolute inset-x-0 top-1/2 mx-auto w-[min(900px,140vw)] -translate-y-1/2 opacity-[0.06]" />
       <div className="relative flex max-w-md flex-col items-center text-center">
         <Linesman className="h-56 w-auto" />

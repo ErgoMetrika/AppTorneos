@@ -84,7 +84,7 @@ export function PlayerFormDialog({ defaultTeamId, player, trigger }: PlayerFormD
             </div>
             {willBeCreator && <div className="rounded-lg border border-primary/30 bg-primary/10 p-4 text-sm text-base-content">Es el primer jugador de <strong>{selectedTeam.equipo}</strong>: va a quedar como <strong className="text-primary">administrador del equipo</strong>. Será el único jugador que vea el código, invite a otros y pueda quitar a los invitados.</div>}
             {noUsers && <div className="rounded-lg border border-warning/25 bg-warning/10 p-4 text-sm text-warning">No hay usuarios generales libres. Primero deben registrarse desde la pantalla pública.</div>}
-            <div className="flex justify-end gap-3"><Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button><Button type="submit" disabled={mutation.isPending || noUsers}>{mutation.isPending ? 'Guardando...' : player ? 'Guardar cambios' : 'Agregar jugador'}</Button></div>
+            <div className="flex flex-wrap justify-end gap-3"><Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button><Button type="submit" disabled={mutation.isPending || noUsers}>{mutation.isPending ? 'Guardando...' : player ? 'Guardar cambios' : 'Agregar jugador'}</Button></div>
           </form>
         )}
       </DialogContent>

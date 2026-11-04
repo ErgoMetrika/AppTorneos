@@ -76,8 +76,8 @@ export function PlayerDetailPage() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <Link to={`/app/equipos/${player.equipo_id}`} className="group flex items-center gap-4">
+          <div className="flex flex-wrap items-end justify-between gap-5">
+            <Link to={`/app/equipos/${player.equipo_id}`} className="group flex min-w-0 items-center gap-4">
               <TeamCrest name={player.equipo} label={`Escudo de ${player.equipo}`} className="anim-pop h-[84px] w-[72px] shrink-0 [animation-delay:200ms]" />
               <span className="min-w-0">
                 <span className="block font-mono text-[0.7rem] font-bold uppercase tracking-[0.12em] text-base-content/70">Equipo actual</span>

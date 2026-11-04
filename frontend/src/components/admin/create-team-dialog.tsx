@@ -86,7 +86,7 @@ export function CreateTeamDialog() {
           <div className="rounded-lg border border-base-content/10 bg-base-100/60 p-4 text-xs leading-5 text-base-content/50">
             El código de acceso se genera automáticamente. Podrás compartirlo para que otros usuarios se sumen al plantel.
           </div>
-          <div className="flex justify-end gap-3"><Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button><Button type="submit" disabled={mutation.isPending}>{mutation.isPending ? 'Creando...' : 'Crear equipo'}</Button></div>
+          <div className="flex flex-wrap justify-end gap-3"><Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button><Button type="submit" disabled={mutation.isPending}>{mutation.isPending ? 'Creando...' : 'Crear equipo'}</Button></div>
         </form>
       </DialogContent>
     </Dialog>

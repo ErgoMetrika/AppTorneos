@@ -24,9 +24,9 @@ export function TeamDetailPage() {
   const myTeamQuery = useQuery({ queryKey: ['my-team'], queryFn: getMyTeam, enabled: !isAdmin })
   const codesQuery = useQuery({ queryKey: ['team-codes'], queryFn: getTeamCodes, enabled: isAdmin })
 
-  if (query.isLoading) return <div className="container-shell py-12"><LoadingState label="Cargando plantel" /></div>
-  if (query.isError) return <div className="container-shell py-12"><ErrorState message={query.error.message} retry={() => void query.refetch()} /></div>
-  if (!query.data) return <div className="container-shell py-12"><EmptyState title="Equipo inexistente" description="No encontramos el equipo solicitado." /></div>
+  if (query.isLoading) return <div className={inApp ? undefined : 'container-shell py-12'}><LoadingState label="Cargando plantel" /></div>
+  if (query.isError) return <div className={inApp ? undefined : 'container-shell py-12'}><ErrorState message={query.error.message} retry={() => void query.refetch()} /></div>
+  if (!query.data) return <div className={inApp ? undefined : 'container-shell py-12'}><EmptyState title="Equipo inexistente" description="No encontramos el equipo solicitado." /></div>
 
   const team = query.data
   // Invita solo quien creó el equipo (es el único que recibe el código)
@@ -36,7 +36,7 @@ export function TeamDetailPage() {
   // El escudo lo cambia el admin general o el administrador del equipo
   const canEditCrest = inApp && (isAdmin || (myTeamQuery.data?.id === team.id && !!myTeamQuery.data?.soy_creador))
   return (
-    <div className="container-shell py-12 sm:py-16">
+    <div className={inApp ? undefined : 'container-shell py-12 sm:py-16'}>
       <Button asChild variant="ghost" size="sm"><Link to={`${inApp ? '/app' : ''}/equipos`}><ArrowLeft className="size-4" /> Volver a equipos</Link></Button>
       <section className="relative mt-6 flex flex-col gap-6 overflow-hidden rounded-2xl border border-primary/20 bg-[radial-gradient(circle_at_12%_50%,rgba(53,244,110,0.18),transparent_40%),linear-gradient(120deg,rgba(53,244,110,0.08),rgba(11,27,18,0.95)_55%)] p-6 shadow-[0_16px_40px_rgba(0,0,0,0.4)] sm:flex-row sm:items-center sm:justify-between sm:p-8">
         <PitchLines className="absolute -right-16 -top-6 hidden h-[340px] w-[520px] opacity-[0.12] md:block" />

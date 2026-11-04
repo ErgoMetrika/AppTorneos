@@ -46,7 +46,7 @@ export function ModalityPicker({ name, value, onChange, onBlur }: { name: string
               <FormationPitch tipo={tipo} active={on} />
               <span className="flex flex-col gap-0.5 text-xs text-[#b7c8bd]">
                 <span><strong className="font-bold text-[#f4f8f5]">{tipo}</strong> por lado</span>
-                <span className="flex items-center gap-1.5">
+                <span className="flex flex-wrap items-center gap-x-1.5">
                   <Users className="size-3.5 shrink-0 text-[#35f46e]" aria-hidden="true" />
                   Plantel mínimo: <strong className="font-bold text-[#f4f8f5]">{plantelMinimo(tipo)}</strong>
                 </span>

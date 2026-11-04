@@ -61,7 +61,7 @@ export function AppLayout() {
   }, [open, closeDrawer]);
 
   return (
-    <div className="drawer min-h-screen w-full min-w-0 max-w-full overflow-x-clip bg-base-100 lg:drawer-open">
+    <div className="drawer min-h-dvh w-full min-w-0 max-w-full overflow-x-clip bg-base-100 lg:drawer-open">
       {/* El checkbox sólo maneja el CSS del drawer: se abre y cierra con los botones */}
       <input
         id="app-drawer"
@@ -89,7 +89,7 @@ export function AppLayout() {
             <Menu className="size-5" aria-hidden="true" />
           </button>
         </header>
-        <main className="min-h-screen min-w-0 max-w-full overflow-x-clip p-5 sm:p-8 xl:p-10">
+        <main className="min-h-[calc(100dvh-4rem)] lg:min-h-dvh min-w-0 max-w-full overflow-x-clip p-5 sm:p-8 xl:p-10">
           <div ref={pageRef} className="anim-page mx-auto w-full min-w-0 max-w-7xl overflow-x-clip">
             <Outlet />
           </div>

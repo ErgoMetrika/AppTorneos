@@ -19,9 +19,9 @@ interface CounterConfig {
 }
 
 const COUNTERS: CounterConfig[] = [
-  { state: 'inscripcion', label: 'Inscripción', color: 'bg-[#35f46e]', chip: 'border-[#35f46e]/30 bg-[#35f46e]/14 text-[#35f46e]', art: <Pitch className="w-[120px] flex-none" /> },
-  { state: 'en_curso', label: 'En curso', color: 'bg-[#f2c94c]', chip: 'border-[#f2c94c]/30 bg-[#f2c94c]/14 text-[#f2c94c]', art: <Ball className="size-[68px] flex-none" /> },
-  { state: 'finalizado', label: 'Finalizados', color: 'bg-[#b7c8bd]', chip: 'border-[#b7c8bd]/30 bg-[#b7c8bd]/14 text-[#b7c8bd]', art: <Trophy className="h-[73px] w-auto flex-none" /> },
+  { state: 'inscripcion', label: 'Inscripción', color: 'bg-[#35f46e]', chip: 'border-[#35f46e]/30 bg-[#35f46e]/14 text-[#35f46e]', art: <Pitch className="w-24 flex-none" /> },
+  { state: 'en_curso', label: 'En curso', color: 'bg-[#f2c94c]', chip: 'border-[#f2c94c]/30 bg-[#f2c94c]/14 text-[#f2c94c]', art: <Ball className="size-14 flex-none" /> },
+  { state: 'finalizado', label: 'Finalizados', color: 'bg-[#b7c8bd]', chip: 'border-[#b7c8bd]/30 bg-[#b7c8bd]/14 text-[#b7c8bd]', art: <Trophy className="h-16 w-auto flex-none" /> },
 ]
 
 // Texto chico debajo del número: el torneo más cercano de ese estado, o un aviso si no hay
@@ -60,7 +60,7 @@ export function StateCounters({ tournaments }: { tournaments: TorneoListado[] })
                     </span>
                     <span className="truncate text-[13px] text-[#b7c8bd]">{caption(counter.state, list)}</span>
                   </span>
-                  <span aria-hidden="true" className="anim-pop">{counter.art}</span>
+                  <span aria-hidden="true" className="anim-pop md:max-xl:hidden">{counter.art}</span>
                 </span>
               </Link>
             </li>

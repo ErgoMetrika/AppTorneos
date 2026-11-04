@@ -180,9 +180,9 @@ function TournamentDetailContent({ id }: { id: number }) {
     onError: (error) => toast.error(getErrorMessage(error)),
   })
 
-  if (tournamentQuery.isLoading) return <div className="container-shell py-12"><LoadingState label="Cargando torneo" /></div>
-  if (tournamentQuery.isError) return <div className="container-shell py-12"><ErrorState message={tournamentQuery.error.message} retry={() => void tournamentQuery.refetch()} /></div>
-  if (!tournamentQuery.data) return <div className="container-shell py-12"><EmptyState title="Torneo inexistente" description="No encontramos el torneo solicitado." /></div>
+  if (tournamentQuery.isLoading) return <div className={inApp ? undefined : 'container-shell py-12'}><LoadingState label="Cargando torneo" /></div>
+  if (tournamentQuery.isError) return <div className={inApp ? undefined : 'container-shell py-12'}><ErrorState message={tournamentQuery.error.message} retry={() => void tournamentQuery.refetch()} /></div>
+  if (!tournamentQuery.data) return <div className={inApp ? undefined : 'container-shell py-12'}><EmptyState title="Torneo inexistente" description="No encontramos el torneo solicitado." /></div>
 
   const tournament = tournamentQuery.data
   const prefix = inApp ? '/app' : ''
@@ -195,7 +195,7 @@ function TournamentDetailContent({ id }: { id: number }) {
   const finished = tournament.estado === 'finalizado'
 
   return (
-    <div className="container-shell flex flex-col gap-6 py-10 sm:py-12">
+    <div className={cn('flex flex-col gap-6', !inApp && 'container-shell py-10 sm:py-12')}>
       <Link to={`${prefix}/torneos`} className="inline-flex items-center gap-2 self-start text-[13px] font-bold uppercase tracking-[0.06em] text-[#b7c8bd] transition hover:text-primary">
         <ChevronLeft className="size-4" aria-hidden="true" /> Volver a torneos
       </Link>
@@ -217,9 +217,9 @@ function TournamentDetailContent({ id }: { id: number }) {
 
           {tournament.estado === 'inscripcion' && session && !alreadyEnrolled && (
             <div className="mt-2 flex flex-col gap-2">
-              <div className="flex flex-col gap-2 sm:flex-row">
+              <div className="flex flex-wrap gap-2">
                 {tournament.visibilidad === 'privado' && (
-                  <div className="relative">
+                  <div className="relative w-full sm:w-auto">
                     <KeyRound className="absolute left-3 top-4 size-4 text-[#8fa596]" aria-hidden="true" />
                     <Input aria-label="Código del torneo privado" value={accessCode} onChange={(event) => setAccessCode(event.target.value.toUpperCase())} maxLength={6} placeholder="Código privado" className="h-12 rounded-xl pl-10 font-mono uppercase tracking-widest sm:w-48" />
                   </div>
@@ -315,6 +315,7 @@ function TournamentDetailContent({ id }: { id: number }) {
         {bracketQuery.isError && <ErrorState message={bracketQuery.error.message} retry={() => void bracketQuery.refetch()} />}
         {bracketQuery.data && !hasBracket && <p className="text-sm text-[#b7c8bd]"><strong className="font-semibold text-[#f4f8f5]">Llave pendiente.</strong> El administrador todavía no generó la llave de este torneo.</p>}
         {bracketQuery.data && <Bracket matches={bracketQuery.data} maxTeams={tournament.max_equipos} teamHref={teamHref} />}
+        {bracketQuery.data && <p className="text-xs text-[#8fa596] xl:hidden">Deslizá la llave hacia el costado para verla completa.</p>}
         {!canReadBracket && <EmptyState title="Llave protegida" description="La llave estará disponible cuando tu equipo quede inscripto en el torneo privado." />}
       </section>
     </div>

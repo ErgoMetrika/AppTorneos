@@ -125,12 +125,17 @@ export function MatchResultPanel({ match, name, isFinal, draft, onDraftChange, p
             <CircleAlert className="mt-0.5 size-5 shrink-0 text-[#ffc94a]" aria-hidden="true" />
             Si empatan, se define por penales y no pueden quedar empatados.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-3.5">
-            <label htmlFor={`${uid}-pl`} className="text-sm font-semibold text-[#b7c8bd]">{local}</label>
-            <PenaltyInput id={`${uid}-pl`} value={draft.penalesLocal} highlight={winnerSide === 'local'} onChange={(next) => set({ penalesLocal: next })} />
-            <span aria-hidden="true" className="font-display text-2xl font-black text-[#8fa596]">–</span>
-            <PenaltyInput id={`${uid}-pv`} value={draft.penalesVisitante} highlight={winnerSide === 'visitante'} onChange={(next) => set({ penalesVisitante: next })} />
-            <label htmlFor={`${uid}-pv`} className="text-sm font-semibold text-[#b7c8bd]">{visitante}</label>
+          {/* Cada equipo con su nombre arriba del casillero: así no se parte la fila en pantallas angostas */}
+          <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-end gap-3">
+            <div className="flex min-w-0 flex-col items-center gap-1.5">
+              <label htmlFor={`${uid}-pl`} className="max-w-full break-words text-center text-sm font-semibold text-[#b7c8bd]">{local}</label>
+              <PenaltyInput id={`${uid}-pl`} value={draft.penalesLocal} highlight={winnerSide === 'local'} onChange={(next) => set({ penalesLocal: next })} />
+            </div>
+            <span aria-hidden="true" className="pb-2.5 font-display text-2xl font-black text-[#8fa596]">–</span>
+            <div className="flex min-w-0 flex-col items-center gap-1.5">
+              <label htmlFor={`${uid}-pv`} className="max-w-full break-words text-center text-sm font-semibold text-[#b7c8bd]">{visitante}</label>
+              <PenaltyInput id={`${uid}-pv`} value={draft.penalesVisitante} highlight={winnerSide === 'visitante'} onChange={(next) => set({ penalesVisitante: next })} />
+            </div>
           </div>
           <p className={cn('text-xs', winner ? 'text-[#b7c8bd]' : 'font-semibold text-[#ffc94a]')}>
             {winner ? 'Penales listos: no quedaron empatados.' : 'Los penales están empatados: "Guardar resultado" no se habilita hasta que uno haga más.'}

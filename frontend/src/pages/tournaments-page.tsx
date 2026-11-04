@@ -145,7 +145,7 @@ function TournamentCard({
   const withCrests = tournament.max_equipos <= CREST_SLOTS_MAX;
   return (
     <article
-      className="anim-stagger card-lift group @container flex h-full w-80 shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 text-slate-100 shadow-lg hover:border-primary/50 sm:w-96"
+      className="anim-stagger card-lift group @container flex h-full w-[min(20rem,calc(100vw-4rem))] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 text-slate-100 shadow-lg hover:border-primary/50 sm:w-96"
       style={{ "--i": index } as CSSProperties}
     >
       {/* Banda de color según el estado */}
@@ -314,7 +314,7 @@ export function TournamentsPage() {
 
   return (
     <div className="min-h-full min-w-0 max-w-full overflow-x-clip text-slate-100">
-      <div className="container-shell flex min-w-0 max-w-full flex-col gap-8 overflow-x-clip py-10 sm:py-12">
+      <div className={cn("flex min-w-0 max-w-full flex-col gap-8 overflow-x-clip", !inApp && "container-shell py-10 sm:py-12")}>
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
             <p className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-primary">
@@ -333,7 +333,7 @@ export function TournamentsPage() {
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Buscar torneo por nombre"
                 aria-label="Buscar torneo por nombre"
-                className="min-w-0 flex-1 border-0 bg-transparent text-[15px] text-[#f4f8f5] outline-none placeholder:text-[#8fa596]"
+                className="min-w-0 flex-1 border-0 bg-transparent text-base text-[#f4f8f5] outline-none sm:text-[15px] placeholder:text-[#8fa596]"
               />
             </label>
             {session && (
@@ -457,7 +457,7 @@ export function TournamentsPage() {
                 >
                   {title}
                 </h2>
-                <div className="w-full min-w-0 max-w-full overflow-x-auto overflow-y-hidden overscroll-x-contain pb-2">
+                <div className="w-full min-w-0 max-w-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-px-1 pb-2">
                   <div className="flex w-max min-w-full items-stretch gap-4">
                     {tournaments
                       .filter((tournament) => tournament.estado === state)

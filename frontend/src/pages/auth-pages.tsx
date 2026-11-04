@@ -57,7 +57,7 @@ type RegisterValues = z.infer<typeof registerSchema>
 
 function AuthFrame({ children, title, description }: { children: ReactNode; title: string; description: string }) {
   return (
-    <div className="grid min-h-screen min-w-0 overflow-x-hidden bg-base-100 lg:grid-cols-[1.05fr_0.95fr]">
+    <div className="grid min-h-dvh min-w-0 overflow-x-hidden bg-base-100 lg:grid-cols-[1.05fr_0.95fr]">
       <section className="hero-grid relative hidden overflow-hidden border-r border-base-content/10 lg:block">
         <div className="pitch-lines absolute inset-0 opacity-40" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(53,244,110,.2),transparent_30%),linear-gradient(180deg,rgba(6,17,11,.2),rgba(6,17,11,.96))]" />

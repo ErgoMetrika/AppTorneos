@@ -98,12 +98,12 @@ export function Audiences() {
                   }}
                 >
                   <div className="flex items-center justify-between gap-4">
-                    <h3 className="min-w-0 font-display text-[40px] font-black uppercase leading-none sm:text-5xl md:text-[40px] lg:text-5xl">
+                    <h3 className="min-w-0 break-words font-display text-[32px] font-black min-[380px]:text-[40px] uppercase leading-none sm:text-5xl md:text-[40px] lg:text-5xl">
                       {audience.title}
                     </h3>
                     <span
                       aria-hidden="true"
-                      className="shrink-0 pr-1 transition-transform duration-500 motion-safe:group-hover:-translate-y-1 motion-safe:group-hover:rotate-[-4deg]"
+                      className="shrink-0 pr-1 max-[379px]:w-14 max-[379px]:[&_svg]:h-auto max-[379px]:[&_svg]:w-full transition-transform duration-500 motion-safe:group-hover:-translate-y-1 motion-safe:group-hover:rotate-[-4deg]"
                     >
                       {audience.art}
                     </span>

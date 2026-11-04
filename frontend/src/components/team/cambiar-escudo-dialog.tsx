@@ -41,7 +41,7 @@ export function CambiarEscudoDialog({ equipoId, nombre }: { equipoId: number; no
           <DialogDescription>Elegí un modelo y sus colores, o subí la imagen del escudo de tu club.</DialogDescription>
         </DialogHeader>
         <EscudoPicker nombre={nombre} value={eleccion} onChange={setEleccion} />
-        <div className="mt-6 flex justify-end gap-3">
+        <div className="mt-6 flex flex-wrap justify-end gap-3">
           <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancelar</Button>
           <Button type="button" disabled={mutation.isPending} onClick={() => mutation.mutate()}>{mutation.isPending ? 'Guardando...' : 'Guardar escudo'}</Button>
         </div>

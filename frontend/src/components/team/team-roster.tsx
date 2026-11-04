@@ -89,7 +89,7 @@ export function TeamRoster({ team }: { team: MiEquipo }) {
                   {player.es_admin_del_equipo && <Crown className="absolute -right-1 -top-1 size-4 rounded-full bg-base-100 p-0.5 text-primary" aria-hidden="true" />}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <Link to={`/app/jugadores/${player.id}`} className="font-bold transition hover:text-primary">{player.nombre}{isMe && <span className="ml-2 text-xs font-normal text-base-content/45">(vos)</span>}</Link>
+                  <Link to={`/app/jugadores/${player.id}`} className="break-words font-bold transition [overflow-wrap:anywhere] hover:text-primary">{player.nombre}{isMe && <span className="ml-1.5 inline-block text-xs font-normal text-base-content/45">(vos)</span>}</Link>
                   {/* La posición la elige cada jugador al entrar: acá solo se muestra */}
                   <p className="mt-0.5 truncate text-xs text-base-content/65">{positionLabel[player.posicion]} · {player.es_admin_del_equipo ? 'Administrador' : 'Invitado'}</p>
                 </div>
