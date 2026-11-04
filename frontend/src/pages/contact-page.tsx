@@ -50,10 +50,10 @@ export function ContactPage({ embedded = false }: { embedded?: boolean }) {
         <PitchLines className="absolute -right-16 -top-6 hidden h-[340px] w-[520px] opacity-[0.12] md:block" />
         <div className="relative max-w-xl">
           <p className="font-mono text-[0.65rem] font-bold uppercase tracking-[0.16em] text-primary">Contacto</p>
-          <h1 className="mt-2 font-display text-5xl font-black uppercase leading-[0.95] sm:text-6xl">Hablemos de fútbol</h1>
-          <p className="mt-3 text-sm leading-relaxed text-base-content/75">Escribinos por torneos, inscripciones o administración de equipos. El equipo organizador recibirá tu consulta y podrá responderte por email.</p>
+          <h1 className="mt-2 font-display text-5xl font-black uppercase leading-[0.95] sm:text-6xl">Hablemos de fútbol</h1>
+          <p className="mt-3 text-sm leading-relaxed text-base-content/75">Escribinos por torneos, inscripciones o administración de equipos. El administrador recibirá tu consulta y podrá responderte por email.</p>
           <ul className="mt-5 flex flex-wrap gap-2 font-mono text-[0.68rem] font-bold uppercase tracking-[0.1em] text-base-content/80">
-            <li className="inline-flex items-center gap-1.5 rounded-full border border-base-content/15 bg-base-100/60 px-3 py-1.5"><Mail className="size-3.5 text-primary" aria-hidden="true" />Respuesta por email</li>
+            <li className="inline-flex items-center gap-1.5 rounded-full border border-base-content/15 bg-base-100/60 px-3 py-1.5"><Mail className="size-3.5 text-primary" aria-hidden="true" />Atencion las 24hs</li>
             <li className="inline-flex items-center gap-1.5 rounded-full border border-base-content/15 bg-base-100/60 px-3 py-1.5"><Clock className="size-3.5 text-primary" aria-hidden="true" />Torneos · Equipos · Inscripciones</li>
           </ul>
         </div>
@@ -122,7 +122,7 @@ export function ContactPage({ embedded = false }: { embedded?: boolean }) {
             />
             {/* Etiqueta sobre el mapa (no bloquea los clics) */}
             <div className="pointer-events-none absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-[#06110b]/90 px-3 py-1.5 font-mono text-[0.65rem] font-bold uppercase tracking-[0.12em] text-[#f4f8f5] shadow-[0_6px_16px_rgba(0,0,0,0.45)]">
-              <MapPin className="size-3.5 text-primary" aria-hidden="true" />Sede del torneo
+              <MapPin className="size-3.5 text-primary" aria-hidden="true" />Sede de la organizacion
             </div>
             {/* Tinte verde suave encima del mapa oscuro, para que combine con la paleta */}
             <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[#35f46e]/10 mix-blend-soft-light" />
