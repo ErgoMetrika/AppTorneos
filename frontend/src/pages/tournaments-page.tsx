@@ -139,16 +139,23 @@ function TournamentCard({
   tournament,
   index,
   to,
+  wrap = false,
 }: {
   tournament: TorneoListado;
   index: number;
   to: string;
+  wrap?: boolean;
 }) {
   const finished = tournament.estado === "finalizado";
   const withCrests = tournament.max_equipos <= CREST_SLOTS_MAX;
   return (
     <article
-      className="anim-stagger card-lift group @container flex h-full w-[min(20rem,calc(100vw-4rem))] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 text-slate-100 shadow-lg hover:border-primary/50 sm:w-96"
+      className={cn(
+        "anim-stagger card-lift group @container flex flex-col overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 text-slate-100 shadow-lg hover:border-primary/50",
+        wrap
+          ? "min-w-0 w-full flex-none sm:w-[calc((100%_-_1rem)/2)] xl:w-[calc((100%_-_2rem)/3)]"
+          : "h-full w-[min(20rem,calc(100vw-4rem))] shrink-0 snap-start sm:w-96",
+      )}
       style={{ "--i": index } as CSSProperties}
     >
       {/* Banda de color según el estado */}
@@ -272,6 +279,7 @@ export function TournamentsPage() {
   const { session, isAdmin } = useAuth();
   const location = useLocation();
   const inApp = location.pathname.startsWith("/app");
+  const playerView = inApp && !isAdmin;
   const query = useQuery({
     queryKey: ["tournaments"],
     queryFn: getTournaments,
@@ -301,6 +309,9 @@ export function TournamentsPage() {
       ),
     [query.data, search],
   );
+  const visibleTournaments = selectedStates.size === 0
+    ? tournaments
+    : tournaments.filter((tournament) => selectedStates.has(tournament.estado));
   const visibleColumns =
     selectedStates.size === 0
       ? TOURNAMENT_COLUMNS
@@ -447,6 +458,33 @@ export function TournamentsPage() {
           />
         )}
         {!query.isLoading && !query.isError && (
+          playerView ? (
+            visibleTournaments.length > 0 ? (
+              <section aria-label="Torneos" className="flex w-full min-w-0 flex-wrap items-stretch gap-4">
+                {visibleTournaments.map((tournament, index) => (
+                  <TournamentCard
+                    key={tournament.id}
+                    tournament={tournament}
+                    index={index}
+                    to={`/app/torneos/${tournament.id}`}
+                    wrap
+                  />
+                ))}
+              </section>
+            ) : (
+              <div className="w-full rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 px-5 py-8 text-center">
+                <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-slate-800 text-slate-400">
+                  <Flag className="size-5" aria-hidden="true" />
+                </div>
+                <h2 className="text-sm font-semibold text-slate-200">
+                  {selectedStates.size > 0 ? "No hay torneos para esos filtros" : "No hay torneos disponibles"}
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-slate-400">
+                  {search ? "Probá con otro nombre en el buscador." : "Los nuevos torneos aparecerán acá."}
+                </p>
+              </div>
+            )
+          ) : (
           <div className="flex min-w-0 max-w-full flex-col items-start gap-6">
             {visibleColumns.map(({ state, title }) => (
               <section
@@ -498,6 +536,7 @@ export function TournamentsPage() {
               </section>
             ))}
           </div>
+          )
         )}
       </div>
     </div>
