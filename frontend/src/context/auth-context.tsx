@@ -19,7 +19,10 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<PerfilUsuario | null>(null)
-  const [loading, setLoading] = useState(true)
+  // Ya se sabe si hay sesión (primer getSession resuelto)
+  const [sessionReady, setSessionReady] = useState(false)
+  // Usuario cuyo perfil ya se terminó de leer: mientras no coincida con la sesión, el rol no se conoce
+  const [profileFor, setProfileFor] = useState<string | null>(null)
   const queryClient = useQueryClient()
   // Usuario de la sesión anterior: si cambia (logout o login con otra cuenta),
   // se vacía la caché para no mostrar datos del usuario anterior.
@@ -41,15 +44,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!active) return
       onUserChange(data.session)
       setSession(data.session)
-      if (!data.session) setLoading(false)
+      setSessionReady(true)
     })
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       onUserChange(nextSession)
       setSession(nextSession)
+      setSessionReady(true)
       if (!nextSession) {
         setProfile(null)
-        setLoading(false)
+        setProfileFor(null)
       }
     })
 
@@ -65,7 +69,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Si cambia el usuario (o se desmonta) antes de que llegue la respuesta, la descartamos:
     // así un perfil viejo no pisa el de la sesión actual
     let active = true
-    setLoading(true)
     getProfile(userId)
       .then((nextProfile) => {
         if (active) setProfile(nextProfile)
@@ -75,12 +78,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (active) setProfile(null)
       })
       .finally(() => {
-        if (active) setLoading(false)
+        if (active) setProfileFor(userId)
       })
     return () => {
       active = false
     }
   }, [userId])
+
+  // Cargando hasta saber la sesión y, si hay usuario, su rol. Sin esto, justo después de entrar
+  // el admin se veía un instante como jugador y las guardas lo mandaban a la vista del jugador.
+  const loading = !sessionReady || (Boolean(userId) && profileFor !== userId)
 
   const value = useMemo<AuthContextValue>(
     () => ({
