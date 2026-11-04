@@ -60,9 +60,9 @@ export function PlayerDetailPage() {
 
       {/* Portada: silueta, nombre gigante, chips y escudo */}
       <section className="relative flex flex-col gap-6 overflow-hidden rounded-[20px] border border-primary/20 bg-[linear-gradient(120deg,rgba(53,244,110,0.1),#0b1b12_55%)] p-5 shadow-[0_16px_40px_rgba(0,0,0,0.4)] sm:p-7 md:flex-row md:items-stretch md:gap-9">
-        <PitchLines className="absolute -right-20 -top-2 hidden h-[360px] w-[560px] opacity-[0.14] md:block" />
+        <PitchLines className="absolute -right-20 -top-2 hidden h-[360px] md:w-[56%] opacity-[0.14] md:block" />
 
-        <div className="relative flex h-56 shrink-0 items-end justify-center overflow-hidden rounded-2xl border border-primary/30 bg-[radial-gradient(circle_at_50%_28%,rgba(53,244,110,0.22),#0b1b12_72%)] shadow-[0_10px_28px_rgba(0,0,0,0.4)] sm:h-72 md:h-[340px] md:w-[280px]">
+        <div className="relative flex h-56 shrink-0 items-end justify-center overflow-hidden rounded-2xl border border-primary/30 bg-[radial-gradient(circle_at_50%_28%,rgba(53,244,110,0.22),#0b1b12_72%)] shadow-[0_10px_28px_rgba(0,0,0,0.4)] sm:h-72 md:h-[340px] md:w-[28%]">
           <Silhouette label={`Silueta de ${player.nombre}`} className="anim-pop h-[92%] w-auto" />
         </div>
 
@@ -145,10 +145,10 @@ export function PlayerDetailPage() {
               })}
             </ul>
           ))}
-        {teamQuery.isSuccess && teammates.length > 0 && <p className="text-[0.8rem] text-base-content/70 sm:ml-auto">Borde verde: administrador del equipo.</p>}
+        {teamQuery.isSuccess && teammates.length > 0 && <p className="text-[0.8rem] text-base-content/70">Borde verde: administrador del equipo.</p>}
       </section>
 
-      {!isAdmin && <div className="rounded-xl border border-base-content/10 bg-base-200/60 p-4 text-sm text-base-content/75">Esta ficha es de solo lectura. La asignación de planteles está reservada a administradores.</div>}
+      {!isAdmin && <div className="rounded-xl border border-base-content/10 bg-base-200/60 p-4 text-sm text-base-content/75">Esta ficha es de solo lectura. La asignación de planteles está reservada a administradores.</div>}
     </div>
   )
 }
