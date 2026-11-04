@@ -10,7 +10,13 @@ import {
   Search,
   Users,
 } from "lucide-react";
-import { useId, useMemo, useState, type CSSProperties } from "react";
+import {
+  useId,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+} from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -25,6 +31,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/auth-context";
 import { getTournaments, searchPrivateTournament } from "@/lib/api";
+import { TournamentDeck } from "@/components/tournament/tournament-deck";
 import { EmptyCrest, Pitch, TeamCrest, Trophy } from "@/components/visuals/art";
 import { TEAM_COLORS, teamColorKey } from "@/components/visuals/palette";
 import { cn, formatDate, getErrorMessage } from "@/lib/utils";
@@ -32,35 +39,49 @@ import type { EstadoTorneo, TorneoListado } from "@/types/domain";
 
 // Hasta este cupo se dibuja cada lugar con su escudo; con más, una barra de llenado
 const CREST_SLOTS_MAX = 8;
-const TOURNAMENT_COLUMNS = [
-  { state: "en_curso", title: "En progreso" },
-  { state: "inscripcion", title: "Próximos" },
-  { state: "finalizado", title: "Completados" },
-] as const;
+
+// Por debajo de "sm" (640px) los torneos se muestran como mazo de tarjetas
+const PHONE_QUERY = "(max-width: 639.98px)";
+function useIsPhone() {
+  return useSyncExternalStore(
+    (onChange) => {
+      const media = window.matchMedia(PHONE_QUERY);
+      media.addEventListener("change", onChange);
+      return () => media.removeEventListener("change", onChange);
+    },
+    () => window.matchMedia(PHONE_QUERY).matches,
+    () => false,
+  );
+}
 
 const TOURNAMENT_FILTERS: Array<{
   value: EstadoTorneo | null;
   label: string;
+  empty: string;
   activeClass: string;
 }> = [
   {
     value: null,
     label: "Todos",
+    empty: "Los nuevos torneos aparecerán acá.",
     activeClass: "border-primary/70 bg-primary/15 text-primary",
   },
   {
     value: "en_curso",
     label: "En progreso",
+    empty: "Cuando comience un torneo, lo vas a encontrar acá.",
     activeClass: "border-[#f2c94c]/70 bg-[#f2c94c]/15 text-[#f2c94c]",
   },
   {
     value: "finalizado",
     label: "Completados",
+    empty: "Los torneos que finalicen van a aparecer acá.",
     activeClass: "border-[#b7c8bd]/60 bg-[#b7c8bd]/12 text-[#dce7df]",
   },
   {
     value: "inscripcion",
     label: "Próximos",
+    empty: "Los nuevos torneos aparecerán acá cuando se abran las inscripciones.",
     activeClass: "border-primary/70 bg-primary/15 text-primary",
   },
 ];
@@ -139,12 +160,10 @@ function TournamentCard({
   tournament,
   index,
   to,
-  wrap = false,
 }: {
   tournament: TorneoListado;
   index: number;
   to: string;
-  wrap?: boolean;
 }) {
   const finished = tournament.estado === "finalizado";
   const withCrests = tournament.max_equipos <= CREST_SLOTS_MAX;
@@ -152,9 +171,8 @@ function TournamentCard({
     <article
       className={cn(
         "anim-stagger card-lift group @container flex flex-col overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 text-slate-100 shadow-lg hover:border-primary/50",
-        wrap
-          ? "min-w-0 w-full flex-none sm:w-[calc((100%_-_1rem)/2)] xl:w-[calc((100%_-_2rem)/3)]"
-          : "h-full w-[min(20rem,calc(100vw-4rem))] shrink-0 snap-start sm:w-96",
+        // Celu: ocupa todo el mazo. Más grande: 2 o 3 por fila.
+        "w-full sm:w-[calc((100%_-_1rem)/2)] @min-[60rem]/lista:w-[calc((100%_-_2rem)/3)]",
       )}
       style={{ "--i": index } as CSSProperties}
     >
@@ -269,9 +287,7 @@ function TournamentCard({
 
 export function TournamentsPage() {
   const [search, setSearch] = useState("");
-  const [selectedStates, setSelectedStates] = useState<Set<EstadoTorneo>>(
-    () => new Set(),
-  );
+  const [filter, setFilter] = useState<EstadoTorneo | null>(null);
   const [privateCode, setPrivateCode] = useState("");
   const [privateOpen, setPrivateOpen] = useState(false);
   const privatePanelId = useId();
@@ -279,7 +295,6 @@ export function TournamentsPage() {
   const { session, isAdmin } = useAuth();
   const location = useLocation();
   const inApp = location.pathname.startsWith("/app");
-  const playerView = inApp && !isAdmin;
   const query = useQuery({
     queryKey: ["tournaments"],
     queryFn: getTournaments,
@@ -309,22 +324,13 @@ export function TournamentsPage() {
       ),
     [query.data, search],
   );
-  const visibleTournaments = selectedStates.size === 0
-    ? tournaments
-    : tournaments.filter((tournament) => selectedStates.has(tournament.estado));
-  const visibleColumns =
-    selectedStates.size === 0
-      ? TOURNAMENT_COLUMNS
-      : TOURNAMENT_COLUMNS.filter(({ state }) => selectedStates.has(state));
-
-  const toggleState = (state: EstadoTorneo) => {
-    setSelectedStates((current) => {
-      const next = new Set(current);
-      if (next.has(state)) next.delete(state);
-      else next.add(state);
-      return next;
-    });
-  };
+  const visibleTournaments = filter
+    ? tournaments.filter((tournament) => tournament.estado === filter)
+    : tournaments;
+  const activeFilter =
+    TOURNAMENT_FILTERS.find((item) => item.value === filter) ??
+    TOURNAMENT_FILTERS[0];
+  const isPhone = useIsPhone();
 
   return (
     <div className="min-h-full min-w-0 max-w-full overflow-x-clip text-slate-100">
@@ -388,28 +394,23 @@ export function TournamentsPage() {
             aria-label="Filtrar torneos por estado"
             className="flex min-w-0 flex-wrap gap-2"
           >
-            {TOURNAMENT_FILTERS.map((filter) => {
-              const active = filter.value
-                ? selectedStates.has(filter.value)
-                : selectedStates.size === 0;
+            {TOURNAMENT_FILTERS.map((option) => {
+              const active = option.value === filter;
               return (
                 <button
-                  key={filter.label}
+                  key={option.label}
                   type="button"
                   aria-pressed={active}
-                  onClick={() => {
-                    if (filter.value) toggleState(filter.value);
-                    else setSelectedStates(new Set());
-                  }}
+                  onClick={() => setFilter(option.value)}
                   className={cn(
                     "inline-flex min-h-10 items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
                     active
-                      ? filter.activeClass
+                      ? option.activeClass
                       : "border-slate-700 bg-slate-900/70 text-slate-400 hover:border-slate-500 hover:text-slate-100",
                   )}
                 >
                   {active && <Check className="size-4" aria-hidden="true" />}
-                  {filter.label}
+                  {option.label}
                 </button>
               );
             })}
@@ -458,85 +459,65 @@ export function TournamentsPage() {
           />
         )}
         {!query.isLoading && !query.isError && (
-          playerView ? (
-            visibleTournaments.length > 0 ? (
-              <section aria-label="Torneos" className="flex w-full min-w-0 flex-wrap items-stretch gap-4">
-                {visibleTournaments.map((tournament, index) => (
-                  <TournamentCard
-                    key={tournament.id}
-                    tournament={tournament}
-                    index={index}
-                    to={`/app/torneos/${tournament.id}`}
-                    wrap
-                  />
-                ))}
-              </section>
+          <section
+            aria-labelledby="tournaments-list-title"
+            className="@container/lista flex w-full min-w-0 flex-col gap-5"
+          >
+            <h2
+              id="tournaments-list-title"
+              className="border-b border-slate-700 pb-4 font-display text-3xl font-bold tracking-wide"
+            >
+              {activeFilter.label}
+            </h2>
+            {visibleTournaments.length > 0 ? (
+              isPhone ? (
+                // Celu: mazo de tarjetas apiladas que se deslizan con el dedo o el mouse
+                <TournamentDeck
+                  key={filter ?? "todos"}
+                  label={`Torneos: ${activeFilter.label}`}
+                  items={visibleTournaments.map((tournament, index) => ({
+                    key: String(tournament.id),
+                    title: tournament.nombre,
+                    node: (
+                      <TournamentCard
+                        tournament={tournament}
+                        index={index}
+                        to={`${inApp ? "/app" : ""}/torneos/${tournament.id}`}
+                      />
+                    ),
+                  }))}
+                />
+              ) : (
+                // Tablet y compu: todos juntos, 2 o 3 por fila
+                <div className="flex min-w-0 flex-wrap items-stretch gap-4">
+                  {visibleTournaments.map((tournament, index) => (
+                    <TournamentCard
+                      key={tournament.id}
+                      tournament={tournament}
+                      index={index}
+                      to={`${inApp ? "/app" : ""}/torneos/${tournament.id}`}
+                    />
+                  ))}
+                </div>
+              )
             ) : (
               <div className="w-full rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 px-5 py-8 text-center">
                 <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-slate-800 text-slate-400">
                   <Flag className="size-5" aria-hidden="true" />
                 </div>
-                <h2 className="text-sm font-semibold text-slate-200">
-                  {selectedStates.size > 0 ? "No hay torneos para esos filtros" : "No hay torneos disponibles"}
-                </h2>
+                <h3 className="text-sm font-semibold text-slate-200">
+                  {filter
+                    ? `No hay torneos ${activeFilter.label.toLowerCase()}`
+                    : "No hay torneos disponibles"}
+                </h3>
                 <p className="mt-2 text-sm leading-relaxed text-slate-400">
-                  {search ? "Probá con otro nombre en el buscador." : "Los nuevos torneos aparecerán acá."}
+                  {search
+                    ? "Probá con otro nombre en el buscador."
+                    : activeFilter.empty}
                 </p>
               </div>
-            )
-          ) : (
-          <div className="flex min-w-0 max-w-full flex-col items-start gap-6">
-            {visibleColumns.map(({ state, title }) => (
-              <section
-                key={state}
-                aria-labelledby={`tournaments-${state}`}
-                className="grid w-full min-w-0 max-w-full gap-5 overflow-hidden"
-              >
-                <h2
-                  id={`tournaments-${state}`}
-                  className="border-b border-slate-700 pb-4 font-display text-3xl font-bold tracking-wide"
-                >
-                  {title}
-                </h2>
-                <div className="w-full min-w-0 max-w-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-px-1 pb-2">
-                  <div className="flex w-max min-w-full items-stretch gap-4">
-                    {tournaments
-                      .filter((tournament) => tournament.estado === state)
-                      .map((tournament, index) => (
-                        <TournamentCard
-                          key={tournament.id}
-                          tournament={tournament}
-                          index={index}
-                          to={`${inApp ? "/app" : ""}/torneos/${tournament.id}`}
-                        />
-                      ))}
-                  </div>
-                </div>
-                {!tournaments.some(
-                  (tournament) => tournament.estado === state,
-                ) && (
-                  <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-950 px-5 py-8 text-center">
-                    <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-slate-800 text-slate-400">
-                      <Flag className="size-5" aria-hidden="true" />
-                    </div>
-                    <h3 className="text-sm font-semibold text-slate-200">
-                      No hay torneos {title.toLowerCase()}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-400">
-                      {search
-                        ? "Probá con otro nombre en el buscador."
-                        : state === "finalizado"
-                          ? "Los torneos que finalicen aparecerán acá."
-                          : state === "en_curso"
-                            ? "Cuando comience un torneo, lo encontrarás acá."
-                            : "Los nuevos torneos aparecerán acá cuando se abran las inscripciones."}
-                    </p>
-                  </div>
-                )}
-              </section>
-            ))}
-          </div>
-          )
+            )}
+          </section>
         )}
       </div>
     </div>
