@@ -34,11 +34,11 @@ export function RedirectToApp() {
   return <Navigate to={`/app${location.pathname}${location.search}`} replace />
 }
 
-// Inicio del panel (/app): el admin general va a su propio inicio; el resto ve la página indicada
-export function AppIndex({ player }: { player: ReactNode }) {
+// Páginas del jugador (/app, /app/torneos): el admin general va a su propia versión; el resto ve la página indicada
+export function AppIndex({ player, adminTo = '/app/admin' }: { player: ReactNode; adminTo?: string }) {
   const { isAdmin, loading } = useAuth()
   if (loading) return <div className="p-8"><LoadingState label="Validando sesión" /></div>
-  if (isAdmin) return <Navigate to="/app/admin" replace />
+  if (isAdmin) return <Navigate to={adminTo} replace />
   return player
 }
 

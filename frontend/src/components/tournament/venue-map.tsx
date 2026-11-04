@@ -1,5 +1,6 @@
 // Plano ilustrado del lugar del torneo: manzanas, avenida, una canchita y un pin con halo.
-// Es decorativo (no es un mapa real): la base solo guarda el texto del lugar.
+// El dibujo es decorativo; tocándolo se abre la ruta en Google Maps. Si el torneo tiene
+// coordenadas (lugar elegido del buscador) la ruta va al punto exacto; si no, busca por el texto.
 import { MapPin, Navigation } from 'lucide-react'
 import { useId } from 'react'
 
@@ -53,9 +54,22 @@ function MapArt({ className }: { className?: string }) {
   )
 }
 
-export function VenueMap({ lugar, className }: { lugar: string | null; className?: string }) {
+interface VenueMapProps {
+  lugar: string | null
+  latitud?: number | null
+  longitud?: number | null
+  className?: string
+}
+
+// Link de Google Maps con la ruta hasta el lugar (no pide clave)
+function rutaEnMaps(place: string, latitud?: number | null, longitud?: number | null) {
+  const destino = latitud != null && longitud != null ? `${latitud},${longitud}` : place
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destino)}`
+}
+
+export function VenueMap({ lugar, latitud, longitud, className }: VenueMapProps) {
   const place = lugar?.trim() || null
-  const mapsUrl = place ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place)}` : null
+  const mapsUrl = place ? rutaEnMaps(place, latitud, longitud) : null
 
   const art = (
     <>

@@ -45,7 +45,7 @@ export default function App() {
         <Route path="app" element={<AppLayout />}>
           {/* Inicio del panel: el admin va a su inicio; el jugador, a Torneos */}
           <Route index element={<AppIndex player={<TournamentsPage />} />} />
-          <Route path="torneos" element={<TournamentsPage />} />
+          <Route path="torneos" element={<AppIndex player={<TournamentsPage />} adminTo="/app/admin/torneos" />} />
           <Route path="torneos/:id" element={<TournamentDetailPage />} />
           <Route path="equipos" element={<TeamsPage />} />
           <Route path="equipos/:id" element={<TeamDetailPage />} />

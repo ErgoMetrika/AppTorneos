@@ -22,6 +22,9 @@ export interface Torneo {
   codigo_acceso?: string | null
   fecha: string
   lugar: string | null
+  // Coordenadas del lugar si se eligió del buscador; si no, null y el mapa busca por el texto
+  latitud: number | null
+  longitud: number | null
   estado: EstadoTorneo
 }
 
@@ -147,6 +150,8 @@ export interface NuevoTorneoInput {
   visibilidad: VisibilidadTorneo
   fecha: string
   lugar?: string
+  latitud?: number | null
+  longitud?: number | null
 }
 
 export interface NuevoJugadorInput {

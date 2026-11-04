@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Info, LockKeyhole, Pencil } from 'lucide-react'
 import { useId, useMemo, useState } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { Controller, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
+import { PlaceSearchInput } from '@/components/tournament/place-search-input'
 import { Textarea } from '@/components/ui/textarea'
 import { updateTournament } from '@/lib/api'
 import { getErrorMessage } from '@/lib/utils'
@@ -25,6 +26,9 @@ function buildSchema(inscriptos: number) {
     descripcion: z.string().max(600, 'Máximo 600 caracteres.'),
     fecha: z.string().min(1, 'Elegí una fecha.'),
     lugar: z.string().max(160, 'Máximo 160 caracteres.'),
+    // Coordenadas del lugar elegido en el buscador (null si se escribió a mano)
+    latitud: z.number().nullable(),
+    longitud: z.number().nullable(),
     tipo_futbol: z.number().refine((value) => (MODALIDADES as readonly number[]).includes(value), 'Elegí una modalidad válida.'),
     max_equipos: z
       .number()
@@ -42,6 +46,8 @@ function valuesFrom(tournament: TorneoListado): FormValues {
     descripcion: tournament.descripcion ?? '',
     fecha: tournament.fecha.slice(0, 10),
     lugar: tournament.lugar ?? '',
+    latitud: tournament.latitud ?? null,
+    longitud: tournament.longitud ?? null,
     tipo_futbol: tournament.tipo_futbol,
     max_equipos: tournament.max_equipos,
     visibilidad: tournament.visibilidad,
@@ -63,6 +69,7 @@ export function EditTournamentDialog({ tournament }: { tournament: TorneoListado
   const form = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: valuesFrom(tournament) })
   const { errors } = form.formState
   const visibility = useWatch({ control: form.control, name: 'visibilidad' })
+  const latitud = useWatch({ control: form.control, name: 'latitud' })
 
   const mutation = useMutation({
     mutationFn: (values: FormValues) => {
@@ -71,6 +78,9 @@ export function EditTournamentDialog({ tournament }: { tournament: TorneoListado
         descripcion: values.descripcion.trim(),
         fecha: values.fecha,
         lugar: values.lugar.trim(),
+        // Sin texto no hay ubicación; van las dos coordenadas o ninguna
+        latitud: values.lugar.trim() ? values.latitud : null,
+        longitud: values.lugar.trim() ? values.longitud : null,
         visibilidad: values.visibilidad,
         // Con la llave armada, la modalidad y el cupo quedan como están
         ...(editableFormat
@@ -137,7 +147,30 @@ export function EditTournamentDialog({ tournament }: { tournament: TorneoListado
             </div>
             <div className="space-y-2">
               <Label htmlFor={ids.lugar}>Lugar</Label>
-              <Input id={ids.lugar} maxLength={160} placeholder="Complejo o club" aria-invalid={!!errors.lugar} aria-describedby={errors.lugar ? `${ids.lugar}-e` : undefined} {...form.register('lugar')} />
+              <Controller
+                control={form.control}
+                name="lugar"
+                render={({ field }) => (
+                  <PlaceSearchInput
+                    id={ids.lugar}
+                    value={field.value}
+                    exacto={latitud != null}
+                    invalid={!!errors.lugar}
+                    describedBy={errors.lugar ? `${ids.lugar}-e` : undefined}
+                    onBlur={field.onBlur}
+                    onTextChange={(texto) => {
+                      field.onChange(texto)
+                      form.setValue('latitud', null)
+                      form.setValue('longitud', null)
+                    }}
+                    onSelect={(lugar) => {
+                      field.onChange(lugar.lugar)
+                      form.setValue('latitud', lugar.latitud)
+                      form.setValue('longitud', lugar.longitud)
+                    }}
+                  />
+                )}
+              />
               <FieldError id={`${ids.lugar}-e`} message={errors.lugar?.message} />
             </div>
           </div>

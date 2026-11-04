@@ -44,7 +44,7 @@ function throwIfError(error: { message: string; code?: string } | null) {
 export async function getTournaments(): Promise<TorneoListado[]> {
   const { data, error } = await supabase
     .from('torneos')
-    .select('id, nombre, descripcion, tipo_futbol, max_equipos, visibilidad, fecha, lugar, estado, torneo_equipos(equipos(id, nombre))')
+    .select('id, nombre, descripcion, tipo_futbol, max_equipos, visibilidad, fecha, lugar, latitud, longitud, estado, torneo_equipos(equipos(id, nombre))')
     .order('fecha')
 
   throwIfError(error)
@@ -59,7 +59,7 @@ export async function getTournaments(): Promise<TorneoListado[]> {
 
 export async function getTournament(id: number, includeAccessCode = false, privateCode?: string): Promise<TorneoDetalle> {
   const fields = [
-    'id', 'nombre', 'descripcion', 'tipo_futbol', 'max_equipos', 'visibilidad', 'fecha', 'lugar', 'estado',
+    'id', 'nombre', 'descripcion', 'tipo_futbol', 'max_equipos', 'visibilidad', 'fecha', 'lugar', 'latitud', 'longitud', 'estado',
     ...(includeAccessCode ? ['codigo_acceso'] : []),
     ...(tournamentOwnerColumnEnabled ? ['user_id'] : []),
   ].join(', ')
@@ -419,6 +419,9 @@ export async function createTournament(input: NuevoTorneoInput): Promise<Torneo>
       ...(tournamentOwnerColumnEnabled && user_id ? { user_id } : {}),
       descripcion: input.descripcion || null,
       lugar: input.lugar || null,
+      // Coordenadas solo si se eligió el lugar del buscador (van las dos o ninguna)
+      latitud: input.lugar ? input.latitud ?? null : null,
+      longitud: input.lugar ? input.longitud ?? null : null,
     })
     .select()
     .single()
