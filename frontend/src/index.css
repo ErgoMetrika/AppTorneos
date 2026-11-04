@@ -48,6 +48,17 @@
 
 * { box-sizing: border-box; }
 
+/* Corte de líneas: títulos parejos (balance) y párrafos sin palabras huérfanas (pretty).
+   En capa base para que las utilidades text-wrap / text-nowrap de Tailwind lo puedan pisar. */
+@layer base {
+  h1, h2, h3, h4, h5, h6, blockquote, figcaption {
+    text-wrap: balance;
+  }
+  p, li, dd, label {
+    text-wrap: pretty;
+  }
+}
+
 html {
   background: #06110b;
   scroll-behavior: smooth;
