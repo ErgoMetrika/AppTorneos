@@ -81,7 +81,7 @@ export function AdminHomePage() {
 
       {tournamentsQuery.data && (
         <>
-          <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
+          <div className="grid gap-6 xl:grid-cols-[1.3fr_1fr]">
             {featured ? (
               <LiveTournamentCard
                 tournament={featured.tournament}

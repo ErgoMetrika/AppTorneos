@@ -31,9 +31,9 @@ function TeamListCard({ name, players, code, to }: { name: string; players: numb
         <Jersey name={name} label={`Camiseta de ${name}`} className="size-20 shrink-0 sm:size-24" />
       </div>
       <h2 className="truncate font-display text-4xl font-extrabold uppercase leading-none" title={name}>{name}</h2>
-      <div className="flex items-center gap-3.5 border-t border-base-content/10 pt-4">
+      <div className="flex flex-wrap items-center gap-3.5 border-t border-base-content/10 pt-4">
         <TeamMiniFormation name={name} players={players} minimum={MIN_PLAYERS} />
-        <div className="min-w-0 flex-1">
+        <div className="min-w-32 flex-1">
           <p className="text-[15px] font-bold">{players} {players === 1 ? 'jugador' : 'jugadores'}</p>
           <p className="mt-0.5 text-[13px] text-base-content/65">{missing > 0 ? `Faltan ${missing} para llegar a ${MIN_PLAYERS}` : 'Un punto por jugador'}</p>
           {code && <p className="mt-0.5 text-[13px] text-base-content/65">Código <span className="font-mono font-bold tracking-widest text-primary">{code}</span></p>}
@@ -59,7 +59,7 @@ export function TeamsPage() {
   )
 
   return (
-    <div className="container-shell py-12 sm:py-16">
+    <div className={inApp ? undefined : 'container-shell py-12 sm:py-16'}>
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="font-mono text-[0.65rem] font-bold uppercase tracking-[0.16em] text-primary">Participantes</p>

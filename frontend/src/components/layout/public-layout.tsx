@@ -41,13 +41,16 @@ function SiteBrand({ small = false }: { small?: boolean }) {
   )
 }
 
+// Cierra el menú desplegable de celular (se mantiene abierto mientras algo adentro tenga el foco)
+const closeMenu = () => (document.activeElement as HTMLElement | null)?.blur()
+
 const BTN = 'inline-flex h-11 items-center rounded-[10px] px-3.5 text-sm transition sm:px-[18px]'
 
 export function PublicLayout() {
   const { session } = useAuth()
 
   return (
-    <div className="flex min-h-screen flex-col bg-base-100 text-base-content">
+    <div className="flex min-h-dvh flex-col bg-base-100 text-base-content">
       <header className="sticky top-0 z-50 border-b border-[#f4f8f5]/8 bg-[#06110b]/85 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-[1240px] items-center gap-3 px-4 py-[18px] md:gap-7">
           <SiteBrand />
@@ -72,14 +75,15 @@ export function PublicLayout() {
 
             {/* En pantallas chicas los links van en un menú desplegable */}
             <div className="dropdown dropdown-end md:hidden">
-              <button type="button" tabIndex={0} className="btn btn-ghost btn-square btn-sm" aria-label="Abrir menú">
+              <button type="button" tabIndex={0} className="btn btn-ghost btn-square" aria-label="Abrir menú">
                 <Menu className="size-5" />
               </button>
+              {/* El dropdown de daisyUI se abre con el foco: al elegir un link sacamos el foco para que se cierre */}
               <ul tabIndex={0} className="menu dropdown-content z-50 mt-3 w-56 rounded-box border border-base-content/10 bg-base-200 p-2 shadow-xl">
                 {navItems.map((item) => (
-                  <li key={item.to}><NavLink to={item.to} end={item.end}>{item.label}</NavLink></li>
+                  <li key={item.to}><NavLink to={item.to} end={item.end} className="min-h-11" onClick={closeMenu}>{item.label}</NavLink></li>
                 ))}
-                <li><NavLink to={session ? '/app/torneos' : '/login'}>{session ? 'Ir al panel' : 'Ingresar'}</NavLink></li>
+                <li><NavLink to={session ? '/app/torneos' : '/login'} className="min-h-11" onClick={closeMenu}>{session ? 'Ir al panel' : 'Ingresar'}</NavLink></li>
               </ul>
             </div>
           </div>

@@ -12,7 +12,7 @@ import { BTN_AMBER, BTN_PRIMARY, CARD, FOCUS, LABEL, plural, type BracketProgres
 // Escudos visibles en la tarjeta; el resto se resume en "+N"
 const MAX_CRESTS = 8
 
-const CHIP = 'inline-flex h-[26px] items-center gap-[7px] whitespace-nowrap rounded-full border px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.06em]'
+const CHIP = 'inline-flex min-h-[26px] items-center gap-[7px] rounded-full border px-2.5 py-0.5 font-mono text-[11px] font-bold uppercase tracking-[0.06em]'
 
 export interface BracketState {
   progress: BracketProgress | null

@@ -18,9 +18,9 @@ export function PlayersCounters({ total, byPosition, teams, loading }: PlayersCo
   const value = (count: number) => (loading ? '–' : count)
 
   return (
-    <section aria-label="Resumen de jugadores" className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-[1.3fr_repeat(4,minmax(0,1fr))_1.1fr]">
+    <section aria-label="Resumen de jugadores" className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-[1.3fr_repeat(4,minmax(0,1fr))_1.1fr]">
       {/* Total, con camiseta de fondo */}
-      <div className={cn(CARD, 'anim-stagger col-span-2 flex items-center justify-between gap-3 overflow-hidden px-5 py-4 sm:col-span-1 lg:col-span-1')} style={{ '--i': 0 } as CSSProperties}>
+      <div className={cn(CARD, 'anim-stagger col-span-2 flex items-center justify-between gap-3 overflow-hidden px-5 py-4 sm:col-span-1 xl:col-span-1')} style={{ '--i': 0 } as CSSProperties}>
         <div className="flex min-w-0 flex-col gap-1">
           <span className={LABEL}>Jugadores</span>
           <span className="font-display text-[52px] font-black leading-none text-[#f4f8f5]">
@@ -31,7 +31,7 @@ export function PlayersCounters({ total, byPosition, teams, loading }: PlayersCo
       </div>
 
       {/* Equipos con al menos un jugador */}
-      <div className={cn(CARD, 'anim-stagger col-span-2 flex items-center justify-between gap-3 overflow-hidden px-5 py-4 sm:col-span-1 lg:order-last lg:col-span-1')} style={{ '--i': 5 } as CSSProperties}>
+      <div className={cn(CARD, 'anim-stagger col-span-2 flex items-center justify-between gap-3 overflow-hidden px-5 py-4 sm:col-span-1 xl:order-last xl:col-span-1')} style={{ '--i': 5 } as CSSProperties}>
         <div className="flex min-w-0 flex-col gap-1">
           <span className={LABEL}>Equipos</span>
           <span className="font-display text-[52px] font-black leading-none text-[#f4f8f5]">

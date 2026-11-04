@@ -184,7 +184,7 @@ function TournamentResults({ tournament, onFinished }: { tournament: TorneoLista
         </p>
       </section>
 
-      <div className="grid min-w-0 items-start gap-6 lg:grid-cols-[1.3fr_1fr]">
+      <div className="grid min-w-0 items-start gap-6 xl:grid-cols-[1.3fr_1fr]">
         {selected
           ? (
             <MatchResultPanel
@@ -282,7 +282,7 @@ export function AdminResultsPage() {
                 id="torneo-resultados"
                 value={current ? String(current.id) : ''}
                 onChange={(event) => chooseTournament(event.target.value)}
-                className="h-12 w-full rounded-xl border border-[#f4f8f5]/20 bg-[#10271a] px-4 text-[15px] font-semibold text-[#f4f8f5] outline-none transition hover:border-primary/50 focus-visible:border-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#7dffa3]"
+                className="h-12 w-full rounded-xl border border-[#f4f8f5]/20 bg-[#10271a] px-4 text-base font-semibold text-[#f4f8f5] outline-none sm:text-[15px] transition hover:border-primary/50 focus-visible:border-primary focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#7dffa3]"
               >
                 {!current && <option value="">Elegí un torneo</option>}
                 {options.map((tournament) => (

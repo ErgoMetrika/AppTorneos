@@ -152,7 +152,10 @@ button, a { cursor: pointer; }
 .card-lift {
   transition: transform 200ms var(--ease-out-soft), box-shadow 200ms var(--ease-out-soft), border-color 200ms ease, background-color 200ms ease;
 }
-.card-lift:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4); }
+/* Sólo con mouse: en pantallas táctiles el hover queda "pegado" después de tocar */
+@media (hover: hover) {
+  .card-lift:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .anim-page, .anim-stagger, .anim-pop, .anim-fill, .trophy-shine { animation: none !important; }

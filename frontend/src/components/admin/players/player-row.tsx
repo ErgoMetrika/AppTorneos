@@ -59,7 +59,7 @@ export function PlayerRow({ player, index, isTeamAdmin = false, canManage }: Pla
     >
       {/* Banda lateral en el color del equipo */}
       <div aria-hidden="true" className="w-1.5 flex-none" style={{ backgroundColor: band }} />
-      <div className="grid min-w-0 flex-1 items-center gap-4 p-4 sm:px-6 sm:py-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_150px_auto] lg:gap-x-6">
+      <div className="grid min-w-0 flex-1 items-center gap-4 p-4 sm:px-6 sm:py-5 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_150px_auto] xl:gap-x-6">
         {/* Identidad */}
         <div className="flex min-w-0 items-center gap-3.5">
           <PlayerAvatar name={nombre} admin={isTeamAdmin} className="size-12 text-lg" />
@@ -79,7 +79,7 @@ export function PlayerRow({ player, index, isTeamAdmin = false, canManage }: Pla
         </div>
 
         {/* Equipo y posición (en celular van en la misma línea) */}
-        <div className="flex min-w-0 items-center justify-between gap-3 lg:contents">
+        <div className="flex min-w-0 items-center justify-between gap-3 xl:contents">
           <Link to={`/app/equipos/${player.equipo_id}`} className={cn('group flex min-w-0 items-center gap-2.5 rounded-lg text-[#f4f8f5] no-underline', FOCUS)}>
             <TeamCrest name={equipo} className="h-10 w-9 shrink-0 drop-shadow-none" />
             <span className="flex min-w-0 flex-col">
@@ -93,7 +93,7 @@ export function PlayerRow({ player, index, isTeamAdmin = false, canManage }: Pla
         </div>
 
         {/* Acciones */}
-        <div className={cn('grid gap-2', canManage ? 'grid-cols-[minmax(0,1fr)_auto_auto]' : 'grid-cols-1', 'lg:flex')}>
+        <div className={cn('grid gap-2', canManage ? 'grid-cols-[minmax(0,1fr)_auto_auto]' : 'grid-cols-1', 'xl:flex')}>
           <Link to={`/app/jugadores/${id}`} className={BTN_SECONDARY} aria-label={`Ver ficha de ${nombre}`}>
             <Eye aria-hidden="true" />
             Ver ficha

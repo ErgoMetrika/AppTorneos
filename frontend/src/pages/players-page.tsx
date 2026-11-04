@@ -123,7 +123,7 @@ export function PlayersPage() {
               value={activeTeam}
               onChange={(event) => setTeamId(Number(event.target.value))}
               disabled={teams.length === 0}
-              className="min-w-0 flex-1 cursor-pointer truncate border-0 bg-transparent text-[15px] text-[#f4f8f5] outline-none disabled:cursor-not-allowed disabled:text-[#8fa596] [&>option]:bg-[#0b1b12]"
+              className="min-w-0 flex-1 cursor-pointer truncate border-0 bg-transparent text-base text-[#f4f8f5] outline-none sm:text-[15px] disabled:cursor-not-allowed disabled:text-[#8fa596] [&>option]:bg-[#0b1b12]"
             >
               <option value={0}>Todos los equipos</option>
               {teams.map((team) => <option key={team.id} value={team.id}>{team.nombre}</option>)}
@@ -137,7 +137,7 @@ export function PlayersPage() {
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Buscar jugador o equipo"
               aria-label="Buscar jugador por nombre o equipo"
-              className="min-w-0 flex-1 border-0 bg-transparent text-[15px] text-[#f4f8f5] outline-none placeholder:text-[#8fa596]"
+              className="min-w-0 flex-1 border-0 bg-transparent text-base text-[#f4f8f5] outline-none sm:text-[15px] placeholder:text-[#8fa596]"
             />
           </label>
         </div>

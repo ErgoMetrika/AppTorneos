@@ -161,7 +161,7 @@ export function AdminContactsPage() {
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Buscar por nombre o mail"
                 aria-label="Buscar por nombre o mail"
-                className="min-w-0 flex-1 border-0 bg-transparent text-[15px] text-[#f4f8f5] outline-none placeholder:text-[#8fa596]"
+                className="min-w-0 flex-1 border-0 bg-transparent text-base text-[#f4f8f5] outline-none sm:text-[15px] placeholder:text-[#8fa596]"
               />
             </label>
           </div>

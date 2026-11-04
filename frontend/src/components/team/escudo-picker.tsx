@@ -19,7 +19,7 @@ function Muestra({ hex, activo, etiqueta, onClick, children }: { hex: string; ac
       aria-label={etiqueta}
       title={etiqueta}
       style={{ background: hex }}
-      className={cn('grid size-9 place-items-center rounded-full border-[3px] border-base-200 text-[0.6rem] font-bold text-base-content/70 outline-none transition focus-visible:ring-2 focus-visible:ring-primary', activo ? 'ring-[3px] ring-base-content' : 'ring-1 ring-base-content/25 hover:ring-base-content/60')}
+      className={cn('grid size-10 place-items-center rounded-full border-[3px] border-base-200 text-[0.6rem] font-bold text-base-content/70 outline-none transition focus-visible:ring-2 focus-visible:ring-primary', activo ? 'ring-[3px] ring-base-content' : 'ring-1 ring-base-content/25 hover:ring-base-content/60')}
     >
       {children}
     </button>

@@ -66,7 +66,7 @@ export function AdminCreateTournamentPage() {
             Gestión · Torneos
           </p>
           <h1 className="font-display text-5xl font-black uppercase leading-[0.9] sm:text-7xl">Nuevo torneo</h1>
-          <p className="mt-1 max-w-2xl text-base text-[#b7c8bd]">Completá los datos y mirá a la derecha cómo va a quedar. La llave es de eliminación directa y se genera cuando estén los equipos.</p>
+          <p className="mt-1 max-w-2xl text-base text-[#b7c8bd]">Completá los datos y mirá en la vista previa cómo va a quedar. La llave es de eliminación directa y se genera cuando estén los equipos.</p>
         </div>
         <Link to="/app/admin/torneos" className={cn(BTN_SECONDARY, 'max-sm:w-full')}>
           <ArrowLeft aria-hidden="true" />
@@ -74,7 +74,7 @@ export function AdminCreateTournamentPage() {
         </Link>
       </header>
 
-      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
+      <form onSubmit={form.handleSubmit((values) => mutation.mutate(values))} className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="flex min-w-0 flex-col gap-6">
           <FormSection step={1} index={0} title="Datos del torneo" description="Cómo se llama, cuándo y dónde se juega.">
             <div className="space-y-2">
@@ -129,7 +129,7 @@ export function AdminCreateTournamentPage() {
           </FormSection>
         </div>
 
-        <aside aria-label="Vista previa y confirmación" className="anim-stagger flex min-w-0 flex-col gap-4 lg:sticky lg:top-6" style={{ '--i': 3 } as CSSProperties}>
+        <aside aria-label="Vista previa y confirmación" className="anim-stagger flex min-w-0 flex-col gap-4 xl:sticky xl:top-6" style={{ '--i': 3 } as CSSProperties}>
           <p className="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-[#b7c8bd]">
             <span className="size-2 rounded-full bg-[#35f46e]" aria-hidden="true" />
             Vista previa en vivo

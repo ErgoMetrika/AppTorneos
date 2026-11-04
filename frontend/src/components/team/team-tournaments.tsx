@@ -57,7 +57,7 @@ export function TeamTournaments({ teamId, players }: { teamId: number; players: 
                     {/* La barra se llena al aparecer, después de que entra la tarjeta */}
                     <div className={cn('anim-fill h-full rounded-full', tone === 'ok' && 'bg-primary', tone === 'limit' && 'bg-[#f2c94c]', tone === 'short' && 'bg-error')} style={{ width: `${ratio * 100}%`, '--i': index } as CSSProperties} />
                   </div>
-                  <span className="whitespace-nowrap text-sm font-bold">{count} de {minimum} mínimos</span>
+                  <span className="shrink-0 text-right text-sm font-bold">{count} de {minimum} mínimos</span>
                 </div>
                 <p className="mt-1.5 text-xs text-base-content/55">{formatDate(torneo.fecha, "d MMM yyyy")} · {note}</p>
               </div>
@@ -79,9 +79,9 @@ export function PositionSummary({ players }: { players: Jugador[] }) {
       {ORDER.map((posicion, index) => {
         const total = players.filter((player) => player.posicion === posicion).length
         return (
-          <div key={posicion} style={{ '--i': index } as CSSProperties} className={cn('anim-stagger flex items-center gap-3 rounded-xl border border-base-content/10 bg-base-200/60 px-4 py-3', total === 0 && 'border-dashed')}>
+          <div key={posicion} style={{ '--i': index } as CSSProperties} className={cn('anim-stagger flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-base-content/10 bg-base-200/60 px-4 py-3', total === 0 && 'border-dashed')}>
             <span className={cn('font-display text-3xl font-black leading-none', total === 0 ? 'text-base-content/30' : 'text-primary')}>{total}</span>
-            <span className="text-xs leading-tight text-base-content/65">{total === 1 ? positionLabel[posicion] : PLURAL[posicion]}{total === 0 && <><br /><span className="text-error/80">Falta</span></>}</span>
+            <span className="min-w-0 text-xs leading-tight text-base-content/65">{total === 1 ? positionLabel[posicion] : PLURAL[posicion]}{total === 0 && <><br /><span className="text-error/80">Falta</span></>}</span>
           </div>
         )
       })}
