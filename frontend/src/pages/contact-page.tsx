@@ -112,8 +112,8 @@ export function ContactPage({ embedded = false }: { embedded?: boolean }) {
         <section className={cn(CARD, 'flex flex-col overflow-hidden p-3 sm:p-4')} aria-labelledby="contact-stadium-title">
           <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-base-100 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.4)]">
             <iframe
-              title="Mapa del Estadio Más Monumental"
-              src="https://maps.google.com/maps?q=Estadio%20Mas%20Monumental%20Buenos%20Aires&t=&z=15&ie=UTF8&iwloc=&output=embed"
+              title="Mapa del Estadio Libertadores de América"
+              src="https://maps.google.com/maps?q=Estadio%20Libertadores%20de%20Am%C3%A9rica%20Avellaneda&z=16&hl=es&output=embed"
               // Mapa real de Google pasado a modo oscuro: se invierten los colores y se giran
               // los tonos para que el fondo quede oscuro y el agua/parques sigan reconocibles
               className="block h-[300px] w-full border-0 [filter:invert(0.92)_hue-rotate(180deg)_saturate(0.55)_brightness(0.92)_contrast(0.95)] sm:h-[380px]"
@@ -132,11 +132,12 @@ export function ContactPage({ embedded = false }: { embedded?: boolean }) {
             <div className="flex items-center gap-3">
               <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/25" aria-hidden="true"><MapPin className="size-5" /></span>
               <div>
-                <h2 id="contact-stadium-title" className="font-display text-xl font-bold uppercase">Estadio Más Monumental</h2>
-                <p className="text-xs text-base-content/70">Av. Pres. Figueroa Alcorta 7597, CABA</p>
+                <h2 id="contact-stadium-title" className="font-display text-xl font-bold uppercase">Estadio Libertadores de América
+</h2>
+                <p className="text-xs text-base-content/70">Ricardo Enrique Bochini 751, Avellaneda, Provincia de Buenos Aires</p>
               </div>
             </div>
-            <Button asChild variant="outline" size="sm"><a href="https://www.google.com/maps/search/?api=1&query=Estadio+M%C3%A1s+Monumental+Buenos+Aires" target="_blank" rel="noreferrer"><Navigation className="size-4" aria-hidden="true" />Cómo llegar</a></Button>
+            <Button asChild variant="outline" size="sm"><a href="https://www.google.com/maps/dir/?api=1&destination=Estadio%20Libertadores%20de%20Am%C3%A9rica%20Avellaneda" target="_blank" rel="noreferrer"><Navigation className="size-4" aria-hidden="true" />Cómo llegar</a></Button>
           </div>
         </section>
       </div>
