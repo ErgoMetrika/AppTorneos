@@ -60,7 +60,7 @@ export function StateCounters({ tournaments }: { tournaments: TorneoListado[] })
                     </span>
                     <span className="truncate text-[13px] text-[#b7c8bd]">{caption(counter.state, list)}</span>
                   </span>
-                  <span aria-hidden="true" className="anim-pop md:max-xl:hidden">{counter.art}</span>
+                  <span aria-hidden="true" className="anim-pop max-[359px]:hidden md:max-xl:hidden">{counter.art}</span>
                 </span>
               </Link>
             </li>

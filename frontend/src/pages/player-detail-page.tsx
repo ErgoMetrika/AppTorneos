@@ -89,7 +89,7 @@ export function PlayerDetailPage() {
         </div>
       </section>
 
-      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         <FichaCard title="Posición en la cancha">
           <Pitch players={[{ name: player.nombre, posicion: player.posicion, focus: true }]} label={`Cancha con la zona de ${positionLabel[player.posicion].toLowerCase()} marcada`} className="h-auto w-full" />
           <p className="text-sm text-base-content/75">Juega de <strong className="text-base-content">{positionLabel[player.posicion].toLowerCase()}</strong>: marcamos su zona en la cancha.</p>
@@ -102,7 +102,7 @@ export function PlayerDetailPage() {
           <p className="text-sm text-base-content/75">Con los colores de {player.equipo}.</p>
         </FichaCard>
 
-        <FichaCard title="Su recorrido" index={2} className="md:col-span-2 lg:col-span-1">
+        <FichaCard title="Su recorrido" index={2} className="md:col-span-2 xl:col-span-1">
           <ol className="relative flex flex-col gap-5">
             <span aria-hidden="true" className="absolute bottom-3 left-[5px] top-2.5 w-0.5 bg-primary/25" />
             <li className="relative flex items-start gap-3.5">
