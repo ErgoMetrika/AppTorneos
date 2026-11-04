@@ -32,7 +32,7 @@ export interface PlayerCardProps {
 
 export function PlayerCard({ nombre, posicion, equipo, esAdminDelEquipo = false, unidoEn, to, className }: PlayerCardProps) {
   const color = TEAM_COLORS[teamColorKey(equipo)]
-  const rol = esAdminDelEquipo ? 'Administrador del equipo' : 'Invitado'
+  const rol = esAdminDelEquipo ? 'Administrador del equipo' : 'Invitado'
   const since = sinceLabel(unidoEn)
   // Variables para el borde, el tinte del degradé y el brillo del hover (hex + alfa)
   const style = { '--accent': color.base, '--tint': `${color.base}38`, '--glow': `${color.base}59` } as CSSProperties
@@ -64,7 +64,7 @@ export function PlayerCard({ nombre, posicion, equipo, esAdminDelEquipo = false,
         <div className="relative">
           <TeamCrest name={equipo} className="h-[58px] w-[50px]" />
           {esAdminDelEquipo && (
-            <span className="absolute -bottom-2 -left-3 grid size-7 place-items-center rounded-full border-2 border-[#06110b] bg-[#f2c94c] text-[#06110b] shadow-[0_4px_10px_rgba(0,0,0,0.45)]" title="Administrador del equipo" aria-hidden="true">
+            <span className="absolute -bottom-2 -left-3 grid size-7 place-items-center rounded-full border-2 border-[#06110b] bg-[#f2c94c] text-[#06110b] shadow-[0_4px_10px_rgba(0,0,0,0.45)]" title="Administrador del equipo" aria-hidden="true">
               <Crown className="size-3.5" strokeWidth={2.5} />
             </span>
           )}

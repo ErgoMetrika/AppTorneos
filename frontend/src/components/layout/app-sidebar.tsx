@@ -209,7 +209,7 @@ function TeamCard({ close }: { close: () => void }) {
           {team.nombre}
         </p>
         <p className="mt-1.5 font-mono text-[0.625rem] font-bold uppercase tracking-[0.08em] text-[#35f46e]">
-          {team.soy_creador ? "Administrador del equipo" : "Invitado"}
+          {team.soy_creador ? "Administrador del equipo" : "Invitado"}
         </p>
       </div>
     </Link>

@@ -72,7 +72,7 @@ export function PlayerDetailPage() {
             <h1 className="break-words font-display text-5xl font-black uppercase leading-[0.9] sm:text-7xl lg:text-[6.5rem]">{player.nombre}</h1>
             <div className="flex flex-wrap gap-2">
               <span className="rounded-md bg-primary/15 px-3 py-1.5 font-mono text-xs font-bold uppercase text-primary">{positionLabel[player.posicion]}</span>
-              {teamQuery.data && <span className="rounded-md bg-base-content/10 px-3 py-1.5 font-mono text-xs font-bold uppercase text-base-content/80">{isTeamAdmin ? 'Administrador del equipo' : 'Invitado'}</span>}
+              {teamQuery.data && <span className="rounded-md bg-base-content/10 px-3 py-1.5 font-mono text-xs font-bold uppercase text-base-content/80">{isTeamAdmin ? 'Administrador del equipo' : 'Invitado'}</span>}
             </div>
           </div>
 
@@ -134,7 +134,7 @@ export function PlayerDetailPage() {
           : (
             <ul className="flex flex-wrap gap-2.5">
               {teammates.map((member, index) => {
-                const title = member.es_admin_del_equipo ? `${member.nombre}, administrador del equipo` : member.nombre
+                const title = member.es_admin_del_equipo ? `${member.nombre}, administrador del equipo` : member.nombre
                 return (
                   <li key={member.id} style={{ '--i': index } as CSSProperties} className="anim-stagger">
                     <Link to={`/app/jugadores/${member.id}`} title={title} aria-label={`Ver ficha de ${title}`} className="block rounded-full transition motion-safe:hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
