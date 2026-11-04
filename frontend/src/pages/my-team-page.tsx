@@ -110,14 +110,10 @@ export function MyTeamPage() {
             <p><strong>Tu equipo está jugando un torneo en curso.</strong> Hasta que termine, nadie puede pedir el pase ni ser quitado del plantel, para que el equipo no se quede sin jugadores a mitad del torneo.</p>
           </div>
         )}
-        {/* Como en el mockup: a la izquierda los torneos y el plantel por posición, a la derecha los jugadores */}
-        <div className="mt-8 grid items-start gap-6 xl:grid-cols-[1.3fr_1fr]">
-          <div className="flex min-w-0 flex-col gap-6">
-            <TeamTournaments teamId={team.id} players={team.jugadores} />
-            <PositionSummary players={team.jugadores} />
-          </div>
-          <TeamRoster team={team} />
-        </div>
+        {/* Mismo orden que la ficha del equipo: resumen por posición, torneos y abajo el plantel con cartas grandes */}
+        <div className="mt-8"><PositionSummary players={team.jugadores} /></div>
+        <div className="mt-6"><TeamTournaments teamId={team.id} players={team.jugadores} /></div>
+        <div className="mt-8"><TeamRoster team={team} /></div>
       </div>
     )
   }
