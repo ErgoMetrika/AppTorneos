@@ -213,7 +213,7 @@ function TournamentDetailContent({ id }: { id: number }) {
             <ModalityChip tipo={tournament.tipo_futbol} large />
             {tournament.visibilidad === 'privado' && <PrivateChip large />}
           </div>
-          <h1 className="break-words font-display text-5xl font-black uppercase leading-[0.9] sm:text-7xl lg:text-[84px]">{tournament.nombre}</h1>
+          <h1 className="break-words font-display text-5xl font-black uppercase leading-[0.9] sm:text-7xl lg:text-[84px] md:mr-[-50px]">{tournament.nombre}</h1>
           {tournament.descripcion && <p className="max-w-2xl text-sm leading-relaxed text-[#b7c8bd]">{tournament.descripcion}</p>}
 
           {tournament.estado === 'inscripcion' && session && !alreadyEnrolled && (
