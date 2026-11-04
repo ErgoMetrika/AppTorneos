@@ -106,7 +106,7 @@ Atajo para saber si es admin: `const { data: esAdmin } = await supabase.rpc('es_
 ```js
 const { data } = await supabase
   .from('torneos')
-  .select('id, nombre, descripcion, tipo_futbol, max_equipos, visibilidad, fecha, lugar, estado, torneo_equipos(count)')
+  .select('id, nombre, descripcion, tipo_futbol, max_equipos, visibilidad, fecha, lugar, latitud, longitud, estado, torneo_equipos(count)')
   .order('fecha')
 // data[i].torneo_equipos[0].count = cantidad de inscriptos
 ```
@@ -232,7 +232,9 @@ const { data, error } = await supabase.from('torneos').insert({
   max_equipos: 4,                // 2 | 4 | 8 | 16
   visibilidad: 'publico',        // publico | privado (el código se genera solo)
   fecha: '2026-11-15',
-  lugar: 'Complejo El Potrero'
+  lugar: 'La Casona Fútbol 5 y 6, Doctor Ricardo Gutiérrez 65, Ramos Mejía',
+  latitud: -34.640747,           // opcionales: van las dos o ninguna
+  longitud: -58.571498
 }).select().single()
 // data.codigo_acceso -> si es privado, acá está el código para repartir
 

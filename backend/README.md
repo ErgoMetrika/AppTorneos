@@ -77,7 +77,7 @@ Así la base se puede recrear desde cero, igual, en cualquier proyecto Supabase.
 |---|---|---|
 | `usuarios` | Perfil público del usuario: nombre, email, **rol** (`admin` / `general`). La contraseña **no** está acá: la guarda Supabase Auth con hash bcrypt. | `id` = mismo uuid que `auth.users`. Se crea solo con un trigger al registrarse. |
 | `contactos` | Mensajes del formulario de contacto. | Cualquiera puede insertar; solo el admin los lee. |
-| `torneos` | Torneo: tipo de fútbol (5/7/9/11), cupo (`max_equipos` 2/4/8/16), visibilidad, código de acceso si es privado, fecha, lugar, estado (`inscripcion` → `en_curso` → `finalizado`). | `CHECK` en tipo y cupo. El código privado se genera solo (trigger). |
+| `torneos` | Torneo: tipo de fútbol (5/7/9/11), cupo (`max_equipos` 2/4/8/16), visibilidad, código de acceso si es privado, fecha, lugar (con `latitud`/`longitud` opcionales), estado (`inscripcion` → `en_curso` → `finalizado`). | `CHECK` en tipo y cupo; coordenadas en rango y las dos juntas. El código privado se genera solo (trigger). |
 | `equipos` | Equipo con nombre único, `codigo_equipo` de 6 letras para que otros se sumen y `creado_por`, que marca al administrador del equipo. Las columnas `escudo_*` guardan el escudo elegido. | El código se genera solo (`default`). `creado_por` lo mantiene un trigger. El escudo se cambia con `cambiar_escudo()`. |
 | `jugadores` | Relación usuario ↔ equipo con la posición. | `usuario_id UNIQUE` → un usuario está en **máximo 1 equipo**. `equipo_id NOT NULL` → un jugador siempre tiene equipo. |
 | `torneo_equipos` | Inscripción de un equipo a un torneo. | PK compuesta `(torneo_id, equipo_id)` → no se puede inscribir dos veces. |
@@ -138,6 +138,12 @@ La **posición** la elige cada jugador al entrar y nadie más la cambia (salvo e
   en la carpeta del equipo (`escudos/<equipo_id>/...`): PNG, JPG o WEBP de hasta 2 MB.
 
 Si todas las columnas están en `NULL`, la web dibuja el escudo automático de siempre.
+
+**Ubicación del torneo (migración 12).** Además del texto `lugar`, el torneo guarda `latitud` y `longitud`
+(opcionales, las dos juntas). Al cargar el lugar, la web sugiere lugares reales de OpenStreetMap (servicio
+gratuito Photon, sin clave); al elegir uno se guardan el texto y las coordenadas, y "Cómo llegar" abre la
+ruta de Google Maps al punto exacto. Si el lugar se escribe a mano, las coordenadas quedan en `NULL` y el
+mapa busca por el texto.
 Lo cambian solo el administrador general o el administrador del equipo, con `cambiar_escudo()`;
 las políticas de Storage usan la misma regla (`puede_editar_escudo()`) para subir o borrar imágenes.
 

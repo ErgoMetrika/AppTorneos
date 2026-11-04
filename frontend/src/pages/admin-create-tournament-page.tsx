@@ -15,6 +15,7 @@ import { TournamentPreview } from '@/components/admin/create-tournament/tourname
 import { BTN_PRIMARY, BTN_SECONDARY } from '@/components/admin/tournaments/admin-styles'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { PlaceSearchInput } from '@/components/tournament/place-search-input'
 import { Textarea } from '@/components/ui/textarea'
 import { useAuth } from '@/context/auth-context'
 import { createTournament } from '@/lib/api'
@@ -30,6 +31,9 @@ const schema = z.object({
   visibilidad: z.enum(['publico', 'privado']),
   fecha: z.string().min(1, 'Elegí una fecha.'),
   lugar: z.string().trim().max(160, 'El lugar puede tener hasta 160 caracteres.').optional(),
+  // Coordenadas del lugar elegido en el buscador (null si se escribió a mano)
+  latitud: z.number().nullable(),
+  longitud: z.number().nullable(),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -40,7 +44,7 @@ export function AdminCreateTournamentPage() {
   const { session } = useAuth()
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { nombre: '', descripcion: '', tipo_futbol: 5, max_equipos: 4, visibilidad: 'publico', fecha: '', lugar: '' },
+    defaultValues: { nombre: '', descripcion: '', tipo_futbol: 5, max_equipos: 4, visibilidad: 'publico', fecha: '', lugar: '', latitud: null, longitud: null },
   })
   const mutation = useMutation({
     mutationFn: (values: FormValues) => createTournament({ ...values, user_id: session?.user.id } as NuevoTorneoInput),
@@ -101,7 +105,30 @@ export function AdminCreateTournamentPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="place">Lugar <span className="normal-case tracking-normal text-[#8fa596]">(opcional)</span></Label>
-                <Input id="place" placeholder="Complejo o club" aria-invalid={!!errors.lugar} aria-describedby={describedBy('lugar')} {...form.register('lugar')} />
+                <Controller
+                  control={form.control}
+                  name="lugar"
+                  render={({ field }) => (
+                    <PlaceSearchInput
+                      id="place"
+                      value={field.value ?? ''}
+                      exacto={values.latitud != null}
+                      invalid={!!errors.lugar}
+                      describedBy={describedBy('lugar')}
+                      onBlur={field.onBlur}
+                      onTextChange={(texto) => {
+                        field.onChange(texto)
+                        form.setValue('latitud', null)
+                        form.setValue('longitud', null)
+                      }}
+                      onSelect={({ lugar, latitud, longitud }) => {
+                        field.onChange(lugar)
+                        form.setValue('latitud', latitud)
+                        form.setValue('longitud', longitud)
+                      }}
+                    />
+                  )}
+                />
                 <FieldError id="lugar-error" message={errors.lugar?.message} />
               </div>
             </div>

@@ -295,7 +295,7 @@ function TournamentDetailContent({ id }: { id: number }) {
         </div>
 
         {/* Lugar: plano ilustrado con el pin; tocándolo se abre Google Maps */}
-        <VenueMap lugar={tournament.lugar} />
+        <VenueMap lugar={tournament.lugar} latitud={tournament.latitud} longitud={tournament.longitud} />
       </div>
 
       {/* Llave con escudos y campeón */}
