@@ -1,0 +1,59 @@
+=====================================================
+TORNEO 90' - USUARIOS Y CLAVES
+=====================================================
+
+Ingreso: https://app-torneos-three.vercel.app -> "Ingresar"
+Todos los usuarios de prueba tienen la misma contraseña: 123456
+
+-----------------------------------------------------
+1) ADMINISTRADOR GENERAL
+-----------------------------------------------------
+   Email:       admin@torneos.com
+   Contraseña:  123456
+
+   Crea y edita torneos, genera la llave, carga resultados,
+   administra equipos y jugadores y lee las consultas de Contacto.
+
+-----------------------------------------------------
+2) ADMINISTRADOR DE EQUIPO (capitán)
+-----------------------------------------------------
+   Es un usuario general que además es el primer jugador de su equipo.
+   Puede invitar jugadores, cambiar posiciones y sacar invitados.
+
+   Email:       lucas@mail.com      (equipo Los Pibes)
+   Contraseña:  123456
+
+   Email:       agus@mail.com       (equipo Atlético Ramos)
+   Contraseña:  123456
+
+-----------------------------------------------------
+3) USUARIO GENERAL (jugador)
+-----------------------------------------------------
+   Ve torneos, se une a un equipo y lo inscribe en torneos.
+
+   Equipo Los Pibes (código de equipo PIBES1):
+     sofia@mail.com    123456
+     mateo@mail.com    123456
+     valen@mail.com    123456
+     franco@mail.com   123456
+     cami@mail.com     123456
+     nico@mail.com     123456
+
+   Equipo Atlético Ramos (código de equipo RAMOS2):
+     tomi@mail.com     123456
+     juanma@mail.com   123456
+     santi@mail.com    123456
+     fede@mail.com     123456
+     ramiro@mail.com   123456
+     lautaro@mail.com  123456
+
+-----------------------------------------------------
+4) VISITANTE (sin cuenta)
+-----------------------------------------------------
+   No necesita usuario: ve la página de inicio, los torneos públicos y
+   puede mandar una consulta desde Contacto. También puede registrarse.
+
+-----------------------------------------------------
+OTROS DATOS DE PRUEBA
+-----------------------------------------------------
+   Torneo privado "Copa Fútbol 7 - Clubes": código de acceso A7K2PQ

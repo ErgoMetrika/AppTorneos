@@ -1,0 +1,39 @@
+=====================================================
+TORNEO 90' - ENTREGA FINAL
+Proyecto Integrador - Programación 4 (UTN Haedo)
+Web de torneos de fútbol 5 / 7 / 9 / 11 por eliminación directa
+=====================================================
+
+App publicada:  https://app-torneos-three.vercel.app
+Repositorio:    https://github.com/ErgoMetrika/AppTorneos
+
+CONTENIDO DE ESTA CARPETA
+-------------------------
+
+01_Base_de_datos/
+    GUIA_base_de_datos_paso_a_paso.txt   <- EMPEZAR POR ACÁ
+        Cómo funciona la base, qué claves hacen falta (y cuáles no),
+        cómo verla por dentro, cómo levantar una copia propia y
+        consultas de prueba.
+    Torneo90_base_de_datos_completa.sql
+        Exportación de la base (PostgreSQL / Supabase): las 7 tablas,
+        funciones, seguridad (RLS) y datos de prueba, en un solo archivo.
+    Torneo90_esquema_original_MySQL.sql
+        Esquema original pensado para MySQL (XAMPP), como referencia.
+    Torneo90_diagrama_entidad_relacion.html
+        Diagrama entidad-relación (abrir con cualquier navegador).
+    LEEME_base_de_datos.txt
+        Cómo importar la base.
+
+02_Proyecto/
+    Torneo90_proyecto_completo.zip
+        Carpeta completa del proyecto (frontend + backend), sin node_modules.
+
+03_Tecnologias_e_instalacion.txt
+    Lista de tecnologías complementarias e instructivo de instalación.
+
+04_Usuarios_y_claves.txt
+    Usuarios y contraseñas de cada tipo de usuario del sistema.
+
+05_Video/
+    Video de presentación del proyecto.

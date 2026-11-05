@@ -1,0 +1,128 @@
+=====================================================
+TORNEO 90' - GUÍA DE LA BASE DE DATOS, PASO A PASO
+=====================================================
+
+EN POCAS PALABRAS
+-----------------
+La base de datos no se instala en la compu: está en la nube, en Supabase
+(un servicio gratuito que da una base PostgreSQL con login de usuarios).
+
+La app ya viene conectada a esa base. Para probarla NO hace falta
+importar nada ni pedir claves: alcanza con abrir la página publicada o
+levantar el proyecto con "npm run dev".
+
+Hay tres formas de usar la base, de la más fácil a la más completa:
+
+   A) Usar la app y listo (ya está conectada).
+   B) Mirar la base nuestra desde el panel de Supabase (con invitación).
+   C) Levantar una copia propia de la base, desde cero.
+
+
+¿HACEN FALTA CLAVES?
+--------------------
+Para que la app se conecte se usan dos datos PÚBLICOS. Ya vienen en el
+proyecto (archivo backend/.env.example) y son estos:
+
+   VITE_SUPABASE_URL=https://rcdnticmpjhiajjmoivo.supabase.co
+   VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZG50aWNtcGpoaWFqam1vaXZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI2MjkwNDQsImV4cCI6MjEwODIwNTA0NH0.EpFJ41NMbBrrSGo7hxVDXQhpjxGYcDSGd_JPwbfmgcI
+
+¿Por qué se pueden mostrar? La "anon key" es como la dirección de la
+base: sirve para llegar, pero no da permisos. Lo que cada uno puede ver o
+cambiar lo deciden las reglas de seguridad de la base (RLS = seguridad por
+fila). Por ejemplo, un visitante puede ver los torneos públicos, pero no
+puede leer los mails de los usuarios ni cargar resultados.
+
+Lo que NUNCA se comparte (y no está en esta entrega):
+   - la contraseña de la base de datos,
+   - la "service_role key" (una clave que saltea todas las reglas).
+
+
+-----------------------------------------------------
+A) USAR LA APP (NO HACE FALTA NADA MÁS)
+-----------------------------------------------------
+   1. Entrar a https://app-torneos-three.vercel.app
+      (o levantar el proyecto: ver 03_Tecnologias_e_instalacion.txt).
+   2. Iniciar sesión con los usuarios de 04_Usuarios_y_claves.txt.
+   3. Con admin@torneos.com se ve la parte de administración: crear
+      torneos, generar la llave, cargar resultados, ver las consultas.
+
+Todo lo que se hace en la app se guarda en la base en el momento.
+
+
+-----------------------------------------------------
+B) MIRAR NUESTRA BASE DESDE EL PANEL DE SUPABASE
+-----------------------------------------------------
+Si quiere ver las tablas, los datos y las reglas por dentro, lo invitamos
+al proyecto. Solo necesitamos un mail suyo.
+
+   1. Le llega un mail de Supabase: tocar "Accept invite" y crear la
+      cuenta (gratis; se puede entrar con GitHub).
+   2. Entrar a https://supabase.com/dashboard y abrir el proyecto
+      "torneos-futbol".
+   3. En el menú de la izquierda:
+        - Table Editor: las tablas y sus datos, como una planilla.
+        - SQL Editor: para escribir consultas (ver ejemplos más abajo).
+        - Authentication: los usuarios registrados.
+        - Database > Policies: las reglas de seguridad de cada tabla.
+
+
+-----------------------------------------------------
+C) LEVANTAR UNA COPIA PROPIA DESDE CERO
+-----------------------------------------------------
+Sirve para tener la base entera en una cuenta propia y poder romperla sin
+problema. Tarda unos 5 minutos.
+
+   1. Crear una cuenta gratis en https://supabase.com
+   2. "New project": ponerle un nombre, una contraseña y elegir la
+      región "South America (São Paulo)". Esperar a que termine de crearse.
+   3. Menú de la izquierda > SQL Editor > "New query".
+   4. Abrir con el Bloc de notas el archivo
+         Torneo90_base_de_datos_completa.sql
+      copiar TODO, pegarlo en el SQL Editor y tocar "Run".
+      Crea las 7 tablas, las funciones, las reglas de seguridad y los
+      datos de prueba (los mismos usuarios de 04_Usuarios_y_claves.txt).
+   5. Para que se puedan registrar usuarios nuevos sin confirmar el mail:
+         Authentication > Sign In / Providers > Email
+         y desactivar "Confirm email".
+   6. Copiar las claves del proyecto nuevo:
+         Project Settings > API Keys
+      Ahí están la "Project URL" y la "anon public" key.
+   7. En el proyecto descomprimido, abrir el archivo frontend/.env y
+      reemplazar los dos valores por los del proyecto nuevo:
+         VITE_SUPABASE_URL=https://xxxxxxxx.supabase.co
+         VITE_SUPABASE_ANON_KEY=eyJ...
+   8. En una terminal, dentro de la carpeta frontend:
+         npm install
+         npm run dev
+      Abrir http://localhost:5173 : la app ahora usa la base nueva.
+
+
+-----------------------------------------------------
+PRUEBAS RÁPIDAS EN EL SQL EDITOR
+-----------------------------------------------------
+Se pueden pegar de a una y tocar "Run".
+
+   -- Ver todos los torneos
+   select id, nombre, tipo_futbol, visibilidad, estado from torneos;
+
+   -- Ver cada equipo con cuántos jugadores tiene
+   select e.nombre, count(j.id) as jugadores
+   from equipos e left join jugadores j on j.equipo_id = e.id
+   group by e.nombre;
+
+   -- Ver qué equipos están inscriptos en cada torneo
+   select t.nombre as torneo, e.nombre as equipo
+   from torneo_equipos te
+   join torneos t on t.id = te.torneo_id
+   join equipos e on e.id = te.equipo_id;
+
+   -- Ver las consultas que llegaron desde Contacto
+   select nombre, email, mensaje, creado_en from contactos;
+
+   -- Ver los usuarios y su rol (admin o usuario)
+   select nombre, email, rol from usuarios;
+
+Una prueba de las reglas de la base: en la app, un jugador común intenta
+inscribir un equipo con menos jugadores de los que pide el torneo, o
+cargar un resultado. La base lo rechaza aunque se intente "por afuera" de
+la página, porque la regla está en la base y no solo en la pantalla.
